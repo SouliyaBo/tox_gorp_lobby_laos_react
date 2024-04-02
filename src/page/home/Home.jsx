@@ -74,7 +74,7 @@ export default function Home() {
 		setGotoStepTwo(!false);
 	};
 	return (
-		<div>
+		<div className="home">
 			<header className="header">
 				<div className="left">
 					<img
