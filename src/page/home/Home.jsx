@@ -1,11 +1,14 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
-
+import constant from "../../constant"
 export default function Home() {
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
 	const sidebarUseRef = useRef(null);
+	const [tabs, setTabs] = useState("ประวัติฝาก");
+	const [tabName, setTabName] = useState("tab-deposit");
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
@@ -73,6 +76,19 @@ export default function Home() {
 	const _gotoSet2 = () => {
 		setGotoStepTwo(!false);
 	};
+
+	const _clickTabDeposit = (tab) => {
+		setTabName(tab);
+		if (tab === "tab-deposit") {
+			setTabs("ประวัติฝาก");
+		} else if (tab === "tab-withdraw") {
+			setTabs("ประวัติถอน");
+		} else {
+			setTabs("ประวัติโบนัส");
+		}
+	};
+
+
 	return (
 		<div>
 			<header className="header">
@@ -116,7 +132,7 @@ export default function Home() {
 					</button>
 
 					<a
-						href="/pages/register-step1.html"
+						href={constant?.PAGE_REGISTER_STEP1}
 						style={{ textDecoration: "none" }}
 					>
 						<button
@@ -128,8 +144,9 @@ export default function Home() {
 						</button>
 					</a>
 					<a
-						href="/pages/login-page-mobile.html"
+						href={constant?.PAGE_LOGIN_MOBILE}
 						style={{ textDecoration: "none" }}
+
 					>
 						<button
 							type="button"
@@ -1000,9 +1017,8 @@ export default function Home() {
 						<aside
 							className="sidebar"
 							style={{
-								animation: `${
-									sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
-								} 0.5s ease-in-out`,
+								animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
+									} 0.5s ease-in-out`,
 							}}
 						>
 							<div
@@ -1145,7 +1161,7 @@ export default function Home() {
 								id="phone"
 								name="phone"
 								placeholder="เบอร์โทรศัพท์"
-								// maxlength="9"
+							// maxlength="9"
 							/>
 						</div>
 						<div className="phone-input" style={{ marginTop: 20 }}>
@@ -1174,259 +1190,256 @@ export default function Home() {
 				</div>
 
 				<div
-					className="modal"
+					className="modal fad"
 					aria-hidden="true"
 					id="signUpModal"
 					tabIndex="-1"
 					aria-labelledby="signUpModalLabel"
 				>
-					<div className="modal-dialog modal-xl">
-						<div className="modal-content">
-							<div className="modal-border">
-								<div className="modal-content">
-									<div className="signup-background" />
-									<div className="signup-modal-content">
+					<div className="modal-dialog">
+						<div className="modal-border">
+							<div className="modal-content">
+								<div className="signup-background" />
+								<div className="signup-modal-content">
+									<img
+										src="/assets/icons/x-close.svg"
+										alt="close-icon"
+										className="close-btn"
+										id="login-modal-close-btn"
+										data-bs-dismiss="modal"
+										aria-label="Close"
+									/>
+									<div className="signup-modal-body">
 										<img
-											src="/assets/icons/x-close.svg"
-											alt="close-icon"
-											className="close-btn"
-											id="login-modal-close-btn"
-											data-bs-dismiss="modal"
-											aria-label="Close"
+											src="/assets/images/newicon/TTcc-01.png"
+											className="logo"
+											alt="logo"
 										/>
-										<div className="signup-modal-body">
-											<img
-												src="/assets/images/newicon/TTcc-01.png"
-												className="logo"
-												alt="logo"
-											/>
-											<div className="step-container">
-												<div
-													className={`step-item${
-														gotoStepTwo === false ? " active" : ""
+										<div className="step-container">
+											<div
+												className={`step-item${gotoStepTwo === false ? " active" : ""
 													}`}
-													id="step-item1"
-												>
-													<span className="step-item-box">1</span>
-													<span className="step-item-text">กรอกเบอร์</span>
-												</div>
-												<span className="step-line" />
-												<div
-													className={`step-item${
-														gotoStepTwo === true ? " active" : ""
+												id="step-item1"
+											>
+												<span className="step-item-box">1</span>
+												<span className="step-item-text">กรอกเบอร์</span>
+											</div>
+											<span className="step-line" />
+											<div
+												className={`step-item${gotoStepTwo === true ? " active" : ""
 													}`}
-													id="step-item2"
-												>
-													<span className="step-item-box">2</span>
-													<span className="step-item-text">บัญชีธนาคาร</span>
-												</div>
-												{/* <span className="step-line"></span>
+												id="step-item2"
+											>
+												<span className="step-item-box">2</span>
+												<span className="step-item-text">บัญชีธนาคาร</span>
+											</div>
+											{/* <span className="step-line"></span>
                   <div className="step-item" id="step-item3">
                     <span className="step-item-box">3</span>
                     <span className="step-item-text">สำเร็จ</span>
                   </div>  */}
+										</div>
+
+										{/* <!-- step one --> */}
+										<div
+											className="step-one"
+											style={{
+												display: gotoStepTwo === true ? "none" : "block",
+											}}
+											id="form-step-one"
+										>
+											<h3 className="signup-header">สมัครสมาชิก</h3>
+											<h3 className="signup-title">กรอกเบอร์</h3>
+
+											<div className="phone-input">
+												<img src="/assets/icons/phone.svg" alt="icon" />
+												<label for="phone" />
+												<input
+													type="text"
+													id="phone"
+													name="phone"
+													placeholder="เบอร์โทรศัพท์"
+												// maxlength="9"
+												/>
 											</div>
 
-											{/* <!-- step one --> */}
-											<div
-												className="step-one"
-												style={{
-													display: gotoStepTwo === true ? "none" : "block",
-												}}
-												id="form-step-one"
+											<button
+												type="button"
+												onClick={() => _gotoSet2()}
+												onKeyDown={() => ""}
+												id="goto-step2"
 											>
-												<h3 className="signup-header">สมัครสมาชิก</h3>
-												<h3 className="signup-title">กรอกเบอร์</h3>
-
-												<div className="phone-input">
-													<img src="/assets/icons/phone.svg" alt="icon" />
-													<label for="phone" />
-													<input
-														type="text"
-														id="phone"
-														name="phone"
-														placeholder="เบอร์โทรศัพท์"
-														// maxlength="9"
-													/>
-												</div>
-
-												<button
-													type="button"
-													onClick={() => _gotoSet2()}
-													onKeyDown={() => ""}
-													id="goto-step2"
-												>
-													ถัดไป
-												</button>
-												<div className="already-have-account">
-													คุณมีบัญชีอยู่แล้ว
-													<span className="go-to-login">เข้าสู่ระบบ</span>
-												</div>
+												ถัดไป
+											</button>
+											<div className="already-have-account">
+												คุณมีบัญชีอยู่แล้ว
+												<span className="go-to-login">เข้าสู่ระบบ</span>
 											</div>
-											{/* <!-- end step one --> */}
+										</div>
+										{/* <!-- end step one --> */}
 
-											{/* <!-- step two --> */}
+										{/* <!-- step two --> */}
+										<div
+											className="step-two"
+											style={{
+												display: gotoStepTwo === false ? "none" : "block",
+											}}
+											id="form-step-two"
+										>
+											<h3 className="signup-header">สมัครสมาชิก</h3>
+											<h3 className="signup-title">กรอกเลขที่บัญชี</h3>
+
 											<div
-												className="step-two"
-												style={{
-													display: gotoStepTwo === false ? "none" : "block",
-												}}
-												id="form-step-two"
+												className="bank-list-container"
+												id="bank-list-container"
 											>
-												<h3 className="signup-header">สมัครสมาชิก</h3>
-												<h3 className="signup-title">กรอกเลขที่บัญชี</h3>
-
-												<div
-													className="bank-list-container"
-													id="bank-list-container"
-												>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 10.svg"
-														id="bank1"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 11.svg"
-														id="bank2"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 12.svg"
-														id="bank3"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 13.svg"
-														id="bank4"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 14.svg"
-														id="bank5"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 15.svg"
-														id="bank6"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 16.svg"
-														id="bank7"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 17.svg"
-														id="bank8"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 18.svg"
-														id="bank9"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 19.svg"
-														id="bank10"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 20.svg"
-														id="bank11"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 21.svg"
-														id="bank12"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 22.svg"
-														id="bank13"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 23.svg"
-														id="bank14"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 24.svg"
-														id="bank15"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 25.svg"
-														id="bank16"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 26.svg"
-														id="bank17"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 27.svg"
-														id="bank18"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 28.svg"
-														id="bank19"
-														alt="icon"
-													/>
-													<img
-														className="bank-item"
-														src="/assets/icons/icon-bank-default/Ellipse 29.svg"
-														id="bank20"
-														alt="icon"
-													/>
-												</div>
-												<div className="phone-input">
-													<img src="/assets/icons/bank.svg" alt="icon" />
-													<input
-														type="text"
-														id="phone"
-														name="phone"
-														placeholder="เลขบัญชีธนาคาร"
-														// maxlength="9"
-													/>
-												</div>
-
-												<button
-													type="button"
-													id="goto-step3"
-													data-bs-dismiss="modal"
-													aria-label="Close"
-													data-bs-toggle="modal"
-													data-bs-target="#successRegisterModal"
-												>
-													ยืนยัน สมัครสมาชิก
-												</button>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 10.svg"
+													id="bank1"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 11.svg"
+													id="bank2"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 12.svg"
+													id="bank3"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 13.svg"
+													id="bank4"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 14.svg"
+													id="bank5"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 15.svg"
+													id="bank6"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 16.svg"
+													id="bank7"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 17.svg"
+													id="bank8"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 18.svg"
+													id="bank9"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 19.svg"
+													id="bank10"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 20.svg"
+													id="bank11"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 21.svg"
+													id="bank12"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 22.svg"
+													id="bank13"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 23.svg"
+													id="bank14"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 24.svg"
+													id="bank15"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 25.svg"
+													id="bank16"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 26.svg"
+													id="bank17"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 27.svg"
+													id="bank18"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 28.svg"
+													id="bank19"
+													alt="icon"
+												/>
+												<img
+													className="bank-item"
+													src="/assets/icons/icon-bank-default/Ellipse 29.svg"
+													id="bank20"
+													alt="icon"
+												/>
 											</div>
-											{/* <!-- step two end --> */}
+											<div className="phone-input">
+												<img src="/assets/icons/bank.svg" alt="icon" />
+												<input
+													type="text"
+													id="phone"
+													name="phone"
+													placeholder="เลขบัญชีธนาคาร"
+												// maxlength="9"
+												/>
+											</div>
 
-											{/* <!-- step three --> */}
-											{/* <div className="step-three" id="form-step-three">
+											<button
+												type="button"
+												id="goto-step3"
+												data-bs-dismiss="modal"
+												aria-label="Close"
+												data-bs-toggle="modal"
+												data-bs-target="#successRegisterModal"
+											>
+												ยืนยัน สมัครสมาชิก
+											</button>
+										</div>
+										{/* <!-- step two end --> */}
+
+										{/* <!-- step three --> */}
+										{/* <div className="step-three" id="form-step-three">
                   <h3 className="signup-header-success">สมัครสมาชิกสำเร็จ</h3>
                   <div className="img-success-container">
                     <img
@@ -1444,8 +1457,7 @@ export default function Home() {
                     เข้าสู่ระบบ
                   </button>
                 </div>  */}
-											{/* <!-- step three end --> */}
-										</div>
+										{/* <!-- step three end --> */}
 									</div>
 								</div>
 							</div>
@@ -1520,135 +1532,133 @@ export default function Home() {
 					aria-labelledby="profile"
 					aria-hidden="true"
 				>
-					<div className="modal-dialog modal-xl">
-						<div className="modal-content">
-							<div className="modal-border">
-								<div className="modal-content1">
-									<div className="modal-header-container">
-										<div className="modal-header">
-											<img
-												src="/assets/icons/icon-back-modal.svg"
-												className="modal-icon-back"
-												alt=""
-												data-bs-dismiss="modal"
-												aria-label="Close"
-											/>
-											<p className="modal-title">โปรไฟล์</p>
-											<img
-												src="/assets/icons/icon-close-modal.svg"
-												className="modal-icon-close"
-												data-bs-dismiss="modal"
-												aria-label="Close"
-												alt=""
-											/>
-										</div>
+					<div className="modal-dialog" style={{ width: 430 }}>
+						<div className="modal-border">
+							<div className="modal-content">
+								<div className="modal-header-container">
+									<div className="modal-header">
+										<img
+											src="/assets/icons/icon-back-modal.svg"
+											className="modal-icon-back"
+											alt=""
+											data-bs-dismiss="modal"
+											aria-label="Close"
+										/>
+										<p className="modal-title">โปรไฟล์</p>
+										<img
+											src="/assets/icons/icon-close-modal.svg"
+											className="modal-icon-close"
+											data-bs-dismiss="modal"
+											aria-label="Close"
+											alt=""
+										/>
 									</div>
-									<div className="modal-body">
-										<div className="change-profile-modal-content">
-											<div className="detail-card-kbank">
-												<div className="card-kbank">
-													<div className="font-17">
-														<p>ธนาคารกสิกรไทย</p>
-														<div
-															style={{
-																display: "flex",
-																justifyContent: "space-between",
-															}}
-														>
-															<div style={{ marginRight: 10 }}>KBank</div>
-															<img
-																src="/assets/icons/logo-kbank.svg"
-																alt="logo"
-																style={{ marginTop: -10 }}
-															/>
-														</div>
-													</div>
-													<div>
-														<p className="font-17">นาย xxxxx xxxxx</p>
-														<p style={{ marginTop: 13, fontSize: 14 }}>
-															ยอดคงเหลือในระบบ
-														</p>
-													</div>
-													<div className="font-17">
-														<p>026-999999-9</p>
-														<p>1000.00 บาท</p>
-													</div>
+								</div>
+								<div className="modal-body">
+									<div className="change-profile-modal-content">
+										<div className="detail-card-kbank">
+											<div className="card-kbank">
+												<div className="font-17">
+													<p>ธนาคารกสิกรไทย</p>
 													<div
 														style={{
-															marginTop: 30,
-															marginBottom: 25,
 															display: "flex",
-															justifyContent: "end",
+															justifyContent: "space-between",
 														}}
 													>
-														<img src="/assets/icons/visa.svg" alt="visa" />
+														<div style={{ marginRight: 10 }}>KBank</div>
+														<img
+															src="/assets/icons/logo-kbank.svg"
+															alt="logo"
+															style={{ marginTop: -10 }}
+														/>
 													</div>
 												</div>
-											</div>
-											<div className="slide-image">
-												<div className="active" />
-												<div className="none-active" />
-											</div>
-											<div className="custom-btn">
-												<button type="button" className="setting">
-													ตั้งเป็นบัญชีหลัก
-												</button>
-												<button
-													type="button"
-													className="add-account"
-													data-bs-toggle="modal"
-													data-bs-target="#addAccount"
-													data-bs-dismiss="modal"
+												<div>
+													<p className="font-17">นาย xxxxx xxxxx</p>
+													<p style={{ marginTop: 13, fontSize: 14 }}>
+														ยอดคงเหลือในระบบ
+													</p>
+												</div>
+												<div className="font-17">
+													<p>026-999999-9</p>
+													<p>1000.00 บาท</p>
+												</div>
+												<div
+													style={{
+														marginTop: 30,
+														marginBottom: 25,
+														display: "flex",
+														justifyContent: "end",
+													}}
 												>
-													เพิ่มบัญชี
-												</button>
+													<img src="/assets/icons/visa.svg" alt="visa" />
+												</div>
 											</div>
-											<div className="change-password-hr">
-												<div className="hr" />
-											</div>
-											<div className="user">
-												<p className="username">Username</p>
-												<p className="result">st1745562156</p>
-											</div>
-											<div className="password">
-												<p className="pass">Password</p>
-												<p className="result">************</p>
-											</div>
-											<div
-												className="change-password"
+										</div>
+										<div className="slide-image">
+											<div className="active" />
+											<div className="none-active" />
+										</div>
+										<div className="custom-btn">
+											<button type="button" className="setting">
+												ตั้งเป็นบัญชีหลัก
+											</button>
+											<button
+												type="button"
+												className="add-account"
 												data-bs-toggle="modal"
-												data-bs-target="#changePasswordModal"
+												data-bs-target="#addAccount"
 												data-bs-dismiss="modal"
 											>
-												<div>
-													{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														width="51"
-														height="51"
-														viewBox="0 0 51 51"
-														fill="none"
-													>
-														<path
-															d="M25.033 21.7165C24.4104 21.0943 23.4014 21.0945 22.779 21.7171C22.1568 22.3397 22.157 23.3487 22.7796 23.9711L24.309 25.4996L22.7794 27.0294C22.157 27.6518 22.157 28.6607 22.7794 29.2832C23.4018 29.9056 24.4108 29.9056 25.0332 29.2832L26.5634 27.7529L28.0921 29.281C28.7148 29.9032 29.7237 29.903 30.3461 29.2804C30.9683 28.658 30.9681 27.6488 30.3455 27.0266L28.8174 25.4992L30.3457 23.9707C30.9681 23.3482 30.9681 22.3393 30.3457 21.7169C29.7233 21.0944 28.7143 21.0944 28.0919 21.7169L26.563 23.2458L25.033 21.7165Z"
-															fill="white"
-														/>
-														<path
-															d="M11.0915 21.7171C11.7138 21.0945 12.7229 21.0943 13.3454 21.7165L14.8754 23.2458L16.4043 21.7169C17.0267 21.0944 18.0358 21.0944 18.6582 21.7169C19.2806 22.3393 19.2806 23.3482 18.6582 23.9707L17.1298 25.4992L18.6579 27.0266C19.2805 27.6488 19.2807 28.658 18.6585 29.2804C18.0362 29.903 17.0271 29.9032 16.4046 29.281L14.8759 27.7529L13.3457 29.2832C12.7233 29.9056 11.7142 29.9056 11.0918 29.2832C10.4694 28.6607 10.4694 27.6518 11.0918 27.0294L12.6215 25.4996L11.0921 23.9711C10.4695 23.3487 10.4693 22.3397 11.0915 21.7171Z"
-															fill="white"
-														/>
-														<path
-															d="M35.0625 28.6875C34.1823 28.6875 33.4688 29.4011 33.4688 30.2812C33.4688 31.1614 34.1823 31.875 35.0625 31.875H38.7812C39.6614 31.875 40.375 31.1614 40.375 30.2812C40.375 29.4011 39.6614 28.6875 38.7812 28.6875H35.0625Z"
-															fill="white"
-														/>
-														<path
-															d="M11.1546 10.625C7.33975 10.625 4.25 13.7177 4.25 17.5312V33.4688C4.25 37.2829 7.34202 40.375 11.1562 40.375H39.8438C43.6579 40.375 46.75 37.2829 46.75 33.4688V17.5312C46.75 13.7177 43.6602 10.625 39.8454 10.625H11.1546ZM7.4375 17.5312C7.4375 15.4768 9.10144 13.8125 11.1546 13.8125H39.8454C41.8986 13.8125 43.5625 15.4768 43.5625 17.5312V33.4688C43.5625 35.5226 41.8976 37.1875 39.8438 37.1875H11.1562C9.10244 37.1875 7.4375 35.5226 7.4375 33.4688V17.5312Z"
-															fill="white"
-														/>
-													</svg>
-												</div>
-												<p>เปลี่ยนรหัสผ่าน</p>
+												เพิ่มบัญชี
+											</button>
+										</div>
+										<div className="change-password-hr">
+											<div className="hr" />
+										</div>
+										<div className="user">
+											<p className="username">Username</p>
+											<p className="result">st1745562156</p>
+										</div>
+										<div className="password">
+											<p className="pass">Password</p>
+											<p className="result">************</p>
+										</div>
+										<div
+											className="change-password"
+											data-bs-toggle="modal"
+											data-bs-target="#changePasswordModal"
+											data-bs-dismiss="modal"
+										>
+											<div>
+												{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="51"
+													height="51"
+													viewBox="0 0 51 51"
+													fill="none"
+												>
+													<path
+														d="M25.033 21.7165C24.4104 21.0943 23.4014 21.0945 22.779 21.7171C22.1568 22.3397 22.157 23.3487 22.7796 23.9711L24.309 25.4996L22.7794 27.0294C22.157 27.6518 22.157 28.6607 22.7794 29.2832C23.4018 29.9056 24.4108 29.9056 25.0332 29.2832L26.5634 27.7529L28.0921 29.281C28.7148 29.9032 29.7237 29.903 30.3461 29.2804C30.9683 28.658 30.9681 27.6488 30.3455 27.0266L28.8174 25.4992L30.3457 23.9707C30.9681 23.3482 30.9681 22.3393 30.3457 21.7169C29.7233 21.0944 28.7143 21.0944 28.0919 21.7169L26.563 23.2458L25.033 21.7165Z"
+														fill="white"
+													/>
+													<path
+														d="M11.0915 21.7171C11.7138 21.0945 12.7229 21.0943 13.3454 21.7165L14.8754 23.2458L16.4043 21.7169C17.0267 21.0944 18.0358 21.0944 18.6582 21.7169C19.2806 22.3393 19.2806 23.3482 18.6582 23.9707L17.1298 25.4992L18.6579 27.0266C19.2805 27.6488 19.2807 28.658 18.6585 29.2804C18.0362 29.903 17.0271 29.9032 16.4046 29.281L14.8759 27.7529L13.3457 29.2832C12.7233 29.9056 11.7142 29.9056 11.0918 29.2832C10.4694 28.6607 10.4694 27.6518 11.0918 27.0294L12.6215 25.4996L11.0921 23.9711C10.4695 23.3487 10.4693 22.3397 11.0915 21.7171Z"
+														fill="white"
+													/>
+													<path
+														d="M35.0625 28.6875C34.1823 28.6875 33.4688 29.4011 33.4688 30.2812C33.4688 31.1614 34.1823 31.875 35.0625 31.875H38.7812C39.6614 31.875 40.375 31.1614 40.375 30.2812C40.375 29.4011 39.6614 28.6875 38.7812 28.6875H35.0625Z"
+														fill="white"
+													/>
+													<path
+														d="M11.1546 10.625C7.33975 10.625 4.25 13.7177 4.25 17.5312V33.4688C4.25 37.2829 7.34202 40.375 11.1562 40.375H39.8438C43.6579 40.375 46.75 37.2829 46.75 33.4688V17.5312C46.75 13.7177 43.6602 10.625 39.8454 10.625H11.1546ZM7.4375 17.5312C7.4375 15.4768 9.10144 13.8125 11.1546 13.8125H39.8454C41.8986 13.8125 43.5625 15.4768 43.5625 17.5312V33.4688C43.5625 35.5226 41.8976 37.1875 39.8438 37.1875H11.1562C9.10244 37.1875 7.4375 35.5226 7.4375 33.4688V17.5312Z"
+														fill="white"
+													/>
+												</svg>
 											</div>
+											<p>เปลี่ยนรหัสผ่าน</p>
 										</div>
 									</div>
 								</div>
@@ -1665,172 +1675,170 @@ export default function Home() {
 					aria-labelledby="addAccount"
 					aria-hidden="true"
 				>
-					<div className="modal-dialog modal-xl">
-						<div className="modal-content">
-							<div className="modal-border">
-								<div className="modal-content">
-									<div className="modal-header-container">
-										<div className="modal-header">
-											<img
-												src="/assets/icons/icon-back-modal.svg"
-												className="modal-icon-back"
-												alt=""
-												data-bs-toggle="modal"
-												data-bs-dismiss="modal"
-											/>
-											<p className="modal-title" id="addAccount">
-												เพิ่มบัญชี
-											</p>
-											<img
-												src="/assets/icons/icon-close-modal.svg"
-												className="modal-icon-close"
-												data-bs-dismiss="modal"
-												aria-label="Close"
-												alt=""
-											/>
-										</div>
+					<div className="modal-dialog" style={{ width: 380 }}>
+						<div className="modal-border">
+							<div className="modal-content">
+								<div className="modal-header-container">
+									<div className="modal-header">
+										<img
+											src="/assets/icons/icon-back-modal.svg"
+											className="modal-icon-back"
+											alt=""
+											data-bs-toggle="modal"
+											data-bs-dismiss="modal"
+										/>
+										<p className="modal-title" id="addAccount">
+											เพิ่มบัญชี
+										</p>
+										<img
+											src="/assets/icons/icon-close-modal.svg"
+											className="modal-icon-close"
+											data-bs-dismiss="modal"
+											aria-label="Close"
+											alt=""
+										/>
 									</div>
-									<div className="modal-body">
-										<div className="add-account-content-pc flexCenter">
-											<div className="bank-section">
-												<p>กรุณาเลือกธนาคาร</p>
-												<div className="bank-list">
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 10.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 11.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 12.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 13.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 14.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 15.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 16.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 17.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 18.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 19.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 20.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 21.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 22.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 23.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 24.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 25.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 26.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 27.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 28.svg"
-														alt=""
-														className="bank-icon"
-													/>
-													<img
-														src="/assets/icons/icon-bank-default/Ellipse 29.svg"
-														alt=""
-														className="bank-icon"
-													/>
-												</div>
+								</div>
+								<div className="modal-body">
+									<div className="add-account-content-pc flexCenter">
+										<div className="bank-section">
+											<p>กรุณาเลือกธนาคาร</p>
+											<div className="bank-list">
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 10.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 11.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 12.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 13.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 14.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 15.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 16.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 17.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 18.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 19.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 20.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 21.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 22.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 23.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 24.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 25.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 26.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 27.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 28.svg"
+													alt=""
+													className="bank-icon"
+												/>
+												<img
+													src="/assets/icons/icon-bank-default/Ellipse 29.svg"
+													alt=""
+													className="bank-icon"
+												/>
 											</div>
+										</div>
 
-											<div className="bank-number">
-												<p>กรุณากรอกเลขบัญชี</p>
-												<div className="bank-number-input flexCenter">
-													<div className="icon">
-														{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-														<svg
-															xmlns="http://www.w3.org/2000/svg"
-															width="20"
-															height="20"
-															viewBox="0 0 20 20"
-															fill="none"
-														>
-															<g clip-path="url(#clip0_912_2229)">
-																<path
-																	d="M1.6665 16.6665H18.3332V18.3332H1.6665V16.6665ZM3.33317 9.99984H4.99984V15.8332H3.33317V9.99984ZM7.49984 9.99984H9.1665V15.8332H7.49984V9.99984ZM10.8332 9.99984H12.4998V15.8332H10.8332V9.99984ZM14.9998 9.99984H16.6665V15.8332H14.9998V9.99984ZM1.6665 5.83317L9.99984 1.6665L18.3332 5.83317V9.1665H1.6665V5.83317ZM9.99984 6.6665C10.2209 6.6665 10.4328 6.57871 10.5891 6.42243C10.7454 6.26615 10.8332 6.05418 10.8332 5.83317C10.8332 5.61216 10.7454 5.4002 10.5891 5.24392C10.4328 5.08764 10.2209 4.99984 9.99984 4.99984C9.77882 4.99984 9.56686 5.08764 9.41058 5.24392C9.2543 5.4002 9.1665 5.61216 9.1665 5.83317C9.1665 6.05418 9.2543 6.26615 9.41058 6.42243C9.56686 6.57871 9.77882 6.6665 9.99984 6.6665Z"
-																	fill="white"
-																/>
-															</g>
-															<defs>
-																{/* <clipPath id="clip0_912_2229">
+										<div className="bank-number">
+											<p>กรุณากรอกเลขบัญชี</p>
+											<div className="bank-number-input flexCenter">
+												<div className="icon">
+													{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="20"
+														height="20"
+														viewBox="0 0 20 20"
+														fill="none"
+													>
+														<g clip-path="url(#clip0_912_2229)">
+															<path
+																d="M1.6665 16.6665H18.3332V18.3332H1.6665V16.6665ZM3.33317 9.99984H4.99984V15.8332H3.33317V9.99984ZM7.49984 9.99984H9.1665V15.8332H7.49984V9.99984ZM10.8332 9.99984H12.4998V15.8332H10.8332V9.99984ZM14.9998 9.99984H16.6665V15.8332H14.9998V9.99984ZM1.6665 5.83317L9.99984 1.6665L18.3332 5.83317V9.1665H1.6665V5.83317ZM9.99984 6.6665C10.2209 6.6665 10.4328 6.57871 10.5891 6.42243C10.7454 6.26615 10.8332 6.05418 10.8332 5.83317C10.8332 5.61216 10.7454 5.4002 10.5891 5.24392C10.4328 5.08764 10.2209 4.99984 9.99984 4.99984C9.77882 4.99984 9.56686 5.08764 9.41058 5.24392C9.2543 5.4002 9.1665 5.61216 9.1665 5.83317C9.1665 6.05418 9.2543 6.26615 9.41058 6.42243C9.56686 6.57871 9.77882 6.6665 9.99984 6.6665Z"
+																fill="white"
+															/>
+														</g>
+														<defs>
+															{/* <clipPath id="clip0_912_2229">
 															<rect width="20" height="20" fill="white" />
 														</clipPath> */}
-															</defs>
-														</svg>
-													</div>
-													<input type="number" placeholder="เลขบัญชีธนาคาร" />
+														</defs>
+													</svg>
 												</div>
+												<input type="number" placeholder="เลขบัญชีธนาคาร" />
 											</div>
-
-											<button type="button" className="button-warning">
-												ยืนยัน
-											</button>
 										</div>
+
+										<button type="button" className="button-warning">
+											ยืนยัน
+										</button>
 									</div>
 								</div>
 							</div>
@@ -2024,212 +2032,210 @@ export default function Home() {
 					aria-hidden="true"
 					data-bs-dismiss="modal"
 				>
-					<div className="modal-dialog">
-						<div className="modal-content">
-							<div className="modal-border">
-								<div className="modal-content1">
-									<div className="modal-header-container">
-										<div className="modal-header">
-											<img
-												src="/assets/icons/icon-back-modal.svg"
-												className="modal-icon-back"
-												alt=""
-											/>
-											<p className="modal-title" id="depositWithdraw">
-												ฝาก - ถอน
-											</p>
-											<img
-												src="/assets/icons/icon-close-modal.svg"
-												className="modal-icon-close"
-												data-bs-dismiss="modal"
-												aria-label="Close"
-												alt=""
-											/>
-										</div>
+					<div className="modal-dialog" style={{ width: 440 }}>
+						<div className="modal-border">
+							<div className="modal-content">
+								<div className="modal-header-container">
+									<div className="modal-header">
+										<img
+											src="/assets/icons/icon-back-modal.svg"
+											className="modal-icon-back"
+											alt=""
+										/>
+										<p className="modal-title" id="depositWithdraw">
+											ฝาก - ถอน
+										</p>
+										<img
+											src="/assets/icons/icon-close-modal.svg"
+											className="modal-icon-close"
+											data-bs-dismiss="modal"
+											aria-label="Close"
+											alt=""
+										/>
 									</div>
-									<div className="modal-body">
-										<div className="detail-card-kbank">
-											<div className="card-kbank">
-												<div className="font-17">
-													<p>ธนาคารกสิกรไทย</p>
-													<div
-														style={{
-															display: "flex",
-															justifyContent: "space-between",
-														}}
-													>
-														KBank
-														<img
-															src="/assets/icons/logo-kbank.svg"
-															alt="logo"
-															style={{ marginTop: -10 }}
-														/>
-													</div>
-												</div>
-												<div>
-													<p className="font-17">นาย xxxxx xxxxx</p>
-													<p style={{ marginTop: 13, fontSize: 14 }}>
-														ยอดคงเหลือในระบบ
-													</p>
-												</div>
-												<div className="font-17">
-													<p style={{ marginTop: -2 }}>026-999999-9</p>
-													<p>1000.00 บาท</p>
-												</div>
+								</div>
+								<div className="modal-body">
+									<div className="detail-card-kbank">
+										<div className="card-kbank">
+											<div className="font-17">
+												<p>ธนาคารกสิกรไทย</p>
 												<div
 													style={{
-														marginTop: 20,
-														marginBottom: 30,
 														display: "flex",
-														justifyContent: "end",
+														justifyContent: "space-between",
 													}}
 												>
-													<img src="/assets/icons/visa.svg" alt="visa" />
+													KBank
+													<img
+														src="/assets/icons/logo-kbank.svg"
+														alt="logo"
+														style={{ marginTop: -10 }}
+													/>
 												</div>
 											</div>
-										</div>
-										<div
-											className="slide-image"
-											style={{ display: "flex", justifyContent: "center" }}
-										>
-											<div className="active" />
-											<div className="none-active" />
-										</div>
-
-										<div
-											style={{
-												marginTop: 20,
-												display: "grid",
-												color: "white",
-												gridTemplateColumns: "repeat(3, 110px)",
-												gap: 16,
-												justifyContent: "center",
-											}}
-										>
-											<div
-												style={{ cursor: "pointer" }}
-												data-bs-toggle="modal"
-												data-bs-target="#autoDeposit"
-												data-bs-dismiss="modal"
-											>
-												<div className="type-of-withdrawal">
-													<div className="withdrawal">
-														<img
-															src="/assets/images/credit-card-machine.svg"
-															alt="kkk"
-														/>
-														<div>ฝากเงินออโต้</div>
-													</div>
-												</div>
-											</div>
-											<div
-												style={{ cursor: "pointer" }}
-												data-bs-toggle="modal"
-												data-bs-target="#leaveAdecimal"
-												data-bs-dismiss="modal"
-											>
-												<div className="type-of-withdrawal">
-													<div className="withdrawal">
-														<img
-															src="/assets/images/Leave a-decimal.svg"
-															alt="kkk"
-														/>
-														<div>ฝากทศนิยม</div>
-													</div>
-												</div>
-											</div>
-											<div
-												style={{ cursor: "pointer" }}
-												data-bs-toggle="modal"
-												data-bs-target="#withdraw"
-												data-bs-dismiss="modal"
-											>
-												<div className="type-of-withdrawal">
-													<div className="withdrawal">
-														<img
-															src="/assets/images/Withdraw-money.svg"
-															alt="kkk"
-														/>
-														<div>ถอนเงิน</div>
-													</div>
-												</div>
-											</div>
-
-											<div
-												style={{ cursor: "pointer" }}
-												data-bs-toggle="modal"
-												data-bs-target="#qrplay"
-												data-bs-dismiss="modal"
-											>
-												<div className="type-of-withdrawal">
-													<div className="withdrawal">
-														<img src="/assets/images/scan.svg" alt="kkk" />
-														<div>QR PAY</div>
-													</div>
-												</div>
-											</div>
-
-											<div
-												style={{ cursor: "pointer" }}
-												data-bs-toggle="modal"
-												data-bs-target="#slipVerify"
-												data-bs-dismiss="modal"
-											>
-												<div className="type-of-withdrawal">
-													<div className="withdrawal">
-														<img src="/assets/images/verified.svg" alt="kkk" />
-														<div>Slip Verify</div>
-													</div>
-												</div>
-											</div>
-
-											<div
-												style={{ cursor: "pointer" }}
-												data-bs-toggle="modal"
-												data-bs-target="#trueWallet"
-												data-bs-dismiss="modal"
-											>
-												<div className="type-of-withdrawal">
-													<div className="withdrawal">
-														<img
-															src="/assets/images/true-money-wallet.svg"
-															alt="kkk"
-														/>
-														<div>Truewallet</div>
-													</div>
-												</div>
-											</div>
-										</div>
-
-										<div
-											style={{
-												textAlign: "center",
-												marginTop: 10,
-												fontSize: 12,
-											}}
-										>
 											<div>
-												พบปัญหา
-												<span
-													style={{
-														color: "rgba(0, 252, 252, 1)",
-														textDecoration: "underline",
-														cursor: "pointer",
-													}}
-												>
-													ติดต่อฝ่ายบริการลูกค้า
-												</span>
+												<p className="font-17">นาย xxxxx xxxxx</p>
+												<p style={{ marginTop: 13, fontSize: 14 }}>
+													ยอดคงเหลือในระบบ
+												</p>
+											</div>
+											<div className="font-17">
+												<p style={{ marginTop: -2 }}>026-999999-9</p>
+												<p>1000.00 บาท</p>
+											</div>
+											<div
+												style={{
+													marginTop: 20,
+													marginBottom: 30,
+													display: "flex",
+													justifyContent: "end",
+												}}
+											>
+												<img src="/assets/icons/visa.svg" alt="visa" />
 											</div>
 										</div>
-										<div className="button-line">
-											<div>
-												<img
-													src="/assets/icons/icon-line.svg"
-													alt="line"
-													style={{ width: 30, height: 30 }}
-												/>
-												ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+									</div>
+									<div
+										className="slide-image"
+										style={{ display: "flex", justifyContent: "center" }}
+									>
+										<div className="active" />
+										<div className="none-active" />
+									</div>
+
+									<div
+										style={{
+											marginTop: 20,
+											display: "grid",
+											color: "white",
+											gridTemplateColumns: "repeat(3, 110px)",
+											gap: 16,
+											justifyContent: "center",
+										}}
+									>
+										<div
+											style={{ cursor: "pointer" }}
+											data-bs-toggle="modal"
+											data-bs-target="#autoDeposit"
+											data-bs-dismiss="modal"
+										>
+											<div className="type-of-withdrawal">
+												<div className="withdrawal">
+													<img
+														src="/assets/images/credit-card-machine.svg"
+														alt="kkk"
+													/>
+													<div>ฝากเงินออโต้</div>
+												</div>
 											</div>
+										</div>
+										<div
+											style={{ cursor: "pointer" }}
+											data-bs-toggle="modal"
+											data-bs-target="#leaveAdecimal"
+											data-bs-dismiss="modal"
+										>
+											<div className="type-of-withdrawal">
+												<div className="withdrawal">
+													<img
+														src="/assets/images/Leave a-decimal.svg"
+														alt="kkk"
+													/>
+													<div>ฝากทศนิยม</div>
+												</div>
+											</div>
+										</div>
+										<div
+											style={{ cursor: "pointer" }}
+											data-bs-toggle="modal"
+											data-bs-target="#withdraw"
+											data-bs-dismiss="modal"
+										>
+											<div className="type-of-withdrawal">
+												<div className="withdrawal">
+													<img
+														src="/assets/images/Withdraw-money.svg"
+														alt="kkk"
+													/>
+													<div>ถอนเงิน</div>
+												</div>
+											</div>
+										</div>
+
+										<div
+											style={{ cursor: "pointer" }}
+											data-bs-toggle="modal"
+											data-bs-target="#qrplay"
+											data-bs-dismiss="modal"
+										>
+											<div className="type-of-withdrawal">
+												<div className="withdrawal">
+													<img src="/assets/images/scan.svg" alt="kkk" />
+													<div>QR PAY</div>
+												</div>
+											</div>
+										</div>
+
+										<div
+											style={{ cursor: "pointer" }}
+											data-bs-toggle="modal"
+											data-bs-target="#slipVerify"
+											data-bs-dismiss="modal"
+										>
+											<div className="type-of-withdrawal">
+												<div className="withdrawal">
+													<img src="/assets/images/verified.svg" alt="kkk" />
+													<div>Slip Verify</div>
+												</div>
+											</div>
+										</div>
+
+										<div
+											style={{ cursor: "pointer" }}
+											data-bs-toggle="modal"
+											data-bs-target="#trueWallet"
+											data-bs-dismiss="modal"
+										>
+											<div className="type-of-withdrawal">
+												<div className="withdrawal">
+													<img
+														src="/assets/images/true-money-wallet.svg"
+														alt="kkk"
+													/>
+													<div>Truewallet</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div
+										style={{
+											textAlign: "center",
+											marginTop: 10,
+											fontSize: 12,
+										}}
+									>
+										<div>
+											พบปัญหา
+											<span
+												style={{
+													color: "rgba(0, 252, 252, 1)",
+													textDecoration: "underline",
+													cursor: "pointer",
+												}}
+											>
+												ติดต่อฝ่ายบริการลูกค้า
+											</span>
+										</div>
+									</div>
+									<div className="button-line">
+										<div>
+											<img
+												src="/assets/icons/icon-line.svg"
+												alt="line"
+												style={{ width: 30, height: 30 }}
+											/>
+											ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
 										</div>
 									</div>
 								</div>
@@ -3199,20 +3205,14 @@ export default function Home() {
 				aria-labelledby="historyModalLabel"
 				aria-hidden="true"
 			>
-				<div className="modal-dialog modal-xl">
+				<div className="modal-dialog">
 					<div className="modal-content">
 						<div className="modal-border">
 							<div className="modal-content">
 								<div className="modal-header-container">
 									<div className="modal-header">
 										<p className="modal-title" id="history-title-deposit">
-											ประวัติฝาก
-										</p>
-										<p className="modal-title" id="history-title-withdraw">
-											ประวัติถอน
-										</p>
-										<p className="modal-title" id="history-title-bonus">
-											ประวัติโบนัส
+											{tabs}
 										</p>
 										<img
 											src="/assets/icons/icon-close-modal.svg"
@@ -3226,13 +3226,31 @@ export default function Home() {
 								<div className="modal-body">
 									<div className="history-modal-content">
 										<div className="history-tab">
-											<div className="history-tab-item active" id="tab-deposit">
+											<div className={
+												tabName === "tab-deposit"
+													? "history-tab-item active"
+													: "history-tab-item"
+											}
+												onClick={() => _clickTabDeposit("tab-deposit")}
+												onKeyDown={() => ""} id="tab-deposit">
 												ฝาก
 											</div>
-											<div className="history-tab-item" id="tab-withdraw">
+											<div className={
+												tabName === "tab-withdraw"
+													? "history-tab-item active"
+													: "history-tab-item"
+											}
+												onClick={() => _clickTabDeposit("tab-withdraw")}
+												onKeyDown={() => ""} id="tab-withdraw">
 												ถอน
 											</div>
-											<div className="history-tab-item" id="tab-bonus">
+											<div className={
+												tabName === "tab-bonus"
+													? "history-tab-item active"
+													: "history-tab-item"
+											}
+												onClick={() => _clickTabDeposit("tab-bonus")}
+												onKeyDown={() => ""} id="tab-bonus">
 												โบนัส
 											</div>
 										</div>
@@ -3337,6 +3355,7 @@ export default function Home() {
 										<div
 											className="history-withdraw"
 											id="history-content-withdraw"
+											style={{ display: "none" }}
 										>
 											<div className="history-list">
 												<div className="history-list-left">
@@ -3416,7 +3435,7 @@ export default function Home() {
 										</div>
 
 										{/* <!-- โบนัส --> */}
-										<div className="history-bonus" id="history-content-bonus">
+										<div className="history-bonus" id="history-content-bonus" style={{ display: "none" }}>
 											<div className="history-list">
 												<div className="history-list-left">
 													<label className="history-list-label">
@@ -3525,181 +3544,179 @@ export default function Home() {
 				aria-labelledby="bagModalLabel"
 				aria-hidden="true"
 			>
-				<div className="modal-dialog modal-xl">
-					<div className="modal-content">
-						<div className="modal-border">
-							<div className="modal-content1">
-								<div className="modal-header-container">
-									<div className="modal-header">
-										<p className="modal-title">กระเป๋า</p>
-										<img
-											src="/assets/icons/icon-close-modal.svg"
-											className="modal-icon-close"
-											data-bs-dismiss="modal"
-											aria-label="Close"
-											alt=""
-										/>
-									</div>
+				<div className="modal-dialog" style={{ width: 660 }}>
+					<div className="modal-border">
+						<div className="modal-content">
+							<div className="modal-header-container">
+								<div className="modal-header">
+									<p className="modal-title">กระเป๋า</p>
+									<img
+										src="/assets/icons/icon-close-modal.svg"
+										className="modal-icon-close"
+										data-bs-dismiss="modal"
+										aria-label="Close"
+										alt=""
+									/>
 								</div>
-								<div className="modal-body">
-									<div className="bag-modal-content">
-										<div className="bag-modal-slide-container">
-											<img src="/assets/images/bag-background.png" alt="" />
-										</div>
+							</div>
+							<div className="modal-body">
+								<div className="bag-modal-content">
+									<div className="bag-modal-slide-container">
+										<img src="/assets/images/bag-background.png" alt="" />
+									</div>
 
-										<div className="bag-modal-menu">
-											<div
-												className="bag-modal-menu-item"
-												id="promotion-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#promotionModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-promotion.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">โปรโมชั่น</p>
+									<div className="bag-modal-menu">
+										<div
+											className="bag-modal-menu-item"
+											id="promotion-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#promotionModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-promotion.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												data-bs-toggle="modal"
-												data-bs-target="#depositWithdraw"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-withdraw.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">ฝาก - ถอน</p>
+											<p className="bag-modal-menu-title">โปรโมชั่น</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											data-bs-toggle="modal"
+											data-bs-target="#depositWithdraw"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-withdraw.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												id="earn-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#earnMoneyModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-earn-money.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">สร้างรายได้</p>
+											<p className="bag-modal-menu-title">ฝาก - ถอน</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											id="earn-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#earnMoneyModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-earn-money.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												id="code-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#codeModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-ticket.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">กรอกโค้ด</p>
+											<p className="bag-modal-menu-title">สร้างรายได้</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											id="code-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#codeModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-ticket.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												id="spinner-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#spinnerModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-spinner.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">กงล้อ</p>
+											<p className="bag-modal-menu-title">กรอกโค้ด</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											id="spinner-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#spinnerModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-spinner.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												id="credit-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#creditModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-teasure.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">เครดิตฟรี</p>
+											<p className="bag-modal-menu-title">กงล้อ</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											id="credit-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#creditModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-teasure.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												data-bs-toggle="modal"
-												data-bs-target="#cashback"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-back-cash.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">คืนยอดเสีย</p>
+											<p className="bag-modal-menu-title">เครดิตฟรี</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											data-bs-toggle="modal"
+											data-bs-target="#cashback"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-back-cash.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												id="diamond-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#diamondModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-diamond.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">แลกเพรช</p>
+											<p className="bag-modal-menu-title">คืนยอดเสีย</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											id="diamond-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#diamondModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-diamond.svg"
+													alt=""
+												/>
 											</div>
-											<div
-												className="bag-modal-menu-item"
-												id="tournament-modal-btn"
-												data-bs-toggle="modal"
-												data-bs-target="#tournamentModal"
-												data-bs-dismiss="modal"
-											>
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-trophy.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">ทัวร์นาเมนต์</p>
+											<p className="bag-modal-menu-title">แลกเพรช</p>
+										</div>
+										<div
+											className="bag-modal-menu-item"
+											id="tournament-modal-btn"
+											data-bs-toggle="modal"
+											data-bs-target="#tournamentModal"
+											data-bs-dismiss="modal"
+										>
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-trophy.svg"
+													alt=""
+												/>
 											</div>
-											<div className="bag-modal-menu-item">
-												<div className="bag-menu-img-container">
-													<img
-														className="bag-menu-icon"
-														src="/assets/icons/icon-road-map.svg"
-														alt=""
-													/>
-												</div>
-												<p className="bag-modal-menu-title">Road Map</p>
+											<p className="bag-modal-menu-title">ทัวร์นาเมนต์</p>
+										</div>
+										<div className="bag-modal-menu-item">
+											<div className="bag-menu-img-container">
+												<img
+													className="bag-menu-icon"
+													src="/assets/icons/icon-road-map.svg"
+													alt=""
+												/>
 											</div>
+											<p className="bag-modal-menu-title">Road Map</p>
 										</div>
 									</div>
 								</div>
@@ -4866,61 +4883,59 @@ export default function Home() {
 				aria-labelledby="changePasswordModalLabel"
 				aria-hidden="true"
 			>
-				<div className="modal-dialog modal-xl">
-					<div className="modal-content">
-						<div className="modal-border">
-							<div className="modal-content">
-								<div className="modal-header-container">
-									<div className="modal-header">
-										<img
-											src="/assets/icons/icon-back-modal.svg"
-											className="modal-icon-back"
-											alt=""
-											data-bs-toggle="modal"
-											data-bs-target="#bagModal"
-											data-bs-dismiss="modal"
-										/>
-										<p className="modal-title">เปลี่ยนรหัส</p>
-										<img
-											src="/assets/icons/icon-close-modal.svg"
-											className="modal-icon-close"
-											data-bs-dismiss="modal"
-											aria-label="Close"
-											alt=""
-										/>
-									</div>
+				<div className="modal-dialog">
+					<div className="modal-border">
+						<div className="modal-content">
+							<div className="modal-header-container">
+								<div className="modal-header">
+									<img
+										src="/assets/icons/icon-back-modal.svg"
+										className="modal-icon-back"
+										alt=""
+										data-bs-toggle="modal"
+										data-bs-target="#bagModal"
+										data-bs-dismiss="modal"
+									/>
+									<p className="modal-title">เปลี่ยนรหัส</p>
+									<img
+										src="/assets/icons/icon-close-modal.svg"
+										className="modal-icon-close"
+										data-bs-dismiss="modal"
+										aria-label="Close"
+										alt=""
+									/>
 								</div>
-								<div className="modal-body">
-									<div className="change-password-modal-content">
-										<div className="border-input-gold">
-											<input
-												type="text"
-												placeholder="กรุณากรอกรหัสผ่านเดิม"
-												className="input-for-border-gold"
-											/>
-										</div>
-										<div className="change-password-hr">
-											<div className="hr" />
-										</div>
-										<div className="border-input-gold">
-											<input
-												type="text"
-												placeholder="กรุณากรอกรหัสผ่านใหม่"
-												className="input-for-border-gold"
-											/>
-										</div>
-										<div className="border-input-gold">
-											<input
-												type="text"
-												placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง"
-												className="input-for-border-gold"
-											/>
-										</div>
-
-										<button type="button" className="button-warning">
-											ยืนยัน
-										</button>
+							</div>
+							<div className="modal-body">
+								<div className="change-password-modal-content">
+									<div className="border-input-gold">
+										<input
+											type="text"
+											placeholder="กรุณากรอกรหัสผ่านเดิม"
+											className="input-for-border-gold"
+										/>
 									</div>
+									<div className="change-password-hr">
+										<div className="hr" />
+									</div>
+									<div className="border-input-gold">
+										<input
+											type="text"
+											placeholder="กรุณากรอกรหัสผ่านใหม่"
+											className="input-for-border-gold"
+										/>
+									</div>
+									<div className="border-input-gold">
+										<input
+											type="text"
+											placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง"
+											className="input-for-border-gold"
+										/>
+									</div>
+
+									<button type="button" className="button-warning">
+										ยืนยัน
+									</button>
 								</div>
 							</div>
 						</div>

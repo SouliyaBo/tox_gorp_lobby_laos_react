@@ -207,9 +207,26 @@ body {
         font-style: normal;
         font-weight: 600;
         line-height: normal; }
+        @keyframes rotatingcrown {
+        0% {
+          transform: scale(.8) translate(0) rotate(0);
+        }
+        50% {
+          transform: scale(.9) translateY(-3%) rotate(5deg);
+        }
+        75% {
+          transform: scale(.9) translateY(-3%) rotate(-5deg);
+        }
+        100% {
+          transform: scale(.8) translate(0) rotate(0);
+        }
+      }
       .featured-game-wrapper .container .featured-game img {
         width: 75px;
-        height: 75px; }
+        height: 75px;
+        animation: rotatingcrown 1s ease-in-out infinite;
+        transition: all .2s ease;
+      }
 
 .card-container {
   display: flex;
@@ -465,7 +482,7 @@ body {
       font-weight: 600;
       text-align: right; }
   .sidebar-container .sidebar-button {
- /* border: 2px solid #f9df7b; */
+ border: 2px solid #f9df7b;
     cursor: pointer;
     height: 45px;
     background-color: #8800e3;
@@ -695,7 +712,7 @@ body {
     z-index: -10; }
 
 #signUpModal .modal-border {
-  border-radius: 60px;
+  /* border-radius: 30px; */
   padding: 2px; }
 
 #signUpModal .modal-content {
@@ -705,7 +722,7 @@ body {
 
 #signUpModal .signup-modal-content {
   position: relative;
-  width: 600px;
+  /* width: 600px; */
   color: #fff;
   /* background: rgba(0, 0, 0, 0.5); */
   z-index: 1; }
@@ -1150,6 +1167,7 @@ body {
           color: white;
           font-weight: 500; }
   .register-page,
+
   .login-page {
     background-image: url("/public/assets/images/login-modal-background.png");
     background-repeat: no-repeat;
@@ -1731,7 +1749,7 @@ body {
   .game-section {
     display: none; }
   .modal .modal-content {
-    min-width: 375px !important; }
+    min-width: 375px; }
     .modal .modal-content .modal-header-container {
       top: -24px; }
       .modal .modal-content .modal-header-container .modal-header {
@@ -2568,13 +2586,13 @@ body {
     animation-name: slideIn;
     animation-duration: 0.4s; }
   .modal .modal-content {
-    position: relative;
-    z-index: -10;
-    background: #8800e3;
-    background: radial-gradient(circle, #8800e3 36%, #0a56a1 100%);
-    border-radius: 20px;
-    height: 100%;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
+    position: relative !important;
+    z-index: 10 !important;
+    background: #8800e3 !important;
+    background: radial-gradient(circle, #8800e3 36%, #0a56a1 100%) !important;
+    border-radius: 20px !important;
+    height: 100% !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important; }
   .modal .modal-header-container {
     position: absolute;
     top: -21px;
@@ -4779,9 +4797,9 @@ button {
   height: 50px;
   border-radius: 8px; }
 
-  .modal-content {
+  /* .modal-content {
   background: transparent !important;
-}
+} */
 
 .modal-backdrop.show {
     opacity: 0;
