@@ -433,8 +433,7 @@ body {
     z-index: 20;
     border-radius: 0px 20px 20px 0px;
     border: 2px solid #f9df7b;
-    background: #8800e3;
-    /* background: radial-gradient(circle, #8800e3 36%, #0a56a1 100%); */
+    background: radial-gradient(#8800e3 36%, #0a56a1 100%);
     animation: slideInFromLeft 0.5s ease-in-out;
     padding: 26px 31px; }
     .sidebar-container .sidebar img {
@@ -466,7 +465,7 @@ body {
       font-weight: 600;
       text-align: right; }
   .sidebar-container .sidebar-button {
-
+ border: 2px solid #f9df7b;
     cursor: pointer;
     height: 45px;
     background-color: #8800e3;

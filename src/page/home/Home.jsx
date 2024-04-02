@@ -1,19 +1,45 @@
-import React, { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useRef, useEffect } from "react";
 
 export default function Home() {
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
+	const sidebarUseRef = useRef(null);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const pageClickEvent = (e) => {
+			// If the active element exists and is clicked outside of
+			if (sidebarUseRef.current !== "") {
+				console.log("AAA");
+				setTimeout(() => {
+					setSidebarVisible(false);
+				}, 500);
+			}
+		};
+
+		if (sidebarVisible) {
+			window.addEventListener("click", pageClickEvent);
+		}
+
+		return () => {
+			window.removeEventListener("click", pageClickEvent);
+		};
+	}, [sidebarVisible]);
 
 	const handleClick = () => {
 		window.location.reload();
 	};
 
-	const toggleSidebar = () => {
+	const toggleSidebar = (event) => {
+		event.stopPropagation();
 		setSidebarVisible(!sidebarVisible);
 	};
 
 	const closeSidebar = () => {
-		setSidebarVisible(false);
+		setTimeout(() => {
+			setSidebarVisible(false);
+		}, 500);
 	};
 
 	const handleLoginClick = () => {
@@ -54,7 +80,7 @@ export default function Home() {
 						className="hamburger"
 						height="37px"
 						width="35px"
-						onClick={() => toggleSidebar()}
+						onClick={(event) => toggleSidebar(event)}
 						onKeyDown={() => ""}
 					/>
 					<img
@@ -965,132 +991,139 @@ export default function Home() {
 				</div>
 
 				{/* <!-- Side Bar --> */}
-				{sidebarVisible && (
-					<div className="sidebar-container">
-						<aside
-							className="sidebar"
-							style={{
-								animation: "slideInFromLeft 0.5s ease-in-out",
-							}}
+				{/* {sidebarVisible && ( */}
+				<div
+					className="sidebar-container"
+					style={{ display: sidebarVisible === true ? "block" : "none" }}
+					ref={sidebarUseRef}
+				>
+					<aside
+						className="sidebar"
+						style={{
+							animation:
+								sidebarVisible === true
+									? "slideInFromLeft 0.5s ease-in-out"
+									: "slideInToLeft 0.5s ease-in-out",
+						}}
+					>
+						<div
+							className="icon-turn-back"
+							onClick={() => closeSidebar()}
+							onKeyDown={() => ""}
 						>
-							<div
-								className="icon-turn-back"
-								onClick={() => closeSidebar()}
-								onKeyDown={() => ""}
-							>
-								<img src="/assets/images/turn-back 1.png" alt="logo" />
-							</div>
-							<img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
-							<div className="flexBetween font-14">
-								<p>Username:</p>
-								<p>ST1561651</p>
-							</div>
-							<div className="flexBetween font-14">
-								<p>Phone :</p>
-								<p>095-222-9999</p>
-							</div>
-							<div className="balance">
-								<small>ยอดเงินคงเหลือ</small>
-								<p>1,000.00</p>
-							</div>
+							<img src="/assets/images/turn-back 1.png" alt="logo" />
+						</div>
+						<img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
+						<div className="flexBetween font-14">
+							<p>Username:</p>
+							<p>ST1561651</p>
+						</div>
+						<div className="flexBetween font-14">
+							<p>Phone :</p>
+							<p>095-222-9999</p>
+						</div>
+						<div className="balance">
+							<small>ยอดเงินคงเหลือ</small>
+							<p>1,000.00</p>
+						</div>
 
-							<div className="flexBetween" style={{ gap: 13 }}>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-									data-bs-toggle="modal"
-									data-bs-target="#profile"
-								>
-									โปรไฟล์
-								</button>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									data-bs-toggle="modal"
-									data-bs-target="#depositWithdraw"
-									style={{ width: "50%" }}
-								>
-									ฝาก-ถอน
-								</button>
-							</div>
-							<div className="flexBetween" style={{ gap: 1 }}>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-									id="bag-modal-btn"
-									data-bs-toggle="modal"
-									data-bs-target="#bagModal"
-								>
-									กระเป๋า
-								</button>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-									id="history-btn"
-									data-bs-toggle="modal"
-									data-bs-target="#historyModal"
-								>
-									ประวัติ
-								</button>
-							</div>
-							<div className="flexBetween" style={{ gap: 13 }}>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-								>
-									ไลน์บอท
-								</button>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-								>
-									ติดต่อพนักงาน
-								</button>
-							</div>
+						<div className="flexBetween" style={{ gap: 13 }}>
 							<button
 								type="button"
 								className="gradient-border sidebar-button flexCenter"
-								style={{ width: "100%", marginBottom: 16 }}
+								style={{ width: "50%" }}
 								data-bs-toggle="modal"
-								data-bs-target="#changePasswordModal"
+								data-bs-target="#profile"
 							>
-								เปลี่ยนรหัสผ่าน
+								โปรไฟล์
 							</button>
 							<button
 								type="button"
 								className="gradient-border sidebar-button flexCenter"
-								style={{ width: "100%", marginBottom: 16 }}
+								data-bs-toggle="modal"
+								data-bs-target="#depositWithdraw"
+								style={{ width: "50%" }}
 							>
-								ออกจากระบบ
+								ฝาก-ถอน
 							</button>
+						</div>
+						<div className="flexBetween" style={{ gap: 1 }}>
+							<button
+								type="button"
+								className="gradient-border sidebar-button flexCenter"
+								style={{ width: "50%" }}
+								id="bag-modal-btn"
+								data-bs-toggle="modal"
+								data-bs-target="#bagModal"
+							>
+								กระเป๋า
+							</button>
+							<button
+								type="button"
+								className="gradient-border sidebar-button flexCenter"
+								style={{ width: "50%" }}
+								id="history-btn"
+								data-bs-toggle="modal"
+								data-bs-target="#historyModal"
+							>
+								ประวัติ
+							</button>
+						</div>
+						<div className="flexBetween" style={{ gap: 13 }}>
+							<button
+								type="button"
+								className="gradient-border sidebar-button flexCenter"
+								style={{ width: "50%" }}
+							>
+								ไลน์บอท
+							</button>
+							<button
+								type="button"
+								className="gradient-border sidebar-button flexCenter"
+								style={{ width: "50%" }}
+							>
+								ติดต่อพนักงาน
+							</button>
+						</div>
+						<button
+							type="button"
+							className="gradient-border sidebar-button flexCenter"
+							style={{ width: "100%", marginBottom: 16 }}
+							data-bs-toggle="modal"
+							data-bs-target="#changePasswordModal"
+						>
+							เปลี่ยนรหัสผ่าน
+						</button>
+						<button
+							type="button"
+							className="gradient-border sidebar-button flexCenter"
+							style={{ width: "100%", marginBottom: 16 }}
+						>
+							ออกจากระบบ
+						</button>
 
-							<div className="download-container">
-								<h3>ดาวน์โหลดแอปเลย !</h3>
-								<div className="flexBetween" style={{ gap: 6 }}>
-									<img
-										src="/assets//images/get-it-playstore.svg"
-										alt="download icon"
-										style={{ height: 32, cursor: "pointer" }}
-									/>
-									<img
-										src="/assets//images/get-it-appstore.svg"
-										alt="download icon"
-										style={{ height: 32, cursor: "pointer" }}
-									/>
-								</div>
+						<div className="download-container">
+							<h3>ดาวน์โหลดแอปเลย !</h3>
+							<div className="flexBetween" style={{ gap: 6 }}>
+								<img
+									src="/assets//images/get-it-playstore.svg"
+									alt="download icon"
+									style={{ height: 32, cursor: "pointer" }}
+								/>
+								<img
+									src="/assets//images/get-it-appstore.svg"
+									alt="download icon"
+									style={{ height: 32, cursor: "pointer" }}
+								/>
 							</div>
+						</div>
 
-							<h4>Power by</h4>
-							<img src="/assets/images/newicon/TTT-03.png" alt="powerby" />
-						</aside>
-						<div className="sidebar-container-background" />
-					</div>
-				)}
+						<h4>Power by</h4>
+						<img src="/assets/images/newicon/TTT-03.png" alt="powerby" />
+					</aside>
+					<div className="sidebar-container-background" />
+				</div>
+				{/* )} */}
 				{/* <!-- Login Modal --> */}
 				<div className="login-modal flexCenter">
 					<div className="login-modal-wrapper flexCenter" id="login-modal">
