@@ -74,7 +74,7 @@ export default function Home() {
 		setGotoStepTwo(!false);
 	};
 	return (
-		<div className="home">
+		<div>
 			<header className="header">
 				<div className="left">
 					<img
@@ -996,18 +996,10 @@ export default function Home() {
 				{/* <!-- Side Bar --> */}
 				{/* {sidebarVisible && ( */}
 				{sidebarVisible ? (
-					<div
-						className="sidebar-container"
-						// style={{ display: sidebarVisible === true ? "block" : "none" }}
-						ref={sidebarUseRef}
-					>
+					<div className="sidebar-container" ref={sidebarUseRef}>
 						<aside
 							className="sidebar"
 							style={{
-								// animation:
-								// 	sidebarVisible
-								// 		? "slideInFromLeft 0.5s ease-in-out"
-								// 		: "slideInToLeft 0.5s ease-in-out",
 								animation: `${
 									sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
 								} 0.5s ease-in-out`,
