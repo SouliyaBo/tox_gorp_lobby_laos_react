@@ -852,7 +852,7 @@ body {
     background: #c1933b;
     color: black; }
   #signUpModal .signup-modal-content .already-have-account {
-    text-align: end;
+    text-align: center;
     width: 100%;
     font-size: 18px;
     font-weight: 600;
