@@ -975,6 +975,11 @@ body {
 
   .modal .modal-border .modal-content {
     max-width: 315px;
+    margin: 0 auto;
+
+    @media only screen and (max-width: 390px) {
+      max-width: 280px;
+    }
   }
   .header {
     padding: 13px 7px; }
@@ -2774,6 +2779,7 @@ body {
       font-weight: 600; }
 
 .change-profile-modal-content-mobile {
+
   flex-direction: column; }
   .change-profile-modal-content-mobile .card {
     margin-top: 35px;
