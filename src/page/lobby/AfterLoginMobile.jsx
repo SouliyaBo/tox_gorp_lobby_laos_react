@@ -754,10 +754,10 @@ export default function AfterLoginMobile() {
                                     <div className="detail-card-scb">
                                         <div className="card-scb flexBetween">
                                             <div className="left">
-                                                <p>ธนาคารกสิกรไทย</p>
-                                                <p>นาย xxxxx xxxxx <span><img src="/assets/images/icon-coppy.svg" alt=""
+                                                <p style={{ margin: 0 }}>ธนาคารกสิกรไทย</p>
+                                                <p style={{ margin: 0 }}>นาย xxxxx xxxxx <span><img src="/assets/images/icon-coppy.svg" alt=""
                                                     style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
-                                                <p>026-999999-9</p>
+                                                <p style={{ margin: 0 }}>026-999999-9</p>
                                             </div>
                                             <div className="right flexCenter">
                                                 <div className="flexCenter bank">
@@ -809,47 +809,49 @@ export default function AfterLoginMobile() {
 
                 {/* <!-- start  modal ฝากทศนิยม --> */}
                 <div className="modal fade" id="leaveAdecimal" tabindex="-1" aria-labelledby="leaveAdecimal" aria-hidden="true">
-                    <div className="modal-border">
-                        <div className="modal-content">
-                            <div className="modal-header-container">
-                                <div className="modal-header">
-                                    <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
-                                        data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
-                                    <p className="modal-title" id="leaveAdecimal">ฝากทศนิยม</p>
-                                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
-                                        aria-label="Close" alt="" />
-                                </div>
-                            </div>
-                            <div className="modal-body">
-                                <div style={{ padding: 20, marginTop: 20, fontSize: 13 }}>
-                                    <ul>
-                                        <li>ฝากขั้นต่ำ 1.00 บาท สูงสุด 2,000.00 บาท</li>
-                                    </ul>
-                                </div>
-                                <div style={{ width: "100%" }}>
-                                    <input type="text" className="text-amount-money" placeholder="กรอกจำนวนเงินที่ต้องการฝาก" />
-                                    <p style={{ color: "#ff0000" }}>กรุณากรอกข้อมูล</p>
-                                </div>
-                                <div>
-                                    <div className="confirm-the-amount" style={{ cursor: "pointer" }} data-bs-toggle="modal"
-                                        data-bs-target="#leaveAdecimal1" data-bs-dismiss="modal">
-                                        <div>ยืนยันจำนวนเงิน</div>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-border">
+                            <div className="modal-content">
+                                <div className="modal-header-container">
+                                    <div className="modal-header">
+                                        <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
+                                            data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
+                                        <p className="modal-title" id="leaveAdecimal">ฝากทศนิยม</p>
+                                        <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
+                                            aria-label="Close" alt="" />
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'center', marginTop: 10 }}>
-                                    <div>
-                                        พบปัญหา
-                                        <span style={{
-                                            color: 'rgba(0, 252, 252, 1)',
-                                            textDecoration: 'underline',
-                                            cursor: 'pointer',
-                                        }}>ติดต่อฝ่ายบริการลูกค้า</span>
+                                <div className="modal-body">
+                                    <div style={{ padding: 20, marginTop: 20, fontSize: 13 }}>
+                                        <ul>
+                                            <li>ฝากขั้นต่ำ 1.00 บาท สูงสุด 2,000.00 บาท</li>
+                                        </ul>
                                     </div>
-                                </div>
-                                <div className="button-line" style={{ cursor: 'pointer', width: '95%', margin: '0 auto' }}>
+                                    <div style={{ width: "100%" }}>
+                                        <input type="text" className="text-amount-money" placeholder="กรอกจำนวนเงินที่ต้องการฝาก" />
+                                        <p style={{ color: "#ff0000" }}>กรุณากรอกข้อมูล</p>
+                                    </div>
                                     <div>
-                                        <img src="/assets/icons/icon-line.svg" alt="line" /> ไลน์บอท /
-                                        แจ้งเตือนยอดฝาก - ถอน
+                                        <div className="confirm-the-amount" style={{ cursor: "pointer" }} data-bs-toggle="modal"
+                                            data-bs-target="#leaveAdecimal1" data-bs-dismiss="modal">
+                                            <div>ยืนยันจำนวนเงิน</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center', marginTop: 10 }}>
+                                        <div>
+                                            พบปัญหา
+                                            <span style={{
+                                                color: 'rgba(0, 252, 252, 1)',
+                                                textDecoration: 'underline',
+                                                cursor: 'pointer',
+                                            }}>ติดต่อฝ่ายบริการลูกค้า</span>
+                                        </div>
+                                    </div>
+                                    <div className="button-line" style={{ cursor: 'pointer', width: '95%', margin: '0 auto' }}>
+                                        <div>
+                                            <img src="/assets/icons/icon-line.svg" alt="line" /> ไลน์บอท /
+                                            แจ้งเตือนยอดฝาก - ถอน
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -860,48 +862,50 @@ export default function AfterLoginMobile() {
 
                 {/* <!-- start  modal ฝากทศนิยม --> */}
                 <div className="modal fade" id="leaveAdecimal1" tabindex="-1" aria-labelledby="leaveAdecimal1" aria-hidden="true">
-                    <div className="modal-border">
-                        <div className="modal-content">
-                            <div className="modal-header-container">
-                                <div className="modal-header">
-                                    <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
-                                        data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
-                                    <p className="modal-title" id="leaveAdecimal1">ฝากทศนิยม</p>
-                                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
-                                        aria-label="Close" alt="" />
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-border">
+                            <div className="modal-content">
+                                <div className="modal-header-container">
+                                    <div className="modal-header">
+                                        <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
+                                            data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
+                                        <p className="modal-title" id="leaveAdecimal1">ฝากทศนิยม</p>
+                                        <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
+                                            aria-label="Close" alt="" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="modal-body">
-                                <div className="leaveAdecimal1 flexCenter">
-                                    <p>ยอดเงินที่ต้องโอน</p>
-                                    <h3 className="money-value">111.11</h3>
-                                    <p>
-                                        กรุณาโอนเงินภายใน <span style={{ color: 'red' }}>00.00</span> นาที
-                                    </p>
+                                <div className="modal-body">
+                                    <div className="leaveAdecimal1 flexCenter">
+                                        <p>ยอดเงินที่ต้องโอน</p>
+                                        <h3 className="money-value">111.11</h3>
+                                        <p>
+                                            กรุณาโอนเงินภายใน <span style={{ color: 'red' }}>00.00</span> นาที
+                                        </p>
 
-                                    <div className="bank-card flexBetween">
-                                        <div className="left">
-                                            <p>ธนาคารไทยพาณิชย์</p>
-                                            <p>026-999999-9 <span><img src="/assets/images/icon-coppy.svg" alt=""
-                                                style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
-                                            <p>นาย xxxxx xxxxx</p>
+                                        <div className="bank-card flexBetween">
+                                            <div className="left">
+                                                <p>ธนาคารไทยพาณิชย์</p>
+                                                <p>026-999999-9 <span><img src="/assets/images/icon-coppy.svg" alt=""
+                                                    style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
+                                                <p>นาย xxxxx xxxxx</p>
+                                            </div>
+                                            <div className="right">
+                                                <p style={{ transform: "translateY(30%)" }}>SCB</p>
+                                                <img src="/assets/images/scb 1.png" alt="bank icon" />
+                                            </div>
+                                            <img className="visa" src="/assets/icons/visa.svg" alt="visa" />
                                         </div>
-                                        <div className="right">
-                                            <p style={{ transform: "translateY(30%)" }}>SCB</p>
-                                            <img src="/assets/images/scb 1.png" alt="bank icon" />
+
+                                        <div className="warning-box flexCenter">
+                                            กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
                                         </div>
-                                        <img className="visa" src="/assets/icons/visa.svg" alt="visa" />
-                                    </div>
 
-                                    <div className="warning-box flexCenter">
-                                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                        <p className="contact">พบปัญหา <a href='/'>ติดต่อฝ่ายบริการลูกค้า</a></p>
+                                        <button type='button' className="line-button flexCenter" style={{ padding: '5px 5px', borderRadius: 5 }}>
+                                            <img src="/assets/icons/icon-line.svg" alt="line icon" />
+                                            <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                                        </button>
                                     </div>
-
-                                    <p className="contact">พบปัญหา <a href='/'>ติดต่อฝ่ายบริการลูกค้า</a></p>
-                                    <button type='button' className="line-button flexCenter" style={{ padding: '5px 5px', borderRadius: 5 }}>
-                                        <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                                        <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -912,64 +916,66 @@ export default function AfterLoginMobile() {
                 {/* <!-- ถอนเงิน start  modal --> */}
 
                 <div className="modal fade" id="withdraw" tabindex="-1" aria-labelledby="withdraw" aria-hidden="true">
-                    <div className="modal-border">
-                        <div className="modal-content">
-                            <div className="modal-header-container">
-                                <div className="modal-header">
-                                    <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
-                                        data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
-                                    <p className="modal-title" id="withdraw">ถอนเงิน</p>
-                                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
-                                        aria-label="Close" alt="" />
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-border">
+                            <div className="modal-content">
+                                <div className="modal-header-container">
+                                    <div className="modal-header">
+                                        <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
+                                            data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
+                                        <p className="modal-title" id="withdraw">ถอนเงิน</p>
+                                        <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
+                                            aria-label="Close" alt="" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="modal-body">
-                                <div className="withdraw-modal-content flexCenter">
-                                    <div className="card flexBetween">
-                                        <div className="left flexCenter">
-                                            <p>ธนาคารกสิกรไทย</p>
-                                            <p>นาย xxxxx xxxxx</p>
-                                            <p>026-999999-9</p>
-                                        </div>
-                                        <div className="right flexCenter">
-                                            <div className="flexCenter bank">
-                                                <h4>KBank</h4>
-                                                <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
-                                                    <img src="/assets/images/kbank 1.png" alt="kbank" />
+                                <div className="modal-body">
+                                    <div className="withdraw-modal-content" >
+                                        <div className="card" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', color: '#FFF' }}>
+                                            <div className="left ">
+                                                <p style={{ margin: 'none' }}>ธนาคารกสิกรไทย</p>
+                                                <p style={{ margin: 'none' }}>นาย xxxxx xxxxx</p>
+                                                <p style={{ margin: 'none' }}>026-999999-9</p>
+                                            </div>
+                                            <div className="right">
+                                                <div className="flexCenter bank">
+                                                    <h4>KBank</h4>
+                                                    <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
+                                                        <img src="/assets/images/kbank 1.png" alt="kbank" />
+                                                    </div>
+                                                </div>
+                                                <div className="balance">
+                                                    <p style={{ margin: 0 }}>ยอดคงเหลือในระบบ</p>
+                                                    <p style={{ margin: 0 }}>1000.00 บาท</p>
+                                                </div>
+                                                <div className="visa">
+                                                    <img src="/assets/icons/visa.svg" alt="visa" />
                                                 </div>
                                             </div>
-                                            <div className="balance">
-                                                <p>ยอดคงเหลือในระบบ</p>
-                                                <p>1000.00 บาท</p>
-                                            </div>
-                                            <div className="visa">
-                                                <img src="/assets/icons/visa.svg" alt="visa" />
-                                            </div>
                                         </div>
+
+                                        <div className="slider-wrapper flexBetween">
+                                            <div className="active slider" />
+                                            <div className="slider" />
+                                        </div>
+
+                                        <div className="money-input flexBetween">
+                                            <p>จำนวนเงินที่ถอนได้</p>
+                                            <input type="text" placeholder="1000" />
+                                        </div>
+                                        <div className="money-input flexBetween">
+                                            <p style={{ color: "red" }}>กรุณาระบุจำนวนที่จะถอน</p>
+                                            <input type="text" placeholder="1000" />
+                                        </div>
+
+                                        <div className="button-warning">ถอนเงิน</div>
+
+                                        <p>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
+
+                                        <button type='button' className="line-button flexCenter">
+                                            <img src="/assets/icons/icon-line.svg" alt="line icon" />
+                                            <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                                        </button>
                                     </div>
-
-                                    <div className="slider-wrapper flexBetween">
-                                        <div className="active slider" />
-                                        <div className="slider" />
-                                    </div>
-
-                                    <div className="money-input flexBetween">
-                                        <p>จำนวนเงินที่ถอนได้</p>
-                                        <input type="text" placeholder="1000" />
-                                    </div>
-                                    <div className="money-input flexBetween">
-                                        <p style={{ color: "red" }}>กรุณาระบุจำนวนที่จะถอน</p>
-                                        <input type="text" placeholder="1000" />
-                                    </div>
-
-                                    <div className="button-warning">ถอนเงิน</div>
-
-                                    <p>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
-
-                                    <button type='button' className="line-button flexCenter">
-                                        <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                                        <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                    </button>
                                 </div>
                             </div>
                         </div>
