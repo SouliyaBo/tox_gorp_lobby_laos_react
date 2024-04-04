@@ -10,7 +10,6 @@ export default function Home() {
 	const [tabs, setTabs] = useState("ประวัติฝาก");
 	const [tabName, setTabName] = useState("tab-deposit");
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const pageClickEvent = (e) => {
 			// If the active element exists and is clicked outside of
@@ -1179,9 +1178,10 @@ export default function Home() {
 							รหัสคือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ
 						</div>
 						<div className="button-container">
-							<button type="button" id="login-btn">
-								เข้าสู่ระบบ
+							<a href={constant?.AFTER_LOGIN}><button type="button" id="login-btn">
+								เข้าสู่ระบบ1
 							</button>
+							</a>
 							<button type="button">สมัครสมาชิก</button>
 						</div>
 						<div className="problem">พบปัญหาติดต่อเรา</div>

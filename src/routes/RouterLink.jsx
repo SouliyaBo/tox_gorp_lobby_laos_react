@@ -15,6 +15,8 @@ import Home from "../page/home/Home";
 import LoginPageMobile from "../page/home/LoginPageMobile";
 import RegisterStep1 from "../page/home/RegisterStep1";
 import RegisterStep2 from "../page/home/RegisterStep2";
+import AfterLogin from "../page/lobby/AfterLogin";
+import AfterLoginMobile from "../page/lobby/AfterLoginMobile";
 
 
 function RouterLink() {
@@ -27,6 +29,8 @@ function RouterLink() {
           <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE} component={LoginPageMobile} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP1} component={RegisterStep1} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP2} component={RegisterStep2} />
+          <PublicRoute exact path={Const.AFTER_LOGIN} component={AfterLogin} />
+          <PublicRoute exact path={Const.AFTER_LOGIN_MOBILE} component={AfterLoginMobile} />
           <Route
             render={({ location, history }) => (
               <React.Fragment>
