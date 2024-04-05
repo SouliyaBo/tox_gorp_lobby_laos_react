@@ -913,7 +913,8 @@ body {
     padding: 29px !important;
   }
   .brand {
-    height: 130px; }
+    height: 130px;
+  }
   .slideshow-container-after-login {
     position: relative;
     margin: auto;
@@ -975,7 +976,14 @@ body {
 
   .modal .modal-border .modal-content {
     max-width: 315px;
+    margin: 0 auto;
+
   }
+  /* @media only screen and (max-width: 390px) {
+      .modal .modal-border .modal-content {
+    max-width: 280px;
+      }
+  } */
   .header {
     padding: 13px 7px; }
     .header .left .hamburger {
@@ -1738,6 +1746,7 @@ body {
     width: 300px; }
   .brand {
     height: 280px; }
+
     .brand img {
       height: 100%;
       width: 100%;
@@ -2774,6 +2783,7 @@ body {
       font-weight: 600; }
 
 .change-profile-modal-content-mobile {
+
   flex-direction: column; }
   .change-profile-modal-content-mobile .card {
     margin-top: 35px;
@@ -4838,4 +4848,19 @@ button {
 
 .modal-backdrop.show {
     opacity: 0;
+}
+
+.each-slide-effect > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  height: 350px;
+}
+
+.each-slide-effect span {
+  padding: 20px;
+  font-size: 20px;
+  background: #efefef;
+  text-align: center;
 }

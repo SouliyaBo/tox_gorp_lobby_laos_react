@@ -6,5 +6,6 @@ module.exports = {
     HOME: "/",
     AFTER_LOGIN: "/lobby",
     AFTER_LOGIN_MOBILE: "/lobby-mobile",
+    TEST: "/slide",
 
 };

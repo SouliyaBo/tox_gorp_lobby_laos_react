@@ -1,10 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
+import 'react-slideshow-image/dist/styles.css'
+import { Slide } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css'
+
 export default function AfterLogin() {
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
+    const [slideIndex, setSlideIndex] = useState(1);
 
     useEffect(() => {
         const pageClickEvent = (e) => {
@@ -25,6 +30,14 @@ export default function AfterLogin() {
             window.removeEventListener("click", pageClickEvent);
         };
     }, [sidebarVisible]);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
+        const interval = setInterval(() => {
+            plusSlides(1);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [slideIndex]);
 
     const toggleSidebar = (event) => {
         event.stopPropagation();
@@ -48,6 +61,39 @@ export default function AfterLogin() {
             setTabs("ประวัติโบนัส");
         }
     };
+
+    const plusSlides = (n) => {
+        console.log("n: ", n)
+        showSlides(slideIndex + n);
+    }
+
+    function currentSlide(n) {
+        showSlides(n);
+    }
+
+    const showSlides = (n) => {
+
+        const slides = document.getElementsByClassName("mySlides");
+        const dots = document.getElementsByClassName("dot");
+        console.log("slides:: ", slides.length)
+        if (n > slides.length) {
+            // setSlideIndex(1);
+        }
+        // if (n < 1) {
+        //     setSlideIndex(slides.length);
+        // }
+        // for (let i = 0; i < slides.length; i++) {
+        //     slides[i].style.display = "none";
+        // }
+        // for (let i = 0; i < dots.length; i++) {
+        //     dots[i].className = dots[i].className.replace(" slide-active", "");
+        // }
+        // slides[slideIndex - 1].style.display = "block";
+        // dots[slideIndex - 1].className += " slide-active";
+        // setSlideIndex(n);
+    }
+
+
     return (
         <div>
             <header className="login-page-header">
@@ -97,29 +143,19 @@ export default function AfterLogin() {
                 </div>
                 <div className="brand">
                     <div className="slideshow-container">
-                        {/* <!-- <div className="mySlides fade-slide">
-                          <img src="/assets/images/brand.png" style="width: 100%" alt="brand" />
-                      </div> --> */}
+
                         <div className="mySlides fade-slide">
                             <img src="/assets/images/Cardgame/image 70.png" style={{ width: "100%" }} alt="brand" />
                         </div>
 
-                        {/* <!-- <div className="mySlides fade-slide">
-                          <img src="/assets/images/WhatsApp Image 2023-12-20 at 00.38.00.jpeg" style="width: 100%" />
-                      </div>
-
-                      <div className="mySlides fade-slide">
-                          <img src="/assets/images/WhatsApp Image 2023-12-20 at 00.46.27.jpeg" style="width: 100%" />
-                      </div> --> */}
-
-                        <a className="prev" href='/' onclick="plusSlides(-1)">❮</a>
-                        <a className="next" href='/' onclick="plusSlides(1)">❯</a>
+                        <a className="prev" onClick={plusSlides(-1)}>❮</a>
+                        <a className="next" onClick={plusSlides(1)}>❯</a>
                     </div>
 
                     <div style={{ textAlign: "center" }}>
-                        <span className="dot" onclick="currentSlide(1)" />
-                        <span className="dot" onclick="currentSlide(2)" />
-                        <span className="dot" onclick="currentSlide(3)" />
+                        <span className="dot" onClick={() => currentSlide(1)} onKeyDown={() => ''} />
+                        <span className="dot" onClick={() => currentSlide(2)} onKeyDown={() => ''} />
+                        <span className="dot" onClick={() => currentSlide(3)} onKeyDown={() => ''} />
                     </div>
                 </div>
                 <div className="marquee-custome">
