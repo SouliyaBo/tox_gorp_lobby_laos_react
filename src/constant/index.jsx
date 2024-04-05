@@ -6,6 +6,9 @@ module.exports = {
     PAGE_REGISTER_STEP1: "/register-step1",
     PAGE_REGISTER_STEP2: "/register-step2",
     HOME: "/",
+    AFTER_LOGIN: "/lobby",
+    AFTER_LOGIN_MOBILE: "/lobby-mobile",
+    TEST: "/slide",
 
     AGEN_CODE: "AG019",
     

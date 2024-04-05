@@ -63,7 +63,7 @@ export default function LoginPageMobile() {
                 </div>
 
                 <div className="button-container flexCenter">
-                    <button type='button' style={{ cursor: 'pointer' }} id="loginBtn">เข้าสู่ระบบ</button>
+                    <a href={constant?.AFTER_LOGIN_MOBILE}> <button type='button' style={{ cursor: 'pointer' }} id="loginBtn">เข้าสู่ระบบ</button></a>
                     <a href={constant?.PAGE_REGISTER_STEP1}> <button type='button' style={{ cursor: 'pointer' }} id="signupBtn">สมัครสมาชิก</button></a>
                 </div>
 

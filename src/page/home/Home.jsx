@@ -29,7 +29,6 @@ export default function Home() {
     const [messageCreate, setMessageCreate] = useState()
 
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const pageClickEvent = (e) => {
 			// If the active element exists and is clicked outside of

@@ -908,9 +908,13 @@ body {
   font-weight: 600;
   color: #fff; }
 
-@media (max-width: 480px) {
+@media only screen and (max-width: 480px) {
+  .modal {
+    padding: 29px !important;
+  }
   .brand {
-    height: 130px; }
+    height: 130px;
+  }
   .slideshow-container-after-login {
     position: relative;
     margin: auto;
@@ -969,9 +973,17 @@ body {
       display: inline-block;
       transition: background-color 0.6s ease;
       margin-bottom: 4px; }
+
   .modal .modal-border .modal-content {
-    max-width: 315px !important;
+    max-width: 315px;
+    margin: 0 auto;
+
   }
+  /* @media only screen and (max-width: 390px) {
+      .modal .modal-border .modal-content {
+    max-width: 280px;
+      }
+  } */
   .header {
     padding: 13px 7px; }
     .header .left .hamburger {
@@ -1734,6 +1746,7 @@ body {
     width: 300px; }
   .brand {
     height: 280px; }
+
     .brand img {
       height: 100%;
       width: 100%;
@@ -1825,10 +1838,14 @@ body {
         display: flex;
         justify-content: space-between; }
         .modal .modal-content .modal-body .detail-card-scb .card-scb .left {
-          font-size: 16px;
           display: flex;
           flex-direction: column;
-          gap: 0.8rem; }
+          gap: 6px;
+        }
+        .modal .modal-content .modal-body .detail-card-scb .card-scb .left p {
+          font-size: 16px;
+          margin: none;
+        }
         .modal .modal-content .modal-body .detail-card-scb .card-scb .right {
           display: flex;
           flex-direction: column;
@@ -1902,31 +1919,42 @@ body {
             .modal .modal-content .modal-body .detail-card-scb1 .card-scb1 .right .visa img {
               width: 100%;
               height: 100%;
-              object-fit: contain; }
+              object-fit: contain;
+            }
       .modal .modal-content .modal-body .withdraw-modal-content .card {
         width: 416.705px;
         height: 220px;
-        background: url("/public/assets/images/green-card-bg.svg") linear-gradient(257deg, #00481d 0%, #00a036 100%);
+        background: transparent;
+        background-image: url("/public/assets/images/green-card-bg.svg");
         background-size: contain;
         background-repeat: no-repeat;
-        border: none; }
+        border: none;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding-left: 18px;
+        padding-right: 18px;
+        box-shadow:inset 0px 4px 0px 0px rgba(0, 0, 0, 0.25);
+        color: #FFF;
+      }
         .modal .modal-content .modal-body .withdraw-modal-content .card .left {
-          gap: 1rem; }
+          gap: 0.4rem; }
           .modal .modal-content .modal-body .withdraw-modal-content .card .left p {
-            font-size: 18px; }
+            font-size: 16px; }
         .modal .modal-content .modal-body .withdraw-modal-content .card .right {
           gap: 10px; }
           .modal .modal-content .modal-body .withdraw-modal-content .card .right .bank h4 {
-            font-size: 18px; }
+            font-size: 16px; }
           .modal .modal-content .modal-body .withdraw-modal-content .card .right .bank :last-child {
             width: 47px;
             height: 47px; }
           .modal .modal-content .modal-body .withdraw-modal-content .card .right .balance :first-child {
-            font-size: 18px; }
+            font-size: 16px; }
           .modal .modal-content .modal-body .withdraw-modal-content .card .right .balance :last-child {
-            font-size: 25px; }
+            font-size: 18px; }
           .modal .modal-content .modal-body .withdraw-modal-content .card .right .visa {
-            width: 79px; }
+            width: 79px;
+          }
       .modal .modal-content .modal-body .withdraw-modal-content .slider-wrapper .active.slider,
       .modal .modal-content .modal-body .withdraw-modal-content .slider-wrapper .slider {
         width: 75px;
@@ -2755,6 +2783,7 @@ body {
       font-weight: 600; }
 
 .change-profile-modal-content-mobile {
+
   flex-direction: column; }
   .change-profile-modal-content-mobile .card {
     margin-top: 35px;
@@ -2766,7 +2795,12 @@ body {
     background-image: url("/public/assets/images/green-card-bg.svg");
     background-position: center;
     background-repeat: no-repeat;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); }
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: #FFF;
+   }
     .change-profile-modal-content-mobile .card .left {
       height: 100%; }
     .change-profile-modal-content-mobile .card .right {
@@ -2779,6 +2813,7 @@ body {
         align-items: center;
         justify-content: flex-end; }
         .change-profile-modal-content-mobile .card .right .bank p {
+          margin: 0;
           font-weight: bold; }
         .change-profile-modal-content-mobile .card .right .bank img {
           width: 30px;
@@ -2916,21 +2951,28 @@ body {
     border: 2px solid #f9df7b;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     background-image: url("/public/assets/images/green-card-bg.svg");
-    background-position: center; }
+    background-position: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: #FFF;
+  }
     .deposit-withdraw-modal-content .card .left {
       flex-direction: column;
       gap: 0.5rem; }
       .deposit-withdraw-modal-content .card .left p {
         font-size: 14px;
         font-weight: 600;
+        margin: 0;
         text-align: left;
         width: 100%; }
     .deposit-withdraw-modal-content .card .right {
       flex-direction: column;
-      gap: 10px; }
+      gap: 6px; }
       .deposit-withdraw-modal-content .card .right .bank {
         gap: 5px; }
-        .deposit-withdraw-modal-content .card .right .bank h4 {
+        .deposit-withdraw-modal-content .card .right .bank p {
+        margin: 0;
           font-size: 14px;
           font-weight: 600; }
         .deposit-withdraw-modal-content .card .right .bank :last-child {
@@ -2940,6 +2982,7 @@ body {
             object-fit: contain; }
       .deposit-withdraw-modal-content .card .right .balance :first-child {
         font-size: 10px;
+        margin: 0;
         font-weight: 600; }
       .deposit-withdraw-modal-content .card .right .balance :last-child {
         font-size: 14px;
@@ -3355,7 +3398,9 @@ body {
     border: 2px solid #f9df7b;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     background-image: url("/public/assets/images/green-card-bg.svg");
-    background-position: center; }
+    background-position: center;
+
+  }
     .withdraw-modal-content .card .left {
       flex-direction: column;
       gap: 0.5rem; }
@@ -4803,4 +4848,19 @@ button {
 
 .modal-backdrop.show {
     opacity: 0;
+}
+
+.each-slide-effect > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  height: 350px;
+}
+
+.each-slide-effect span {
+  padding: 20px;
+  font-size: 20px;
+  background: #efefef;
+  text-align: center;
 }
