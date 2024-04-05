@@ -123,10 +123,9 @@ export default function Home() {
 				},
 			});
 			if (_res?.data?.statusCode === 0) {
-				console.log("_res?.data?.data: ", _res?.data?.data)
-				// localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
-				// localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
-				// history.push(Const.HOME)
+				localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
+				localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
+				history.push(constant.AFTER_LOGIN)
 			} else {
 				setMessageCreate(_res?.data?.statusDesc)
 			}
@@ -185,11 +184,37 @@ const CreateUser = async () => {
 				},
 			});
 			if (_resThree?.data.statusCode === 0) {
+				localStorage.setItem(LOGIN_TOKEN_DATA, _resTwo?.data?.data?.token)
+				localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_resTwo?.data?.data))
+				history.push(constant.AFTER_LOGIN)
+
+				_loginAfterRegister(_resTwo?.data?.data?.s_username, _resTwo?.data?.data?.s_password)
 				setSuccessDataRegister({..._resThree?.data,..._resTwo?.data,s_password:inputPassword})
 			}
         }
 	} else {
 		// setMessageCreate(_resTwo?.data?.statusDesc)
+	}
+}
+const _loginAfterRegister = async (username, password) => {
+	try {
+		let _res = await axios({
+			method: 'post',
+			url: SERVER_URL + '/Authen/Login',
+			data: {
+				"agentCode": AGEN_CODE,
+				"username": username, //"txnaa0003",
+				"password": password,//"11111111",
+				"ip": "1.2.3.4"
+			},
+		});
+		if (_res?.data.statusCode === 0) {
+			localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
+			localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
+				history.push(constant.AFTER_LOGIN)
+		}
+	} catch (error) {
+		console.log("🚀 ~ const_login= ~ error:", error)
 	}
 }
 
