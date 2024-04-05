@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
-import constant from "../../constant"
+import constant from "../../constant";
 import axios from "axios";
-import { useHistory,useParams } from "react-router-dom";
-import queryString from 'query-string';
+import { useHistory, useParams } from "react-router-dom";
+import queryString from "query-string";
 
-const { 
-    AGEN_CODE,
-    SERVER_URL,
-    LOGIN_USER_DATA, 
-    LOGIN_TOKEN_DATA
- } = require("../../constant");
+const {
+	AGEN_CODE,
+	SERVER_URL,
+	LOGIN_USER_DATA,
+	LOGIN_TOKEN_DATA,
+} = require("../../constant");
 
 export default function Home() {
 	const history = useHistory();
@@ -25,8 +25,8 @@ export default function Home() {
 	const [tabs, setTabs] = useState("ประวัติฝาก");
 	const [tabName, setTabName] = useState("tab-deposit");
 	const [userNameInput, setUserNameInput] = useState();
-    const [passwordInput, setPasswordInput] = useState();
-    const [messageCreate, setMessageCreate] = useState()
+	const [passwordInput, setPasswordInput] = useState();
+	const [messageCreate, setMessageCreate] = useState()
 
 
 	useEffect(() => {
@@ -109,10 +109,10 @@ export default function Home() {
 		}
 	};
 
-// ===== LoginController =====>
+	// ===== LoginController =====>
 	const LoginController = async () => {
 		try {
-			let _res = await axios({
+			const _res = await axios({
 				method: 'post',
 				url: SERVER_URL + '/Authen/Login',
 				data: {
@@ -123,77 +123,102 @@ export default function Home() {
 				},
 			});
 			if (_res?.data?.statusCode === 0) {
-				console.log("_res?.data?.data: ", _res?.data?.data)
-				// localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
-				// localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
-				// history.push(Const.HOME)
+				localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
+				localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
+				history.push(constant.AFTER_LOGIN)
 			} else {
 				setMessageCreate(_res?.data?.statusDesc)
 			}
 		} catch (error) {
 			// setMessageCreate(_res?.data?.statusDesc)
 		}
-		}
-// ===== CreateUser =====>
-const [inputPhonenumber, setInputPhonenumber] = useState()
-const [inputPassword, setInputPassword] = useState()
-const [inputBank, setInputBank] = useState()
-const [inputFirstname, setInputFirstname] = useState()
-const [inputLastname, setInputLastname] = useState()
-const [successDataRegister, setSuccessDataRegister] = useState()
-
-const CreateUser = async () => {
-	let _date = {
-		"s_agent_code": AGEN_CODE,
-		"s_phone": inputPhonenumber,
-		"s_password": inputPassword,
-		"i_bank": "20",
-		"s_account_no": inputBank,
-		"s_channel": "GOOGLE",
-		"s_line": "line@",
-		"type_shorturl": true,
-		"s_ref": parsed?.ref,
-		"s_channel_name": AGEN_CODE,
-		"i_channel": "134",
 	}
-	let _resOne = await axios({
-		method: 'post',
-		url: SERVER_URL + '/Member/Register/Verify',
-		data: _date,
-	});
-	if (_resOne?.data?.statusCode === 0) {
-		let _resTwo = await axios({
-            method: 'post',
-            url: SERVER_URL + '/Member/Register/Confirm',
-            data: {
-				..._resOne?.data?.data,
-				"s_firstname": inputFirstname,
-				"s_lastname": inputLastname,
-				"s_fullname": inputFirstname + " " + inputLastname,
-				"s_channel_name": AGEN_CODE,
-				"i_channel": "134",
-			},
-        });
-		console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data)
-		if (_resTwo?.data.statusCode === 0) {
-			let _resThree = await axios({
+	// ===== CreateUser =====>
+	const [inputPhonenumber, setInputPhonenumber] = useState()
+	const [inputPassword, setInputPassword] = useState()
+	const [inputBank, setInputBank] = useState()
+	const [inputFirstname, setInputFirstname] = useState()
+	const [inputLastname, setInputLastname] = useState()
+	const [successDataRegister, setSuccessDataRegister] = useState()
+
+	const CreateUser = async () => {
+		const _date = {
+			"s_agent_code": AGEN_CODE,
+			"s_phone": inputPhonenumber,
+			"s_password": inputPassword,
+			"i_bank": "20",
+			"s_account_no": inputBank,
+			"s_channel": "GOOGLE",
+			"s_line": "line@",
+			"type_shorturl": true,
+			"s_ref": parsed?.ref,
+			"s_channel_name": AGEN_CODE,
+			"i_channel": "134",
+		}
+		const _resOne = await axios({
+			method: 'post',
+			url: SERVER_URL + '/Member/Register/Verify',
+			data: _date,
+		});
+		if (_resOne?.data?.statusCode === 0) {
+			const _resTwo = await axios({
 				method: 'post',
-				url: SERVER_URL + '/Member/Balance',
+				url: SERVER_URL + '/Member/Register/Confirm',
 				data: {
-					"s_agent_code": AGEN_CODE,
-					"s_username": _resTwo?.data?.data?.s_username
+					..._resOne?.data?.data,
+					"s_firstname": inputFirstname,
+					"s_lastname": inputLastname,
+					"s_fullname": inputFirstname + " " + inputLastname,
+					"s_channel_name": AGEN_CODE,
+					"i_channel": "134",
 				},
 			});
-			if (_resThree?.data.statusCode === 0) {
-				setSuccessDataRegister({..._resThree?.data,..._resTwo?.data,s_password:inputPassword})
-			}
-        }
-	} else {
-		// setMessageCreate(_resTwo?.data?.statusDesc)
-	}
-}
+			console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data)
+			if (_resTwo?.data.statusCode === 0) {
+				const _resThree = await axios({
+					method: 'post',
+					url: SERVER_URL + '/Member/Balance',
+					data: {
+						"s_agent_code": AGEN_CODE,
+						"s_username": _resTwo?.data?.data?.s_username
+					},
+				});
+				if (_resThree?.data.statusCode === 0) {
+					localStorage.setItem(LOGIN_TOKEN_DATA, _resTwo?.data?.data?.token)
+					localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_resTwo?.data?.data))
+					history.push(constant.AFTER_LOGIN)
 
-console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
+					_loginAfterRegister(_resTwo?.data?.data?.s_username, _resTwo?.data?.data?.s_password)
+					setSuccessDataRegister({ ..._resThree?.data, ..._resTwo?.data, s_password: inputPassword })
+				}
+			}
+		} else {
+			// setMessageCreate(_resTwo?.data?.statusDesc)
+		}
+	}
+	const _loginAfterRegister = async (username, password) => {
+		try {
+			const _res = await axios({
+				method: 'post',
+				url: SERVER_URL + '/Authen/Login',
+				data: {
+					"agentCode": AGEN_CODE,
+					"username": username, //"txnaa0003",
+					"password": password,//"11111111",
+					"ip": "1.2.3.4"
+				},
+			});
+			if (_res?.data.statusCode === 0) {
+				localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
+				localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
+				history.push(constant.AFTER_LOGIN)
+			}
+		} catch (error) {
+			console.log("🚀 ~ const_login= ~ error:", error)
+		}
+	}
+
+	console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 
 
 	return (
@@ -1282,24 +1307,21 @@ console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 								onChange={(e) => setPasswordInput(e?.target?.value)}
 							/>
 						</div>
-							<div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
+						<div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
 						<div className="button-container">
-<<<<<<< HEAD
+							<button type="button" id="login-btn" onClick={() => LoginController()}>
+								เข้าสู่ระบบ
+							</button>
+							<button type="button"
+								onClick={() => handleCloseLoginClick()}
+								id="signUp-btn"
+								data-bs-toggle="modal"
+								data-bs-target="#signUpModal">สมัครสมาชิก</button>
 							<a href={constant?.AFTER_LOGIN}><button type="button" id="login-btn">
 								เข้าสู่ระบบ1
 							</button>
 							</a>
 							<button type="button">สมัครสมาชิก</button>
-=======
-							<button type="button" id="login-btn" onClick={() => LoginController()}>
-								เข้าสู่ระบบ
-							</button>
-							<button type="button" 
-							onClick={() => handleCloseLoginClick()}
-							id="signUp-btn"
-							data-bs-toggle="modal"
-						data-bs-target="#signUpModal">สมัครสมาชิก</button>
->>>>>>> origin/dev2
 						</div>
 						<div className="problem">พบปัญหาติดต่อเรา</div>
 					</div>
@@ -1334,10 +1356,10 @@ console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 										/>
 										<div className="step-container">
 											<div
-											style={{cursor: 'pointer'}}
-												className={`step-item${gotoStepTwo === false ? " active" : ""
-													}`}
+												style={{ cursor: 'pointer' }}
+												className={`step-item${gotoStepTwo === false ? " active" : ""}`}
 												onClick={() => _gotoSet1()}
+												onKeyDown={() => ""}
 												id="step-item1"
 											>
 												<span className="step-item-box">1</span>
@@ -1368,8 +1390,8 @@ console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 											id="form-step-one"
 										>
 											<div style={{ textAlign: "center" }}>
-											<h3 className="signup-header">สมัครสมาชิก</h3>
-											<h3 className="signup-title">กรอกเบอร์</h3>
+												<h3 className="signup-header">สมัครสมาชิก</h3>
+												<h3 className="signup-title">กรอกเบอร์</h3>
 											</div>
 											<div className="phone-input">
 												<img src="/assets/icons/phone.svg" alt="icon" />
@@ -1424,10 +1446,10 @@ console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 												ถัดไป
 											</button>
 											<div style={{ textAlign: "center" }}>
-											<div className="already-have-account">
-												คุณมีบัญชีอยู่แล้ว
-												<span className="go-to-login">เข้าสู่ระบบ</span>
-											</div>
+												<div className="already-have-account">
+													คุณมีบัญชีอยู่แล้ว
+													<span className="go-to-login">เข้าสู่ระบบ</span>
+												</div>
 											</div>
 										</div>
 										{/* <!-- end step one --> */}
@@ -1441,20 +1463,20 @@ console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 											id="form-step-two"
 										>
 											<div style={{ textAlign: "center" }}>
-											<h3 className="signup-header">สมัครสมาชิก</h3>
-											<h3 className="signup-title">กรอกเลขที่บัญชี</h3>
+												<h3 className="signup-header">สมัครสมาชิก</h3>
+												<h3 className="signup-title">กรอกเลขที่บัญชี</h3>
 											</div>
 											<div
 												className="bank-list-container"
 												id="bank-list-container"
 											>
 												<div style={{ textAlign: "center" }}>
-												 <img
-													className="bank-item"
-													src="/assets/icons/login/bcel.png"
-													id="bank1"
-													alt="icon"
-												/>
+													<img
+														className="bank-item"
+														src="/assets/icons/login/bcel.png"
+														id="bank1"
+														alt="icon"
+													/>
 
 												</div>
 											</div>
@@ -1518,52 +1540,52 @@ console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 					aria-hidden="true"
 				>
 					<div className="modal-dialog">
-							<div className="modal-border">
-								<div className="modal-content">
-									<div className="modal-header-container">
-										<div className="modal-header">
-											<p className="modal-title">สมัครสมาชิกสำเร็จ</p>
-											<img
-												src="/assets/icons/icon-close-modal.svg"
-												className="modal-icon-close"
-												data-bs-dismiss="modal"
-												aria-label="Close"
-												alt=""
-											/>
-										</div>
+						<div className="modal-border">
+							<div className="modal-content">
+								<div className="modal-header-container">
+									<div className="modal-header">
+										<p className="modal-title">สมัครสมาชิกสำเร็จ</p>
+										<img
+											src="/assets/icons/icon-close-modal.svg"
+											className="modal-icon-close"
+											data-bs-dismiss="modal"
+											aria-label="Close"
+											alt=""
+										/>
 									</div>
-									<div className="modal-body">
-										<div className="register-success-modal-content" id="mobile">
-											<div className="border-input-gold">
-												<div className="register-info-content">
-													<p className="register-info-title">ข้อมูลสมัคร</p>
-													<div className="register-info-group">
-														<p className="register-info-text">Username :</p>
-														<p className="register-info-text-bold">
-															0181449403
-														</p>
-													</div>
+								</div>
+								<div className="modal-body">
+									<div className="register-success-modal-content" id="mobile">
+										<div className="border-input-gold">
+											<div className="register-info-content">
+												<p className="register-info-title">ข้อมูลสมัคร</p>
+												<div className="register-info-group">
+													<p className="register-info-text">Username :</p>
+													<p className="register-info-text-bold">
+														0181449403
+													</p>
 												</div>
 											</div>
-											<div className="suggest-info">
-												รหัสคือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ
-												ขอให้เล่นให้สนุกเฮงเฮงรวยรวยนะคะลูกค้า
-											</div>
-
-											<button
-												type="button"
-												className="next-step-button btn-register-success"
-												id="goToLoginBtn"
-												onClick={handleLoginClick}
-												data-bs-dismiss="modal"
-												aria-label="Close"
-											>
-												เข้าสู่ระบบ
-											</button>
 										</div>
+										<div className="suggest-info">
+											รหัสคือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ
+											ขอให้เล่นให้สนุกเฮงเฮงรวยรวยนะคะลูกค้า
+										</div>
+
+										<button
+											type="button"
+											className="next-step-button btn-register-success"
+											id="goToLoginBtn"
+											onClick={handleLoginClick}
+											data-bs-dismiss="modal"
+											aria-label="Close"
+										>
+											เข้าสู่ระบบ
+										</button>
 									</div>
 								</div>
 							</div>
+						</div>
 					</div>
 				</div>
 
