@@ -2,13 +2,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import constant from "../../constant"
+import axios from "axios";
+import { useHistory,useParams } from "react-router-dom";
+import queryString from 'query-string';
+
+const { 
+    AGEN_CODE,
+    SERVER_URL,
+    LOGIN_USER_DATA, 
+    LOGIN_TOKEN_DATA
+ } = require("../../constant");
+
 export default function Home() {
+	const history = useHistory();
+	// const useParams = useParams();
+	const parsed = queryString.parse(history?.location?.search);
+
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
 	const sidebarUseRef = useRef(null);
 	const [tabs, setTabs] = useState("ประวัติฝาก");
 	const [tabName, setTabName] = useState("tab-deposit");
+	const [userNameInput, setUserNameInput] = useState();
+    const [passwordInput, setPasswordInput] = useState();
+    const [messageCreate, setMessageCreate] = useState()
+
 
 	useEffect(() => {
 		const pageClickEvent = (e) => {
@@ -72,6 +91,9 @@ export default function Home() {
 			}, 400);
 		}
 	};
+	const _gotoSet1 = () => {
+		setGotoStepTwo(false);
+	};
 	const _gotoSet2 = () => {
 		setGotoStepTwo(!false);
 	};
@@ -86,6 +108,92 @@ export default function Home() {
 			setTabs("ประวัติโบนัส");
 		}
 	};
+
+// ===== LoginController =====>
+	const LoginController = async () => {
+		try {
+			let _res = await axios({
+				method: 'post',
+				url: SERVER_URL + '/Authen/Login',
+				data: {
+					"agentCode": AGEN_CODE,
+					"username": userNameInput, //"txnaa0003",
+					"password": passwordInput,//"11111111",
+					"ip": "1.2.3.4"
+				},
+			});
+			if (_res?.data?.statusCode === 0) {
+				console.log("_res?.data?.data: ", _res?.data?.data)
+				// localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
+				// localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
+				// history.push(Const.HOME)
+			} else {
+				setMessageCreate(_res?.data?.statusDesc)
+			}
+		} catch (error) {
+			// setMessageCreate(_res?.data?.statusDesc)
+		}
+		}
+// ===== CreateUser =====>
+const [inputPhonenumber, setInputPhonenumber] = useState()
+const [inputPassword, setInputPassword] = useState()
+const [inputBank, setInputBank] = useState()
+const [inputFirstname, setInputFirstname] = useState()
+const [inputLastname, setInputLastname] = useState()
+const [successDataRegister, setSuccessDataRegister] = useState()
+
+const CreateUser = async () => {
+	let _date = {
+		"s_agent_code": AGEN_CODE,
+		"s_phone": inputPhonenumber,
+		"s_password": inputPassword,
+		"i_bank": "20",
+		"s_account_no": inputBank,
+		"s_channel": "GOOGLE",
+		"s_line": "line@",
+		"type_shorturl": true,
+		"s_ref": parsed?.ref,
+		"s_channel_name": AGEN_CODE,
+		"i_channel": "134",
+	}
+	let _resOne = await axios({
+		method: 'post',
+		url: SERVER_URL + '/Member/Register/Verify',
+		data: _date,
+	});
+	if (_resOne?.data?.statusCode === 0) {
+		let _resTwo = await axios({
+            method: 'post',
+            url: SERVER_URL + '/Member/Register/Confirm',
+            data: {
+				..._resOne?.data?.data,
+				"s_firstname": inputFirstname,
+				"s_lastname": inputLastname,
+				"s_fullname": inputFirstname + " " + inputLastname,
+				"s_channel_name": AGEN_CODE,
+				"i_channel": "134",
+			},
+        });
+		console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data)
+		if (_resTwo?.data.statusCode === 0) {
+			let _resThree = await axios({
+				method: 'post',
+				url: SERVER_URL + '/Member/Balance',
+				data: {
+					"s_agent_code": AGEN_CODE,
+					"s_username": _resTwo?.data?.data?.s_username
+				},
+			});
+			if (_resThree?.data.statusCode === 0) {
+				setSuccessDataRegister({..._resThree?.data,..._resTwo?.data,s_password:inputPassword})
+			}
+        }
+	} else {
+		// setMessageCreate(_resTwo?.data?.statusDesc)
+	}
+}
+
+console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
 
 
 	return (
@@ -1156,11 +1264,11 @@ export default function Home() {
 							<img src="/assets/icons/phone.svg" alt="icon" />
 							<label for="phone" />
 							<input
-								type="text"
+								type="number"
 								id="phone"
 								name="phone"
 								placeholder="เบอร์โทรศัพท์"
-							// maxlength="9"
+								onChange={(e) => setUserNameInput(e?.target?.value)}
 							/>
 						</div>
 						<div className="phone-input" style={{ marginTop: 20 }}>
@@ -1171,18 +1279,19 @@ export default function Home() {
 								id="password"
 								type="password"
 								placeholder="กรอกรหัสผ่าน"
+								onChange={(e) => setPasswordInput(e?.target?.value)}
 							/>
 						</div>
-						<div className="danger-text">
-							{" "}
-							รหัสคือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ
-						</div>
+							<div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
 						<div className="button-container">
-							<a href={constant?.AFTER_LOGIN}><button type="button" id="login-btn">
-								เข้าสู่ระบบ1
+							<button type="button" id="login-btn" onClick={() => LoginController()}>
+								เข้าสู่ระบบ
 							</button>
-							</a>
-							<button type="button">สมัครสมาชิก</button>
+							<button type="button" 
+							onClick={() => handleCloseLoginClick()}
+							id="signUp-btn"
+							data-bs-toggle="modal"
+						data-bs-target="#signUpModal">สมัครสมาชิก</button>
 						</div>
 						<div className="problem">พบปัญหาติดต่อเรา</div>
 					</div>
@@ -1217,8 +1326,10 @@ export default function Home() {
 										/>
 										<div className="step-container">
 											<div
+											style={{cursor: 'pointer'}}
 												className={`step-item${gotoStepTwo === false ? " active" : ""
 													}`}
+												onClick={() => _gotoSet1()}
 												id="step-item1"
 											>
 												<span className="step-item-box">1</span>
@@ -1248,21 +1359,54 @@ export default function Home() {
 											}}
 											id="form-step-one"
 										>
+											<div style={{ textAlign: "center" }}>
 											<h3 className="signup-header">สมัครสมาชิก</h3>
 											<h3 className="signup-title">กรอกเบอร์</h3>
-
+											</div>
 											<div className="phone-input">
 												<img src="/assets/icons/phone.svg" alt="icon" />
 												<label for="phone" />
 												<input
-													type="text"
+													type="number"
 													id="phone"
 													name="phone"
 													placeholder="เบอร์โทรศัพท์"
-												// maxlength="9"
+													onChange={(e) => setInputPhonenumber(e?.target?.value)}
 												/>
 											</div>
-
+											<div className="phone-input">
+												<img src="/assets/icons/lock-alt.svg" alt="icon" />
+												<label for="phone" />
+												<input
+													type="password"
+													id="phone"
+													name="phone"
+													placeholder="รหัสผ่าน"
+													onChange={(e) => setInputPassword(e?.target?.value)}
+												/>
+											</div>
+											<div className="phone-input">
+												<img src="/assets/icons/lock-alt.svg" alt="icon" />
+												<label for="phone" />
+												<input
+													type="text"
+													id="s_firstname"
+													name="s_firstname"
+													placeholder="ซื่อ"
+													onChange={(e) => setInputFirstname(e?.target?.value)}
+												/>
+											</div>
+											<div className="phone-input">
+												<img src="/assets/icons/lock-alt.svg" alt="icon" />
+												<label for="phone" />
+												<input
+													type="text"
+													id="s_lastname"
+													name="s_lastname"
+													placeholder="นามสกุล"
+													onChange={(e) => setInputLastname(e?.target?.value)}
+												/>
+											</div>
 											<button
 												type="button"
 												onClick={() => _gotoSet2()}
@@ -1271,9 +1415,11 @@ export default function Home() {
 											>
 												ถัดไป
 											</button>
+											<div style={{ textAlign: "center" }}>
 											<div className="already-have-account">
 												คุณมีบัญชีอยู่แล้ว
 												<span className="go-to-login">เข้าสู่ระบบ</span>
+											</div>
 											</div>
 										</div>
 										{/* <!-- end step one --> */}
@@ -1286,133 +1432,23 @@ export default function Home() {
 											}}
 											id="form-step-two"
 										>
+											<div style={{ textAlign: "center" }}>
 											<h3 className="signup-header">สมัครสมาชิก</h3>
 											<h3 className="signup-title">กรอกเลขที่บัญชี</h3>
-
+											</div>
 											<div
 												className="bank-list-container"
 												id="bank-list-container"
 											>
-												<img
+												<div style={{ textAlign: "center" }}>
+												 <img
 													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 10.svg"
+													src="/assets/icons/login/bcel.png"
 													id="bank1"
 													alt="icon"
 												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 11.svg"
-													id="bank2"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 12.svg"
-													id="bank3"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 13.svg"
-													id="bank4"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 14.svg"
-													id="bank5"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 15.svg"
-													id="bank6"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 16.svg"
-													id="bank7"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 17.svg"
-													id="bank8"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 18.svg"
-													id="bank9"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 19.svg"
-													id="bank10"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 20.svg"
-													id="bank11"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 21.svg"
-													id="bank12"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 22.svg"
-													id="bank13"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 23.svg"
-													id="bank14"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 24.svg"
-													id="bank15"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 25.svg"
-													id="bank16"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 26.svg"
-													id="bank17"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 27.svg"
-													id="bank18"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 28.svg"
-													id="bank19"
-													alt="icon"
-												/>
-												<img
-													className="bank-item"
-													src="/assets/icons/icon-bank-default/Ellipse 29.svg"
-													id="bank20"
-													alt="icon"
-												/>
+
+												</div>
 											</div>
 											<div className="phone-input">
 												<img src="/assets/icons/bank.svg" alt="icon" />
@@ -1421,17 +1457,18 @@ export default function Home() {
 													id="phone"
 													name="phone"
 													placeholder="เลขบัญชีธนาคาร"
-												// maxlength="9"
+													onChange={(e) => setInputBank(e?.target?.value)}
 												/>
 											</div>
 
 											<button
 												type="button"
 												id="goto-step3"
-												data-bs-dismiss="modal"
-												aria-label="Close"
-												data-bs-toggle="modal"
-												data-bs-target="#successRegisterModal"
+												// data-bs-dismiss="modal"
+												// aria-label="Close"
+												// data-bs-toggle="modal"
+												// data-bs-target="#successRegisterModal"
+												onClick={() => CreateUser()}
 											>
 												ยืนยัน สมัครสมาชิก
 											</button>
@@ -1472,8 +1509,7 @@ export default function Home() {
 					aria-labelledby="successRegisterModalLabel"
 					aria-hidden="true"
 				>
-					<div className="modal-dialog modal-xl">
-						<div className="modal-content">
+					<div className="modal-dialog">
 							<div className="modal-border">
 								<div className="modal-content">
 									<div className="modal-header-container">
@@ -1520,7 +1556,6 @@ export default function Home() {
 									</div>
 								</div>
 							</div>
-						</div>
 					</div>
 				</div>
 
