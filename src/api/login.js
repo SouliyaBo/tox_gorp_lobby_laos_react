@@ -1,13 +1,14 @@
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import Constant from "../constant";
+import { EncriptBase64 } from "../helper";
 
 
 
 const LoginController = () => {
     const history = useHistory();
 
-// ==================> handleLogin <=================
+    // ==================> handleLogin <=================
     const handleLogin = async (username, password) => {
         try {
             const { data } = await axios.post(
@@ -37,7 +38,7 @@ const LoginController = () => {
             throw error;
         }
     };
-// ==================> handleRegister <=================
+    // ==================> handleRegister <=================
     const handleRegister = async (
         inputFirstname,
         inputLastname,
@@ -128,30 +129,33 @@ const LoginController = () => {
         }
     }
 
-// ==================> handleRegister <=================
-const loginWithToken = async (username, password) => {
-    try {
-        const _res = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Authen/Login`,
-            data: {
-                agentCode: Constant.AGEN_CODE,
-                username: username,
-                password: password,
-                ip: "1.2.3.4",
-            },
-        });
-        if (_res?.data.statusCode === 0) {
-            console.log("_res?.data?.data: ", _res?.data?.data);
-            localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
-            localStorage.setItem(Constant.LOGIN_USER_DATA, JSON.stringify(_res?.data?.data));
-            history.push(Constant.HOME);
+    // ==================> handleRegister <=================
+    const loginWithToken = async (token) => {
+        try {
+            const _resDecrypt = EncriptBase64(token);
+            if (!_resDecrypt?.agentCode && !_resDecrypt?.username && !_resDecrypt?.password) {
+                return
+            }
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Authen/Login`,
+                data: {
+                    agentCode: Constant.AGEN_CODE,
+                    username: _resDecrypt?.username,
+                    password: _resDecrypt?.password,
+                    ip: "1.2.3.4",
+                },
+            });
+            if (_res?.data.statusCode === 0) {
+                console.log("_res?.data?.data: ", _res?.data?.data);
+                localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
+                localStorage.setItem(Constant.LOGIN_USER_DATA, JSON.stringify(_res?.data?.data));
+                history.push(Constant.AFTER_LOGIN);
+            }
+        } catch (error) {
+            console.log("🚀 ~ const_login= ~ error:", error);
         }
-    } catch (error) {
-        console.log("🚀 ~ const_login= ~ error:", error);
-    }
-};
-
+    };
 
 
 
