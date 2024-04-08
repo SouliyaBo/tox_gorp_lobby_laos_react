@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
+import { _clickTabDeposit } from "../../helper"
 
 export default function AfterLoginMobile() {
     const sidebarUseRef = useRef(null);
@@ -41,16 +41,6 @@ export default function AfterLoginMobile() {
         }, 500);
     };
 
-    const _clickTabDeposit = (tab) => {
-        setTabName(tab);
-        if (tab === "tab-deposit") {
-            setTabs("ประวัติฝาก");
-        } else if (tab === "tab-withdraw") {
-            setTabs("ประวัติถอน");
-        } else {
-            setTabs("ประวัติโบนัส");
-        }
-    };
     return (
         <div>
             <main className="after-login-mobile-page">
@@ -86,12 +76,6 @@ export default function AfterLoginMobile() {
                         </div>
                     </div>
                 </header>
-
-                <section className="search-input flexCenter">
-                    <img src="../assets/icons/search-icon.svg" alt="search icon" />
-                    <input type="text" placeholder="ค้นหา" />
-                </section>
-
 
                 <div className="brand">
                     <div className="slideshow-container-after-login">
@@ -418,34 +402,6 @@ export default function AfterLoginMobile() {
                                     ออกจากระบบ
                                 </button>
                             </div>
-
-                            <div className="download-container">
-                                <h3>
-                                    ดาวน์โหลดแอปเลย
-                                    !
-                                </h3>
-                                <div className="flexBetween">
-                                    <img
-                                        src="/assets//images/get-it-playstore.svg"
-                                        alt="download icon"
-                                        style={{
-                                            height: 20,
-                                            cursor:
-                                                "pointer",
-                                        }}
-                                    />
-                                    <img
-                                        src="/assets//images/get-it-appstore.svg"
-                                        alt="download icon"
-                                        style={{
-                                            height: 20,
-                                            cursor:
-                                                "pointer",
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
                             <h4>Power by</h4>
                             <img
                                 src="/assets/images/newicon/TTT-03.png"
@@ -1184,7 +1140,7 @@ export default function AfterLoginMobile() {
                             <div className="modal-content">
                                 <div className="modal-header-container">
                                     <div className="modal-header">
-                                        <p className="modal-title" id="history-title-deposit">{tabs}</p>
+                                        <p className="modal-title">{tabs}</p>
                                         <img src="../assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
                                             aria-label="Close" alt="" />
                                     </div>
@@ -1197,7 +1153,7 @@ export default function AfterLoginMobile() {
                                                     ? "history-tab-item active"
                                                     : "history-tab-item"
                                             }
-                                                onClick={() => _clickTabDeposit("tab-deposit")}
+                                                onClick={() => _clickTabDeposit("tab-deposit", setTabs, setTabName)}
                                                 onKeyDown={() => ""} id="tab-deposit"
                                             >
                                                 ฝาก
@@ -1207,14 +1163,14 @@ export default function AfterLoginMobile() {
                                                     ? "history-tab-item active"
                                                     : "history-tab-item"
                                             }
-                                                onClick={() => _clickTabDeposit("tab-withdraw")}
+                                                onClick={() => _clickTabDeposit("tab-withdraw", setTabs, setTabName)}
                                                 onKeyDown={() => ""} id="tab-withdraw">ถอน</div>
                                             <div className={
                                                 tabName === "tab-bonus"
                                                     ? "history-tab-item active"
                                                     : "history-tab-item"
                                             }
-                                                onClick={() => _clickTabDeposit("tab-bonus")}
+                                                onClick={() => _clickTabDeposit("tab-bonus", setTabs, setTabName)}
                                                 onKeyDown={() => ""} id="tab-bonus">โบนัส</div>
                                         </div>
                                         {/* <!-- ฝาก --> */}

@@ -1,4 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable jsx-a11y/no-distracting-elements */
+
 import React, { useState, useRef, useEffect } from "react";
+import { _clickTabDeposit } from "../../helper"
+import { Slide } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css'
 
 export default function GameList() {
   const sidebarUseRef = useRef(null);
@@ -6,6 +12,27 @@ export default function GameList() {
   const [sidebarAnimation, setSidebarAnimation] = useState(true);
   const [tabs, setTabs] = useState("ประวัติฝาก");
   const [tabName, setTabName] = useState("tab-deposit");
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const pageClickEvent = (e) => {
+      // If the active element exists and is clicked outside of
+      if (sidebarUseRef.current !== "") {
+        setSidebarAnimation(false);
+        setTimeout(() => {
+          setSidebarVisible(false);
+        }, 500);
+      }
+    };
+
+    if (sidebarVisible) {
+      window.addEventListener("click", pageClickEvent);
+    }
+
+    return () => {
+      window.removeEventListener("click", pageClickEvent);
+    };
+  }, [sidebarVisible]);
 
   const toggleSidebar = (event) => {
     event.stopPropagation();
@@ -19,18 +46,41 @@ export default function GameList() {
       setSidebarVisible(false);
     }, 500);
   };
-
-
-  const _clickTabDeposit = (tab) => {
-    setTabName(tab);
-    if (tab === "tab-deposit") {
-      setTabs("ประวัติฝาก");
-    } else if (tab === "tab-withdraw") {
-      setTabs("ประวัติถอน");
-    } else {
-      setTabs("ประวัติโบนัส");
+  const SliderData = [
+    {
+      image:
+        '/assets/images/Cardgame/image 70.png'
+    },
+    {
+      image:
+        '/assets/images/Cardgame/5.png'
+    },
+    {
+      image:
+        '/assets/images/Cardgame/6.png'
+    },
+    {
+      image:
+        '/assets/images/Cardgame/7.png'
+    },
+    {
+      image:
+        '/assets/images/Cardgame/3.png'
     }
+  ];
+
+  const length = SliderData.length;
+
+  const nextSlide = () => {
+    setCurrent(current === length - 1 ? 0 : current + 1);
   };
+
+  const prevSlide = () => {
+    setCurrent(current === 0 ? length - 1 : current - 1);
+  };
+  if (!Array.isArray(SliderData) || SliderData.length <= 0) {
+    return null;
+  }
 
   return (
     <div>
@@ -110,39 +160,61 @@ export default function GameList() {
           </div>
         </div>
 
-        <div className="search-container">
-          <img
-            src="/assets/icons/search-icon.svg"
-            alt="icon"
-            className="search-icon"
-          />
-          <label for="search" />
-          <input type="text" name="search" id="search" placeholder="ค้นหา" />
-        </div>
-
         <div className="brand">
           <div className="slideshow-container">
-
-            <div className="mySlides fade-slide">
-              <img src="/assets/images/Cardgame/image 70.png" style={{ width: "100%" }} alt='' />
+            <div className='slider-banner'>
+              <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
+              <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
+              {SliderData.map((slide, index) => {
+                return (
+                  <div
+                    className={index === current ? 'slide1 active' : 'slide1'}
+                    key={slide?.image}
+                  >
+                    {index === current && (
+                      <img src={slide.image} alt='travel' className='image' />
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
-            <a className="prev" href="/" onclick="plusSlides(-1)">❮</a>
-            <a className="next" href="/" onclick="plusSlides(1)">❯</a>
           </div>
 
-          <div style={{ textAlign: "center" }}>
-            <span className="dot" onclick="currentSlide(1)" />
-            <span className="dot" onclick="currentSlide(2)" />
-            <span className="dot" onclick="currentSlide(3)" />
-          </div>
+
+
+
+
+
+          {/* <div className="slideshow-container">
+
+            <div className="mySlides fade-slide">
+              <img src="/assets/images/Cardgame/7.png" style={{ width: "100%" }} alt='' />
+            </div>
+            <div className="mySlides fade-slide">
+              <img src="/assets/images/Cardgame/4.png" style={{ width: "100%" }} alt='' />
+            </div>
+            <div className="mySlides fade-slide">
+              <img src="/assets/images/Cardgame/3.png" style={{ width: "100%" }} alt='' />
+            </div>
+
+            <div className="prev" onClick={() => plusSlides(-1)} onKeyDown={() => ''}>❮</div>
+            <div className="next" onClick={() => plusSlides(1)} onKeyDown={() => ''}>❯</div>
+          </div> */}
+
+          {/* <div style={{ textAlign: "center" }}>
+            <span className="dot" onClick={() => currentSlide(1)} onKeyDown={() => ''} />
+            <span className="dot" onClick={() => currentSlide(2)} onKeyDown={() => ''} />
+            <span className="dot" onClick={() => currentSlide(3)} onKeyDown={() => ''} />
+          </div> */}
         </div>
 
         <div className="marquee-custome" id="mobile">
           {/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
           <marquee className="description">
-            เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
-            100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
+
+            ເວັບໄຊທ໌ໂດຍກົງ, ບໍ່ຜ່ານຕົວແທນ, ເລກ 1, ຝາກ-ຖອນ, ບໍ່ມີຕໍາ່ສຸດ, ຖອນສູງສຸດຕໍ່ມື້.
+            100 ລ້ານສະລັອດຕິງ, baccarat, ຫວຍ, ກິລາ, ທັງຫມົດຢູ່ໃນສະຖານທີ່ດຽວ.
           </marquee>
         </div>
 
@@ -150,27 +222,27 @@ export default function GameList() {
           <div className="container flexBetween">
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
-              <p>สล็อต</p>
+              <p>ສະລັອດ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
-              <p>คาสิโน</p>
+              <p>ຄາສິໂນ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
-              <p>ยิงปลา</p>
+              <p>ຍິງປາ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-              <p>ป็อกเด้ง</p>
+              <p>ປ໋ອກເດັ້ງ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
-              <p>กีฬา</p>
+              <p>ກິລາ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-              <p>เกมกราฟ</p>
+              <p>ເກມກຣາຟ</p>
             </div>
           </div>
         </section>
@@ -223,109 +295,109 @@ export default function GameList() {
           <div className="card-wrapper">
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
@@ -336,20 +408,19 @@ export default function GameList() {
           <div className="top flexBetween">
             <div className="card">
               <img src="/assets/images/image 84.svg" alt="game icon" />
-              <p>แนะนำบาคาร่า</p>
+              <p>ແນະນຳບາຄາຣ່າ</p>
             </div>
             <div className="card">
               <img src="/assets/images/image 85.png" alt="game icon" />
-              <p>สล็อตมาแรง</p>
+              <p>ສະລັອດມາແຮງ</p>
             </div>
             <div className="card">
               <img src="/assets/images/image 86.png" alt="game icon" />
-              <p>4 เกมสล็อต
-                แตกหนัก</p>
+              <p>4 ເກມສະລັອດ ທີ່ແຕກຫຼາຍ</p>
             </div>
             <div className="card">
               <img src="/assets/images/image 87.png" alt="game icon" />
-              <p>เกมฮิต</p>
+              <p>ເກມນິຍົມ</p>
             </div>
           </div>
           <div className="bottom">
@@ -362,12 +433,12 @@ export default function GameList() {
             <div className="left flexBetween">
               <img src="/assets/images/image 90.png" alt="logo" />
               <h4>
-                สล็อตออนไลน์ <br />
-                รวมทุกค่ายเกม
+                ສະລັອດອອນລາຍ <br />
+                ລວມທຸກຄ່າຍເກມ
               </h4>
             </div>
             <div className="right">
-              <button type='button' >เพี่มเตีม</button>
+              <button type='button' >ເພີ່ມເຕີມ</button>
             </div>
           </div>
           <img
@@ -408,12 +479,12 @@ export default function GameList() {
             <div className="left flexBetween">
               <img src="/assets/images/image 91.png" alt="logo" />
               <h4>
-                คาสิโนสด บาคาร่า <br />
-                ออนไลน์
+                ຄາສິໂນສົດ ບາຄາຣ່າ <br />
+                ອອນລາຍ
               </h4>
             </div>
             <div className="right">
-              <button type='button' >เพี่มเตีม</button>
+              <button type='button' >ເພີ່ມເຕີມ</button>
             </div>
           </div>
           <img
@@ -453,10 +524,10 @@ export default function GameList() {
           <div className="title flexBetween">
             <div className="left flexBetween">
               <img src="/assets/images/image 92.png" alt="logo" />
-              <h4>เกมยิงปลา</h4>
+              <h4>ເກມຍິງປາ</h4>
             </div>
             <div className="right">
-              <button type='button'>เพี่มเตีม</button>
+              <button type='button'>ເພີ່ມເຕີມ</button>
             </div>
           </div>
           <img
@@ -704,7 +775,7 @@ export default function GameList() {
 
         {/* <!-- Side Bar --> */}
         {sidebarVisible ? (
-          <div className="sidebar-container">
+          <div className="sidebar-container" ref={sidebarUseRef}>
             <aside className="sidebar"
               style={{
                 animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
@@ -841,18 +912,18 @@ export default function GameList() {
             <h3>เข้าสู่ระบบ</h3>
             <div className="phone-input">
               <img src="/assets/icons/phone.svg" alt="icon" />
-              <label for="phone" />
+              <label htmlFor="phone" />
               <input
                 type="text"
                 id="phone"
                 name="phone"
                 placeholder="เบอร์โทรศัพท์"
-                maxlength="9"
+                maxLength="9"
               />
             </div>
             <div className="phone-input" style={{ marginTop: 20 }}>
               <img src="/assets/icons/lock-alt.svg" alt="lock icon" />
-              <label for="phone" />
+              <label htmlFor="phone" />
               <input
                 name="password"
                 id="password"
@@ -873,7 +944,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="signUpModal"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="signUpModalLabel"
           aria-hidden="true"
         >
@@ -916,13 +987,13 @@ export default function GameList() {
 
                       <div className="phone-input">
                         <img src="/assets/icons/phone.svg" alt="icon" />
-                        <label for="phone" />
+                        <label htmlFor="phone" />
                         <input
                           type="text"
                           id="phone"
                           name="phone"
                           placeholder="เบอร์โทรศัพท์"
-                          maxlength="9"
+                          maxLength="9"
                         />
                       </div>
 
@@ -1068,7 +1139,7 @@ export default function GameList() {
                           id="phone"
                           name="phone"
                           placeholder="เลขบัญชีธนาคาร"
-                          maxlength="9"
+                          maxLength="9"
                         />
                       </div>
 
@@ -1094,7 +1165,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="successRegisterModal"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="successRegisterModalLabel"
           aria-hidden="true"
         >
@@ -1149,7 +1220,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="profile"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="profile"
           aria-hidden="true"
         >
@@ -1284,7 +1355,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="addAccount"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="addAccount"
           aria-hidden="true"
         >
@@ -1430,7 +1501,7 @@ export default function GameList() {
                             viewBox="0 0 20 20"
                             fill="none"
                           >
-                            <g clip-path="url(#clip0_912_2229)">
+                            <g clipPath="url(#clip0_912_2229)">
                               <path
                                 d="M1.6665 16.6665H18.3332V18.3332H1.6665V16.6665ZM3.33317 9.99984H4.99984V15.8332H3.33317V9.99984ZM7.49984 9.99984H9.1665V15.8332H7.49984V9.99984ZM10.8332 9.99984H12.4998V15.8332H10.8332V9.99984ZM14.9998 9.99984H16.6665V15.8332H14.9998V9.99984ZM1.6665 5.83317L9.99984 1.6665L18.3332 5.83317V9.1665H1.6665V5.83317ZM9.99984 6.6665C10.2209 6.6665 10.4328 6.57871 10.5891 6.42243C10.7454 6.26615 10.8332 6.05418 10.8332 5.83317C10.8332 5.61216 10.7454 5.4002 10.5891 5.24392C10.4328 5.08764 10.2209 4.99984 9.99984 4.99984C9.77882 4.99984 9.56686 5.08764 9.41058 5.24392C9.2543 5.4002 9.1665 5.61216 9.1665 5.83317C9.1665 6.05418 9.2543 6.26615 9.41058 6.42243C9.56686 6.57871 9.77882 6.6665 9.99984 6.6665Z"
                                 fill="white"
@@ -1459,7 +1530,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="cashback"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="cashback"
           aria-hidden="true"
           data-bs-dismiss="modal"
@@ -1562,7 +1633,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="cashbackDetail"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="cashbackDetail"
           aria-hidden="true"
           data-bs-dismiss="modal"
@@ -1628,7 +1699,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="depositWithdraw"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="depositWithdraw"
           aria-hidden="true"
           data-bs-dismiss="modal"
@@ -1834,7 +1905,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="autoDeposit"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="autoDeposit"
           aria-hidden="true"
           data-bs-dismiss="modal"
@@ -1938,7 +2009,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="leaveAdecimal"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="leaveAdecimal"
           aria-hidden="true"
           data-bs-dismiss="modal"
@@ -2036,7 +2107,7 @@ export default function GameList() {
         <div
           className="modal fade"
           id="leaveAdecimal1"
-          tabindex="-1"
+          tabIndex="-1"
           aria-labelledby="leaveAdecimal1"
           aria-hidden="true"
           data-bs-dismiss="modal"
@@ -2160,7 +2231,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="withdraw"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="withdraw"
         aria-hidden="true"
       >
@@ -2264,7 +2335,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="qrplay"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="qrplay"
         aria-hidden="true"
       >
@@ -2400,7 +2471,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="showQR"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="showQR"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -2484,7 +2555,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="slipVerify"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="slipVerifyLabel"
         aria-hidden="true"
       >
@@ -2545,16 +2616,16 @@ export default function GameList() {
 
 
                   <div className="bank-input">
-                    <label for="bank">เลือกธนาคารที่ทำรายการฝาก</label>
+                    <label htmlFor="bank">เลือกธนาคารที่ทำรายการฝาก</label>
                     <input type="text" name="bank" placeholder="เลือกธนาคาร" />
                   </div>
                   <div className="bank-input">
-                    <label for="bank">กรุณากรอกข้อมูล</label>
+                    <label htmlFor="bank">กรุณากรอกข้อมูล</label>
                     <input type="text" name="bank" placeholder="0" />
                     <small>กรอกจำนวนเงินตามสลิป</small>
                   </div>
                   <div className="bank-input">
-                    <label for="bank">กรุณากรอกข้อมูล</label>
+                    <label htmlFor="bank">กรุณากรอกข้อมูล</label>
                     <input type="text" name="bank" placeholder="0" />
                     <small>วันที่ทำรายการฝาก</small>
                   </div>
@@ -2573,7 +2644,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="trueWallet"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="trueWalletLabel"
         aria-hidden="true"
       >
@@ -2650,7 +2721,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="historyModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="historyModalLabel"
         aria-hidden="true"
       >
@@ -2677,21 +2748,21 @@ export default function GameList() {
                         ? "history-tab-item active"
                         : "history-tab-item"
                     }
-                      onClick={() => _clickTabDeposit("tab-deposit")}
+                      onClick={() => _clickTabDeposit("tab-deposit", setTabs, setTabName)}
                       onKeyDown={() => ""} id="tab-deposit">ฝาก</div>
                     <div className={
                       tabName === "tab-withdraw"
                         ? "history-tab-item active"
                         : "history-tab-item"
                     }
-                      onClick={() => _clickTabDeposit("tab-withdraw")}
+                      onClick={() => _clickTabDeposit("tab-withdraw", setTabs, setTabName)}
                       onKeyDown={() => ""} id="tab-withdraw">ถอน</div>
                     <div className={
                       tabName === "tab-bonus"
                         ? "history-tab-item active"
                         : "history-tab-item"
                     }
-                      onClick={() => _clickTabDeposit("tab-bonus")}
+                      onClick={() => _clickTabDeposit("tab-bonus", setTabs, setTabName)}
                       onKeyDown={() => ""} id="tab-bonus">โบนัส</div>
                   </div>
                   {/* <!-- ฝาก --> */}
@@ -2904,7 +2975,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="bagModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="bagModalLabel"
         aria-hidden="true"
       >
@@ -3095,7 +3166,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="promotionModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="promotionModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3149,7 +3220,7 @@ export default function GameList() {
                           name="promotion-status"
                           id="get-promotion"
                         />
-                        <label className="promotion-checkbox-title" for="get-promotion">
+                        <label className="promotion-checkbox-title" htmlFor="get-promotion">
                           <div className="promotion-custom-radio" />
                           รับโบนัส
                         </label>
@@ -3161,7 +3232,7 @@ export default function GameList() {
                         />
                         <label
                           className="promotion-checkbox-title"
-                          for="not-get-promotion"
+                          htmlFor="not-get-promotion"
                         >
                           <div className="promotion-custom-radio" />
                           ไม่รับโบนัส
@@ -3181,7 +3252,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="codeModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="codeModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3230,7 +3301,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="creditModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="creditModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3294,7 +3365,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="diamondModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="diamondModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3358,7 +3429,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="tournamentModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="tournamentModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3624,7 +3695,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="spinnerModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="spinnerModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3693,7 +3764,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="earnMoneyModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="earnMoneyModalLabel"
         aria-hidden="true"
         data-bs-dismiss="modal"
@@ -3839,7 +3910,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="earnMoneyDetailModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="earnMoneyDetailModalLabel"
         aria-hidden="true"
       >
@@ -4136,7 +4207,7 @@ export default function GameList() {
       <div
         className="modal fade"
         id="changePasswordModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="changePasswordModalLabel"
         aria-hidden="true"
       >

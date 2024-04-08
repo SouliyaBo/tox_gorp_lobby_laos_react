@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { _clickTabDeposit } from "../../helper"
 
 export default function AfterLoginMobileAllGame() {
   const [content, setContent] = useState(Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`))
   const sidebarUseRef = useRef(null);
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [sidebarAnimation, setSidebarAnimation] = useState(true);
+  const [tabs, setTabs] = useState("ประวัติฝาก");
+  const [tabName, setTabName] = useState("tab-deposit");
 
   useEffect(() => {
     const pageClickEvent = (e) => {
@@ -87,12 +90,6 @@ export default function AfterLoginMobileAllGame() {
           </div>
         </header>
 
-
-        <section className="search-input flexCenter">
-          <img src="../assets/icons/search-icon.svg" alt="search icon" />
-          <input type="text" placeholder="ค้นหา" />
-        </section>
-
         <div className="brand">
           <div className="slideshow-container-after-login">
             <div className="mySlides fade-slide">
@@ -146,7 +143,7 @@ export default function AfterLoginMobileAllGame() {
 
         <section className="specific-all-games">
           {content.map((item, index) => (
-            <button type='button' className="playing-mobile">
+            <div className="playing-mobile">
               <a
                 href="/#"
                 target="_blank"
@@ -159,7 +156,7 @@ export default function AfterLoginMobileAllGame() {
                 src="../assets/images/image 45.png"
                 alt="game logo"
               />
-            </button>
+            </div>
           ))}
         </section>
 
@@ -368,34 +365,14 @@ export default function AfterLoginMobileAllGame() {
                   ออกจากระบบ
                 </button>
               </div>
-
-              <div className="download-container">
-                <h3>ดาวน์โหลดแอปเลย !</h3>
-                <div className="flexBetween">
-                  <img
-                    src="/assets//images/get-it-playstore.svg"
-                    alt="download icon"
-                    style={{
-                      height: "20px",
-                      cursor: "pointer",
-                    }}
-                  />
-                  <img
-                    src="/assets//images/get-it-appstore.svg"
-                    alt="download icon"
-                    style={{
-                      height: "20px",
-                      cursor: "pointer",
-                    }}
-                  />
-                </div>
+              <div className='power-by'>
+                <h4>Power by</h4>
+                <img
+                  style={{ width: 200 }}
+                  src="/assets/images/newicon/TTT-03.png"
+                  alt="powerby"
+                />
               </div>
-
-              <h4>Power by</h4>
-              <img
-                src="/assets/images/newicon/TTT-03.png"
-                alt="powerby"
-              />
             </aside>
             <div className="sidebar-container-background" />
           </div>
@@ -718,6 +695,8 @@ export default function AfterLoginMobileAllGame() {
                     <img
                       src="/assets/icons/icon-back-modal.svg"
                       className="modal-icon-back"
+                      data-bs-toggle="modal"
+                      data-bs-target="#bagModal"
                       alt=""
                     />
                     <p className="modal-title" id="depositWithdraw">ฝาก - ถอน</p>
@@ -763,14 +742,7 @@ export default function AfterLoginMobileAllGame() {
                       <div className="slider" />
                     </div>
 
-                    <div
-                      style={{
-                        display: 'grid',
-                        gap: '10px',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        color: 'white'
-                      }}
-                    >
+                    <div style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, 1fr)', color: 'white' }}>
                       <div
                         style={{ cursor: 'pointer' }}
                         data-bs-toggle="modal"
@@ -868,7 +840,7 @@ export default function AfterLoginMobileAllGame() {
 
                     <button type='button' className="line-button flexCenter">
                       <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                      <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                      <p style={{ margin: 0 }}>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
                     </button>
                   </div>
                 </div>
@@ -913,9 +885,9 @@ export default function AfterLoginMobileAllGame() {
                   <div className="detail-card-scb">
                     <div className="card-scb flexBetween">
                       <div className="left flexCenter">
-                        <p>ธนาคารกสิกรไทย</p>
-                        <p>นาย xxxxx xxxxx <span><img src="/assets/images/icon-coppy.svg" alt="" style={{ width: "20px", height: "20px", marginBottom: "-3px" }} /></span></p>
-                        <p>026-999999-9</p>
+                        <p style={{ margin: 0 }}>ธนาคารกสิกรไทย</p>
+                        <p style={{ margin: 0 }}>นาย xxxxx xxxxx <span><img src="/assets/images/icon-coppy.svg" alt="" style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
+                        <p style={{ margin: 0 }}>026-999999-9</p>
                       </div>
                       <div className="right flexCenter">
                         <div className="flexCenter bank">
@@ -963,8 +935,8 @@ export default function AfterLoginMobileAllGame() {
                     width: '95%'
                   }}>
                     <div>
-                      <img src="/assets/icons/icon-line.svg" alt="line" /> ไลน์บอท /
-                      แจ้งเตือนยอดฝาก - ถอน
+                      <img src="/assets/icons/icon-line.svg" alt="line" />
+                      <p style={{ margin: 0 }}>ไลน์บอท /แจ้งเตือนยอดฝาก - ถอน </p>
                     </div>
                   </div>
                 </div>
@@ -1058,7 +1030,7 @@ export default function AfterLoginMobileAllGame() {
                       borderRadius: '5px'
                     }}>
                       <img src="/assets/icons/icon-line.svg" alt="line" style={{ width: "20px", height: "20px" }} />
-                      <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                      <p style={{ margin: 0 }}>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
                     </div>
                   </div>
                 </div>
@@ -1185,7 +1157,7 @@ export default function AfterLoginMobileAllGame() {
 
                     <button type='button' className="line-button flexCenter">
                       <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                      <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                      <p style={{ margin: 0 }}>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
                     </button>
                   </div>
                 </div>
@@ -1297,9 +1269,9 @@ export default function AfterLoginMobileAllGame() {
                       </p>
                     </div>
                     <div className="button-line" style={{ width: "95%" }}>
-                      <div className="flexBetween" style={{ padding: "5px 5px", borderRadius: "5px" }}>
-                        <img src="/assets/icons/icon-line.svg" alt="line" /> ไลน์บอท
-                        / แจ้งเตือนยอดฝาก - ถอน
+                      <div className="flexBetween" style={{ padding: "10px 10px", borderRadius: "5px" }}>
+                        <img src="/assets/icons/icon-line.svg" alt="line" />
+                        <p style={{ margin: 0 }}>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน </p>
                       </div>
                     </div>
                   </div>
@@ -1555,9 +1527,9 @@ export default function AfterLoginMobileAllGame() {
                       พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a>
                     </p>
 
-                    <button type='button' className="line-button">
+                    <button type='button' className="line-button flexCenter">
                       <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                      <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                      <p style={{ margin: 0 }}>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
                     </button>
                   </div>
                 </div>
@@ -1580,11 +1552,7 @@ export default function AfterLoginMobileAllGame() {
               <div className="modal-content">
                 <div className="modal-header-container">
                   <div className="modal-header">
-                    <p className="modal-title" id="history-title-deposit">ประวัติฝาก</p>
-                    <p className="modal-title" id="history-title-withdraw">
-                      ประวัติถอน
-                    </p>
-                    <p className="modal-title" id="history-title-bonus">ประวัติโบนัส</p>
+                    <p className="modal-title">{tabs}</p>
                     <img
                       src="../assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -1597,14 +1565,33 @@ export default function AfterLoginMobileAllGame() {
                 <div className="modal-body">
                   <div className="history-modal-content">
                     <div className="history-tab">
-                      <div className="history-tab-item active" id="tab-deposit">
+                      <div className={
+                        tabName === "tab-deposit"
+                          ? "history-tab-item active"
+                          : "history-tab-item"
+                      }
+                        onClick={() => _clickTabDeposit("tab-deposit", setTabs, setTabName)}
+                        onKeyDown={() => ""} id="tab-deposit"
+                      >
                         ฝาก
                       </div>
-                      <div className="history-tab-item" id="tab-withdraw">ถอน</div>
-                      <div className="history-tab-item" id="tab-bonus">โบนัส</div>
+                      <div className={
+                        tabName === "tab-withdraw"
+                          ? "history-tab-item active"
+                          : "history-tab-item"
+                      }
+                        onClick={() => _clickTabDeposit("tab-withdraw", setTabs, setTabName)}
+                        onKeyDown={() => ""} id="tab-withdraw">ถอน</div>
+                      <div className={
+                        tabName === "tab-bonus"
+                          ? "history-tab-item active"
+                          : "history-tab-item"
+                      }
+                        onClick={() => _clickTabDeposit("tab-bonus", setTabs, setTabName)}
+                        onKeyDown={() => ""} id="tab-bonus">โบนัส</div>
                     </div>
                     {/* <!-- ฝาก --> */}
-                    <div className="history-deposit" id="history-content-deposit">
+                    <div className="history-deposit" style={{ display: tabName === "tab-deposit" ? "block" : "none" }}>
                       <div className="history-list">
                         <div className="history-list-left">
                           <label className="history-list-label">รายการฝาก</label>
@@ -1641,7 +1628,7 @@ export default function AfterLoginMobileAllGame() {
                     </div>
 
                     {/* <!-- ถอน --> */}
-                    <div className="history-withdraw" id="history-content-withdraw">
+                    <div className="history-withdraw" style={{ display: tabName === "tab-withdraw" ? "block" : "none" }}>
                       <div className="history-list">
                         <div className="history-list-left">
                           <label className="history-list-label">รายการถอน</label>
@@ -1678,7 +1665,7 @@ export default function AfterLoginMobileAllGame() {
                     </div>
 
                     {/* <!-- โบนัส --> */}
-                    <div className="history-bonus" id="history-content-bonus">
+                    <div className="history-bonus" style={{ display: tabName === "tab-bonus" ? "block" : "none" }}>
                       <div className="history-list">
                         <div className="history-list-left">
                           <label className="history-list-label">รายการโบนัส</label>
@@ -2726,6 +2713,7 @@ export default function AfterLoginMobileAllGame() {
                       className="modal-icon-back"
                       alt=""
                       data-bs-toggle="modal"
+                      data-bs-target="#bagModal"
                       data-bs-dismiss="modal"
                     />
                     <p className="modal-title">Cashback</p>
