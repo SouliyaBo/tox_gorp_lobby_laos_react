@@ -159,47 +159,47 @@ export default function AfterLoginMobile() {
                 </div>
 
                 <section className="all-mobile-games" style={{ marginTop: 15, padding: 10 }}>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/2.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/3.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/4.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/5.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/6.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/7.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/8.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/9.png" alt="game logo" />
                         </button>
                     </a>
-                    <a href="/pages/after-login-mobile-all-game.html" className="game-name" rel="noopener noreferrer">
+                    <a href="/game-list-mobile" className="game-name" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
                             <img src="/assets/images/Cardgame/10.png" alt="game logo" />
                         </button>

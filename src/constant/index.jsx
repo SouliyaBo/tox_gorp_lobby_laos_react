@@ -8,12 +8,13 @@ module.exports = {
     HOME: "/",
     AFTER_LOGIN: "/lobby",
     AFTER_LOGIN_MOBILE: "/lobby-mobile",
-    TEST: "/slide",
+    GAME_LIST: "/game-list",
+    GAME_LIST_MOBILE: "/game-list-mobile",
 
     AGEN_CODE: "AG019",
-    
 
-    LOGIN_TOKEN_DATA:"TOX_LOBBY_LAOS_LOGIN_GOLD_TOKEN_DATA",
-    LOGIN_USER_DATA:"TOX_LOBBY_LAOS_LOGIN_GOLD_USER_DATA",
+
+    LOGIN_TOKEN_DATA: "TOX_LOBBY_LAOS_LOGIN_GOLD_TOKEN_DATA",
+    LOGIN_USER_DATA: "TOX_LOBBY_LAOS_LOGIN_GOLD_USER_DATA",
 
 };

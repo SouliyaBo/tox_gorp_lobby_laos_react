@@ -17,7 +17,7 @@ export default function Home() {
 	const history = useHistory();
 	// const useParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
-
+	const [content, setContent] = useState(Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`));
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
@@ -114,12 +114,12 @@ export default function Home() {
 		try {
 			const _res = await axios({
 				method: 'post',
-				url: SERVER_URL + '/Authen/Login',
+				url: `${SERVER_URL}/Authen/Login`,
 				data: {
-					"agentCode": AGEN_CODE,
-					"username": userNameInput, //"txnaa0003",
-					"password": passwordInput,//"11111111",
-					"ip": "1.2.3.4"
+					agentCode: AGEN_CODE,
+					username: userNameInput, //"txnaa0003",
+					password: passwordInput,//"11111111",
+					ip: "1.2.3.4"
 				},
 			});
 			if (_res?.data?.statusCode === 0) {
@@ -143,44 +143,44 @@ export default function Home() {
 
 	const CreateUser = async () => {
 		const _date = {
-			"s_agent_code": AGEN_CODE,
-			"s_phone": inputPhonenumber,
-			"s_password": inputPassword,
-			"i_bank": "20",
-			"s_account_no": inputBank,
-			"s_channel": "GOOGLE",
-			"s_line": "line@",
-			"type_shorturl": true,
-			"s_ref": parsed?.ref,
-			"s_channel_name": AGEN_CODE,
-			"i_channel": "134",
+			s_agent_code: AGEN_CODE,
+			s_phone: inputPhonenumber,
+			s_password: inputPassword,
+			i_bank: "20",
+			s_account_no: inputBank,
+			s_channel: "GOOGLE",
+			s_line: "line@",
+			type_shorturl: true,
+			s_ref: parsed?.ref,
+			s_channel_name: AGEN_CODE,
+			i_channel: "134",
 		}
 		const _resOne = await axios({
 			method: 'post',
-			url: SERVER_URL + '/Member/Register/Verify',
+			url: `${SERVER_URL}/Member/Register/Verify`,
 			data: _date,
 		});
 		if (_resOne?.data?.statusCode === 0) {
 			const _resTwo = await axios({
 				method: 'post',
-				url: SERVER_URL + '/Member/Register/Confirm',
+				url: `${SERVER_URL}/Member/Register/Confirm`,
 				data: {
 					..._resOne?.data?.data,
-					"s_firstname": inputFirstname,
-					"s_lastname": inputLastname,
-					"s_fullname": inputFirstname + " " + inputLastname,
-					"s_channel_name": AGEN_CODE,
-					"i_channel": "134",
+					s_firstname: inputFirstname,
+					s_lastname: inputLastname,
+					s_fullname: `${inputFirstname} ${inputLastname}`,
+					s_channel_name: AGEN_CODE,
+					i_channel: "134",
 				},
 			});
 			console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data)
 			if (_resTwo?.data.statusCode === 0) {
 				const _resThree = await axios({
 					method: 'post',
-					url: SERVER_URL + '/Member/Balance',
+					url: `${SERVER_URL}/Member/Balance`,
 					data: {
-						"s_agent_code": AGEN_CODE,
-						"s_username": _resTwo?.data?.data?.s_username
+						s_agent_code: AGEN_CODE,
+						s_username: _resTwo?.data?.data?.s_username
 					},
 				});
 				if (_resThree?.data.statusCode === 0) {
@@ -200,12 +200,12 @@ export default function Home() {
 		try {
 			const _res = await axios({
 				method: 'post',
-				url: SERVER_URL + '/Authen/Login',
+				url: `${SERVER_URL}/Authen/Login`,
 				data: {
-					"agentCode": AGEN_CODE,
-					"username": username, //"txnaa0003",
-					"password": password,//"11111111",
-					"ip": "1.2.3.4"
+					agentCode: AGEN_CODE,
+					username: username, //"txnaa0003",
+					password: password,//"11111111",
+					ip: "1.2.3.4"
 				},
 			});
 			if (_res?.data.statusCode === 0) {
@@ -425,196 +425,18 @@ export default function Home() {
 
 				<section className="card-container">
 					<div className="card-wrapper">
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
+						{content.map((item, index) => (
+							<div className="game-card">
+								<div className="btn-play-game-container">
+									<a href="game-list.html">
+										<button className="btn-play-game" type="button">
+											เล่นเลย
+										</button>
+									</a>
+								</div>
+								<img src="/assets/images/jilli_card.svg" alt="card" />
 							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button type="button" className="btn-play-game">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
-						<div className="game-card">
-							<div className="btn-play-game-container">
-								<a href="game-list.html">
-									<button className="btn-play-game" type="button">
-										เล่นเลย
-									</button>
-								</a>
-							</div>
-							<img src="/assets/images/jilli_card.svg" alt="card" />
-						</div>
+						))}
 					</div>
 				</section>
 
@@ -1317,11 +1139,6 @@ export default function Home() {
 								id="signUp-btn"
 								data-bs-toggle="modal"
 								data-bs-target="#signUpModal">สมัครสมาชิก</button>
-							<a href={constant?.AFTER_LOGIN}><button type="button" id="login-btn">
-								เข้าสู่ระบบ1
-							</button>
-							</a>
-							<button type="button">สมัครสมาชิก</button>
 						</div>
 						<div className="problem">พบปัญหาติดต่อเรา</div>
 					</div>
@@ -2254,23 +2071,6 @@ export default function Home() {
 												</div>
 											</div>
 										</div>
-
-										<div
-											style={{ cursor: "pointer" }}
-											data-bs-toggle="modal"
-											data-bs-target="#trueWallet"
-											data-bs-dismiss="modal"
-										>
-											<div className="type-of-withdrawal">
-												<div className="withdrawal">
-													<img
-														src="/assets/images/true-money-wallet.svg"
-														alt="kkk"
-													/>
-													<div>Truewallet</div>
-												</div>
-											</div>
-										</div>
 									</div>
 
 									<div
@@ -2319,7 +2119,7 @@ export default function Home() {
 					aria-hidden="true"
 					data-bs-dismiss="modal"
 				>
-					<div className="modal-dialog modal-xl">
+					<div className="modal-dialog" style={{ width: 350 }}>
 						<div className="modal-content">
 							<div className="modal-border">
 								<div className="modal-content">
@@ -2438,7 +2238,7 @@ export default function Home() {
 					aria-hidden="true"
 					data-bs-dismiss="modal"
 				>
-					<div className="modal-dialog modal-xl">
+					<div className="modal-dialog" style={{ width: 350 }}>
 						<div className="modal-content">
 							<div className="modal-border">
 								<div className="modal-content">
@@ -2677,7 +2477,7 @@ export default function Home() {
 				aria-labelledby="withdraw"
 				aria-hidden="true"
 			>
-				<div className="modal-dialog modal-xl">
+				<div className="modal-dialog" style={{ width: 350 }}>
 					<div className="modal-content">
 						<div className="modal-border">
 							<div className="modal-content">
@@ -2787,7 +2587,7 @@ export default function Home() {
 				aria-labelledby="qrplay"
 				aria-hidden="true"
 			>
-				<div className="modal-dialog modal-xl">
+				<div className="modal-dialog" style={{ width: 370 }}>
 					<div className="modal-content">
 						<div className="modal-border">
 							<div className="modal-content">
@@ -3039,7 +2839,7 @@ export default function Home() {
 				aria-labelledby="slipVerifyLabel"
 				aria-hidden="true"
 			>
-				<div className="modal-dialog modal-xl">
+				<div className="modal-dialog" style={{ width: 370 }}>
 					<div className="modal-content">
 						<div className="modal-border">
 							<div className="modal-content">
