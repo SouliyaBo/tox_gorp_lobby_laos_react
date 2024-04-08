@@ -1,16 +1,25 @@
-import React from 'react'
+import React,{useState} from 'react'
 import { useHistory } from "react-router-dom";
-import constant from "../../constant"
+import Constant from "../../constant";
 export default function RegisterStep1() {
     const history = useHistory()
+
+    const [inputPhonenumber, setInputPhonenumber] = useState()
+	const [inputPassword, setInputPassword] = useState()
+	const [inputFirstname, setInputFirstname] = useState()
+	const [inputLastname, setInputLastname] = useState()
     const _clickNextStep = () => {
-        console.log("AAAA")
-        history.push("/")
+        history.push(Constant.PAGE_REGISTER_STEP2,{
+            inputPhonenumber,
+            inputPassword,
+            inputFirstname,
+            inputLastname
+        })
     }
     return (
         <div>
             <main className="register-page flexCenter">
-                <a href={constant?.HOME}>
+                <a href={Constant?.HOME}>
                     <img
                         src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"
@@ -39,18 +48,10 @@ export default function RegisterStep1() {
                         <div className="step flexCenter">2</div>
                         <small>บัญชีธนาคาร</small>
                     </div>
-                    {/* <!-- <hr />
-                  <div className="progress-step flexCenter">
-                      <div className="step flexCenter">3</div>
-                      <small>สำเร็จ</small>
-                  </div> --> */}
                 </div>
-
-                <div className="text-container">
+                <div className="text-container" style={{textAlign: "center"}}>
                     <h3>สมัครสมาชิก</h3>
-                    <p>กรอกเบอร์</p>
                 </div>
-
                 <div className="phone-input">
                     <div className="input-container flexCenter">
                         <img src="/assets/icons/phone.svg" alt="phone icon" />
@@ -59,17 +60,55 @@ export default function RegisterStep1() {
                             name="phone"
                             id="phone"
                             type="text"
-                            maxlength="9"
+                            maxlength="13"
                             placeholder="เบอร์โทรศัพท์"
+							onChange={(e) => setInputPhonenumber(e?.target?.value)}
                         />
                     </div>
                 </div>
-                <a href={constant?.PAGE_REGISTER_STEP2} >
-                    <button type='button' onClick={() => _clickNextStep()} className="next-step-button">ถัดไป</button>
-                </a>
+                <div className="phone-input">
+                    <div className="input-container flexCenter">
+                        <img src="/assets/icons/phone.svg" alt="phone icon" />
+                        <label for="phone" />
+                        <input
+                            name="password"
+                            id="password"
+                            type="text"
+                            placeholder="รหัสผ่าน"
+                            onChange={(e) => setInputPassword(e?.target?.value)}
+                        />
+                    </div>
+                </div>
+                <div className="phone-input">
+                    <div className="input-container flexCenter">
+                        <img src="/assets/icons/phone.svg" alt="phone icon" />
+                        <label for="phone" />
+                        <input
+                            name="s_firstname"
+                            id="s_firstname"
+                            type="text"
+                            placeholder="ซื่อ"
+                            onChange={(e) => setInputFirstname(e?.target?.value)}
+                        />
+                    </div>
+                </div>
+                <div className="phone-input">
+                    <div className="input-container flexCenter">
+                        <img src="/assets/icons/phone.svg" alt="phone icon" />
+                        <label for="phone" />
+                        <input
+                            name="s_lastname"
+                            id="s_lastname"
+                            type="text"
+                            placeholder="นามสกุล"
+                            onChange={(e) => setInputLastname(e?.target?.value)}
+                        />
+                    </div>
+                </div>
+                <button type='button' onClick={() => _clickNextStep()} className="next-step-button">ถัดไป</button>
                 <p style={{ marginTop: 8 }}>
                     คุณมีบัญชีอยู่แล้ว
-                    <a href={constant?.PAGE_LOGIN_MOBILE}>เข้าสู่ระบบ</a>
+                    <a href={Constant?.PAGE_LOGIN_MOBILE}>เข้าสู่ระบบ</a>
                 </p>
             </main>
         </div>

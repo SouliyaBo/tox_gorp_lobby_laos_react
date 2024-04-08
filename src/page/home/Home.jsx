@@ -1,6 +1,9 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
+import _LoginController from "../../api/login"
+
+
 import constant from "../../constant";
 import axios from "axios";
 import { useHistory, useParams } from "react-router-dom";
@@ -13,8 +16,11 @@ const {
 	LOGIN_TOKEN_DATA,
 } = require("../../constant");
 
+
 export default function Home() {
 	const history = useHistory();
+	const { handleLogin,handleRegister } = _LoginController()
+
 	// const useParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
 	const [content, setContent] = useState(Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`));
@@ -110,116 +116,28 @@ export default function Home() {
 	};
 
 	// ===== LoginController =====>
-	const LoginController = async () => {
-		try {
-			const _res = await axios({
-				method: 'post',
-				url: `${SERVER_URL}/Authen/Login`,
-				data: {
-					agentCode: AGEN_CODE,
-					username: userNameInput, //"txnaa0003",
-					password: passwordInput,//"11111111",
-					ip: "1.2.3.4"
-				},
-			});
-			if (_res?.data?.statusCode === 0) {
-				localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
-				localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
-				history.push(constant.AFTER_LOGIN)
-			} else {
-				setMessageCreate(_res?.data?.statusDesc)
-			}
-		} catch (error) {
-			// setMessageCreate(_res?.data?.statusDesc)
-		}
+	const _Login = async () => {
+		let _res = await handleLogin(userNameInput, passwordInput);
+		if (_res) setMessageCreate(_res?.statusDesc)
 	}
 	// ===== CreateUser =====>
 	const [inputPhonenumber, setInputPhonenumber] = useState()
 	const [inputPassword, setInputPassword] = useState()
-	const [inputBank, setInputBank] = useState()
 	const [inputFirstname, setInputFirstname] = useState()
 	const [inputLastname, setInputLastname] = useState()
-	const [successDataRegister, setSuccessDataRegister] = useState()
+	const [inputBank, setInputBank] = useState()
 
 	const CreateUser = async () => {
-		const _date = {
-			s_agent_code: AGEN_CODE,
-			s_phone: inputPhonenumber,
-			s_password: inputPassword,
-			i_bank: "20",
-			s_account_no: inputBank,
-			s_channel: "GOOGLE",
-			s_line: "line@",
-			type_shorturl: true,
-			s_ref: parsed?.ref,
-			s_channel_name: AGEN_CODE,
-			i_channel: "134",
-		}
-		const _resOne = await axios({
-			method: 'post',
-			url: `${SERVER_URL}/Member/Register/Verify`,
-			data: _date,
-		});
-		if (_resOne?.data?.statusCode === 0) {
-			const _resTwo = await axios({
-				method: 'post',
-				url: `${SERVER_URL}/Member/Register/Confirm`,
-				data: {
-					..._resOne?.data?.data,
-					s_firstname: inputFirstname,
-					s_lastname: inputLastname,
-					s_fullname: `${inputFirstname} ${inputLastname}`,
-					s_channel_name: AGEN_CODE,
-					i_channel: "134",
-				},
-			});
-			console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data)
-			if (_resTwo?.data.statusCode === 0) {
-				const _resThree = await axios({
-					method: 'post',
-					url: `${SERVER_URL}/Member/Balance`,
-					data: {
-						s_agent_code: AGEN_CODE,
-						s_username: _resTwo?.data?.data?.s_username
-					},
-				});
-				if (_resThree?.data.statusCode === 0) {
-					localStorage.setItem(LOGIN_TOKEN_DATA, _resTwo?.data?.data?.token)
-					localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_resTwo?.data?.data))
-					history.push(constant.AFTER_LOGIN)
-
-					_loginAfterRegister(_resTwo?.data?.data?.s_username, _resTwo?.data?.data?.s_password)
-					setSuccessDataRegister({ ..._resThree?.data, ..._resTwo?.data, s_password: inputPassword })
-				}
-			}
-		} else {
-			// setMessageCreate(_resTwo?.data?.statusDesc)
-		}
+		let _res =await handleRegister(
+			inputFirstname,
+			inputLastname,
+			inputPhonenumber,
+			inputPassword,
+			inputBank,
+			parsed?.ref
+		)
+		if (_res) setMessageCreate(_res?.statusDesc)
 	}
-	const _loginAfterRegister = async (username, password) => {
-		try {
-			const _res = await axios({
-				method: 'post',
-				url: `${SERVER_URL}/Authen/Login`,
-				data: {
-					agentCode: AGEN_CODE,
-					username: username, //"txnaa0003",
-					password: password,//"11111111",
-					ip: "1.2.3.4"
-				},
-			});
-			if (_res?.data.statusCode === 0) {
-				localStorage.setItem(LOGIN_TOKEN_DATA, _res?.data?.data?.token)
-				localStorage.setItem(LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
-				history.push(constant.AFTER_LOGIN)
-			}
-		} catch (error) {
-			console.log("🚀 ~ const_login= ~ error:", error)
-		}
-	}
-
-	console.log("🚀 ~ Home ~ successDataRegister:", successDataRegister)
-
 
 	return (
 		<div>
@@ -1131,7 +1049,7 @@ export default function Home() {
 						</div>
 						<div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
 						<div className="button-container">
-							<button type="button" id="login-btn" onClick={() => LoginController()}>
+							<button type="button" id="login-btn" onClick={() => _Login()}>
 								เข้าสู่ระบบ
 							</button>
 							<button type="button"
@@ -1208,7 +1126,6 @@ export default function Home() {
 										>
 											<div style={{ textAlign: "center" }}>
 												<h3 className="signup-header">สมัครสมาชิก</h3>
-												<h3 className="signup-title">กรอกเบอร์</h3>
 											</div>
 											<div className="phone-input">
 												<img src="/assets/icons/phone.svg" alt="icon" />
@@ -1226,8 +1143,8 @@ export default function Home() {
 												<label for="phone" />
 												<input
 													type="password"
-													id="phone"
-													name="phone"
+													id="text"
+													name="password"
 													placeholder="รหัสผ่าน"
 													onChange={(e) => setInputPassword(e?.target?.value)}
 												/>
@@ -1300,14 +1217,16 @@ export default function Home() {
 											<div className="phone-input">
 												<img src="/assets/icons/bank.svg" alt="icon" />
 												<input
-													type="text"
-													id="phone"
-													name="phone"
+													type="number"
+													id="number"
+													name="bank"
 													placeholder="เลขบัญชีธนาคาร"
 													onChange={(e) => setInputBank(e?.target?.value)}
 												/>
 											</div>
-
+											<div style={{ textAlign: "center", padding: 10 }}>
+												{messageCreate}
+											</div>
 											<button
 												type="button"
 												id="goto-step3"

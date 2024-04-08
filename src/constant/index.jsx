@@ -1,4 +1,6 @@
 module.exports = {
+    AGEN_CODE: "AG019",
+    
     SERVER_URL: "https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1",
 
     PAGE_LOGIN: "/",
@@ -11,7 +13,6 @@ module.exports = {
     GAME_LIST: "/game-list",
     GAME_LIST_MOBILE: "/game-list-mobile",
 
-    AGEN_CODE: "AG019",
 
 
     LOGIN_TOKEN_DATA: "TOX_LOBBY_LAOS_LOGIN_GOLD_TOKEN_DATA",
