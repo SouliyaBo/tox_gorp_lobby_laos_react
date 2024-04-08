@@ -22,6 +22,7 @@ export default function RegisterStep2() {
             history?.location?.state?.inputPhonenumber,
             history?.location?.state?.inputPassword,
             inputBank,
+            history?.location?.state?.inputRef,
         )
         if (_res) setMessageCreate(_res?.statusDesc)
     }

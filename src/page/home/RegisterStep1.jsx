@@ -1,19 +1,25 @@
 import React,{useState} from 'react'
+import queryString from "query-string";
+
 import { useHistory } from "react-router-dom";
 import Constant from "../../constant";
 export default function RegisterStep1() {
+	const parsed = queryString.parse(history?.location?.search);
+
     const history = useHistory()
 
     const [inputPhonenumber, setInputPhonenumber] = useState()
 	const [inputPassword, setInputPassword] = useState()
 	const [inputFirstname, setInputFirstname] = useState()
 	const [inputLastname, setInputLastname] = useState()
+	const [inputRef, setInputRef] = useState(parsed?.ref)
     const _clickNextStep = () => {
         history.push(Constant.PAGE_REGISTER_STEP2,{
             inputPhonenumber,
             inputPassword,
             inputFirstname,
-            inputLastname
+            inputLastname,
+            inputRef
         })
     }
     return (

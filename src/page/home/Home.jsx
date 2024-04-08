@@ -5,24 +5,18 @@ import _LoginController from "../../api/login"
 
 
 import constant from "../../constant";
-import axios from "axios";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import queryString from "query-string";
-
-const {
-	AGEN_CODE,
-	SERVER_URL,
-	LOGIN_USER_DATA,
-	LOGIN_TOKEN_DATA,
-} = require("../../constant");
 
 
 export default function Home() {
+	const parsed = queryString.parse(history?.location?.search);
+
 	const history = useHistory();
-	const { handleLogin,handleRegister } = _LoginController()
+
+	const { handleLogin,handleRegister,loginWithToken } = _LoginController()
 
 	// const useParams = useParams();
-	const parsed = queryString.parse(history?.location?.search);
 	const [content, setContent] = useState(Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`));
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
@@ -33,7 +27,11 @@ export default function Home() {
 	const [userNameInput, setUserNameInput] = useState();
 	const [passwordInput, setPasswordInput] = useState();
 	const [messageCreate, setMessageCreate] = useState()
+	const [showRegisterPopup, setShowRegisterPopup] = useState(false);
 
+	useEffect(() => {
+		if (parsed?.ref) setShowRegisterPopup(true);
+	}, [parsed?.ref]);
 
 	useEffect(() => {
 		const pageClickEvent = (e) => {
