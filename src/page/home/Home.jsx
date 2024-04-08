@@ -13,6 +13,7 @@ export default function Home() {
 	const parsed = queryString.parse(history?.location?.search);
 
 	const history = useHistory();
+	const UseParams = useParams();
 
 	const { handleLogin,handleRegister,loginWithToken } = _LoginController()
 
@@ -113,6 +114,16 @@ export default function Home() {
 		}
 	};
 
+	// ===== Login =====>
+	useEffect(() => {
+		if (UseParams?.token) {
+			const _res = EncriptBase64(UseParams?.token);
+			if (_res?.agentCode && _res?.username && _res?.password) {
+				_loginPlayNow(_res?.agentCode, _res?.username, _res?.password);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [UseParams]);
 	// ===== LoginController =====>
 	const _Login = async () => {
 		let _res = await handleLogin(userNameInput, passwordInput);
