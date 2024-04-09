@@ -1,15 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+
 import 'react-slideshow-image/dist/styles.css'
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
+import { DataLocalStorage } from "../../helper";
+import Constant from "../../constant";
 
 export default function AfterLogin() {
+    
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
     const [slideIndex, setSlideIndex] = useState(1);
+
+
+
+
 
     useEffect(() => {
         const pageClickEvent = (e) => {
@@ -75,7 +84,6 @@ export default function AfterLogin() {
 
         const slides = document.getElementsByClassName("mySlides");
         const dots = document.getElementsByClassName("dot");
-        console.log("slides:: ", slides.length)
         if (n > slides.length) {
             // setSlideIndex(1);
         }
@@ -93,6 +101,42 @@ export default function AfterLogin() {
         // setSlideIndex(n);
     }
 
+    // =============> connect data <================
+    const [dataFromLogin, setdataFromLogin] = useState({})
+    const [codeGameSelect, setCodeGameSelect] = useState("B006")
+    const [dataGameList, setdataGameList] = useState()
+
+
+    useEffect(() => {
+        _getDataGame()
+     let _data =DataLocalStorage()
+     if(_data){
+        setdataFromLogin(_data)
+     }
+    }, [])
+
+    const _getDataGame =async(value)=>{
+        try {
+            setCodeGameSelect(value)
+            const _res = await axios({
+				method: "post",
+				url: `${Constant.SERVER_URL}/Game/ListGame`,
+				data: {
+					s_agent_code: Constant.AGEN_CODE,
+					s_brand_code: value,
+				},
+			});
+            if (_res?.data?.statusCode === 0) {
+                console.log("🚀 ~ const_getDataGame=async ~ _res?.data:", _res?.data)
+                
+            }
+        } catch (error) {
+            
+        }
+    }
+    console.log("🚀 ~ useEffect ~ _data:", dataFromLogin)
+    
+
 
     return (
         <div>
@@ -100,7 +144,8 @@ export default function AfterLogin() {
                 <div className="left">
                     <div className="coin-balance">
                         <img src="/assets/images/coin.svg" alt="coin" />
-                        1000.00
+                        {dataFromLogin?.balance?.amount}
+
                     </div>
                 </div>
                 <div className="middle">
@@ -115,7 +160,7 @@ export default function AfterLogin() {
                 <div className="right">
                     <div className="gem-balance">
                         <img src="/assets/images/gem.svg" alt="gem" />
-                        100
+                        {dataFromLogin?.balance?.point}
                     </div>
                     <img
                         src="/assets/images/icon-hamburger.svg"
@@ -129,25 +174,11 @@ export default function AfterLogin() {
                 </div>
             </header>
             <main className="home">
-                {/* <!-- Section Start --> */}
-
-
-                <div className="search-container">
-                    <img
-                        src="/assets/icons/search-icon.svg"
-                        alt="icon"
-                        className="search-icon"
-                    />
-                    <label for="search" />
-                    <input type="text" name="search" id="search" placeholder="ค้นหา" />
-                </div>
                 <div className="brand">
                     <div className="slideshow-container">
-
                         <div className="mySlides fade-slide">
                             <img src="/assets/images/Cardgame/image 70.png" style={{ width: "100%" }} alt="brand" />
                         </div>
-
                         <a className="prev" onClick={plusSlides(-1)}>❮</a>
                         <a className="next" onClick={plusSlides(1)}>❯</a>
                     </div>
