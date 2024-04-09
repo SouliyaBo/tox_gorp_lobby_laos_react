@@ -8,6 +8,7 @@ module.exports = {
     PAGE_REGISTER_STEP1: "/register-step1",
     PAGE_REGISTER_STEP2: "/register-step2",
     HOME: "/",
+    PAGE_LOGIN_CAN_LOGIN_PLAY: "/api/v1/Authen/Token",
     AFTER_LOGIN: "/lobby",
     AFTER_LOGIN_MOBILE: "/lobby-mobile",
     GAME_LIST: "/game-list",

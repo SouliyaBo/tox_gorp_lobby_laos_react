@@ -4,14 +4,15 @@ import React, { useState, useRef, useEffect } from "react";
 import _LoginController from "../../api/login";
 
 import constant from "../../constant";
-import { useHistory } from "react-router-dom";
+import { useHistory,useParams } from "react-router-dom";
 import queryString from "query-string";
 
 export default function Home() {
-	const parsed = queryString.parse(history?.location?.search);
-
+	
 	const history = useHistory();
 	const UseParams = useParams();
+	const parsed = queryString.parse(history?.location?.search);
+
 
 	const { handleLogin, handleRegister, loginWithToken } = _LoginController();
 
@@ -30,9 +31,17 @@ export default function Home() {
 	const [messageCreate, setMessageCreate] = useState();
 	const [showRegisterPopup, setShowRegisterPopup] = useState(false);
 
+	// ========> register by code friend <=======
 	useEffect(() => {
 		if (parsed?.ref) setShowRegisterPopup(true);
 	}, [parsed?.ref]);
+	// ========> loginWithToken <=======
+	useEffect(() => {
+		if (UseParams?.token) {
+			loginWithToken(UseParams?.token)
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [UseParams]);
 
 	useEffect(() => {
 		const pageClickEvent = (e) => {
@@ -114,16 +123,6 @@ export default function Home() {
 		}
 	};
 
-	// ===== Login =====>
-	useEffect(() => {
-		if (UseParams?.token) {
-			const _res = EncriptBase64(UseParams?.token);
-			if (_res?.agentCode && _res?.username && _res?.password) {
-				_loginPlayNow(_res?.agentCode, _res?.username, _res?.password);
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [UseParams]);
 	// ===== LoginController =====>
 	const _Login = async () => {
 		const _res = await handleLogin(userNameInput, passwordInput);
