@@ -1,23 +1,23 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
-import _LoginController from "../../api/login"
-
+import _LoginController from "../../api/login";
 
 import constant from "../../constant";
 import { useHistory } from "react-router-dom";
 import queryString from "query-string";
-
 
 export default function Home() {
 	const parsed = queryString.parse(history?.location?.search);
 
 	const history = useHistory();
 
-	const { handleLogin,handleRegister,loginWithToken } = _LoginController()
+	const { handleLogin, handleRegister, loginWithToken } = _LoginController();
 
 	// const useParams = useParams();
-	const [content, setContent] = useState(Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`));
+	const [content, setContent] = useState(
+		Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`),
+	);
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
@@ -26,7 +26,7 @@ export default function Home() {
 	const [tabName, setTabName] = useState("tab-deposit");
 	const [userNameInput, setUserNameInput] = useState();
 	const [passwordInput, setPasswordInput] = useState();
-	const [messageCreate, setMessageCreate] = useState()
+	const [messageCreate, setMessageCreate] = useState();
 	const [showRegisterPopup, setShowRegisterPopup] = useState(false);
 
 	useEffect(() => {
@@ -115,27 +115,27 @@ export default function Home() {
 
 	// ===== LoginController =====>
 	const _Login = async () => {
-		let _res = await handleLogin(userNameInput, passwordInput);
-		if (_res) setMessageCreate(_res?.statusDesc)
-	}
+		const _res = await handleLogin(userNameInput, passwordInput);
+		if (_res) setMessageCreate(_res?.statusDesc);
+	};
 	// ===== CreateUser =====>
-	const [inputPhonenumber, setInputPhonenumber] = useState()
-	const [inputPassword, setInputPassword] = useState()
-	const [inputFirstname, setInputFirstname] = useState()
-	const [inputLastname, setInputLastname] = useState()
-	const [inputBank, setInputBank] = useState()
+	const [inputPhonenumber, setInputPhonenumber] = useState();
+	const [inputPassword, setInputPassword] = useState();
+	const [inputFirstname, setInputFirstname] = useState();
+	const [inputLastname, setInputLastname] = useState();
+	const [inputBank, setInputBank] = useState();
 
 	const CreateUser = async () => {
-		let _res =await handleRegister(
+		const _res = await handleRegister(
 			inputFirstname,
 			inputLastname,
 			inputPhonenumber,
 			inputPassword,
 			inputBank,
-			parsed?.ref
-		)
-		if (_res) setMessageCreate(_res?.statusDesc)
-	}
+			parsed?.ref,
+		);
+		if (_res) setMessageCreate(_res?.statusDesc);
+	};
 
 	return (
 		<div>
@@ -194,7 +194,6 @@ export default function Home() {
 					<a
 						href={constant?.PAGE_LOGIN_MOBILE}
 						style={{ textDecoration: "none" }}
-
 					>
 						<button
 							type="button"
@@ -1050,11 +1049,15 @@ export default function Home() {
 							<button type="button" id="login-btn" onClick={() => _Login()}>
 								เข้าสู่ระบบ
 							</button>
-							<button type="button"
+							<button
+								type="button"
 								onClick={() => handleCloseLoginClick()}
 								id="signUp-btn"
 								data-bs-toggle="modal"
-								data-bs-target="#signUpModal">สมัครสมาชิก</button>
+								data-bs-target="#signUpModal"
+							>
+								สมัครสมาชิก
+							</button>
 						</div>
 						<div className="problem">พบปัญหาติดต่อเรา</div>
 					</div>
@@ -1089,8 +1092,9 @@ export default function Home() {
 										/>
 										<div className="step-container">
 											<div
-												style={{ cursor: 'pointer' }}
-												className={`step-item${gotoStepTwo === false ? " active" : ""}`}
+												style={{ cursor: "pointer" }}
+												className={`step-item${gotoStepTwo === false ? " active" : ""
+													}`}
 												onClick={() => _gotoSet1()}
 												onKeyDown={() => ""}
 												id="step-item1"
@@ -1133,7 +1137,9 @@ export default function Home() {
 													id="phone"
 													name="phone"
 													placeholder="เบอร์โทรศัพท์"
-													onChange={(e) => setInputPhonenumber(e?.target?.value)}
+													onChange={(e) =>
+														setInputPhonenumber(e?.target?.value)
+													}
 												/>
 											</div>
 											<div className="phone-input">
@@ -1180,7 +1186,9 @@ export default function Home() {
 											<div style={{ textAlign: "center" }}>
 												<div className="already-have-account">
 													คุณมีบัญชีอยู่แล้ว
-													<span className="go-to-login">เข้าสู่ระบบ</span>
+													<span className="go-to-login"
+														data-bs-dismiss="modal"
+														onClick={handleLoginClick} onKeyDown={() => ''}>เข้าสู่ระบบ</span>
 												</div>
 											</div>
 										</div>
@@ -1209,7 +1217,6 @@ export default function Home() {
 														id="bank1"
 														alt="icon"
 													/>
-
 												</div>
 											</div>
 											<div className="phone-input">
@@ -1295,9 +1302,7 @@ export default function Home() {
 												<p className="register-info-title">ข้อมูลสมัคร</p>
 												<div className="register-info-group">
 													<p className="register-info-text">Username :</p>
-													<p className="register-info-text-bold">
-														0181449403
-													</p>
+													<p className="register-info-text-bold">0181449403</p>
 												</div>
 											</div>
 										</div>
@@ -3008,31 +3013,40 @@ export default function Home() {
 								<div className="modal-body">
 									<div className="history-modal-content">
 										<div className="history-tab">
-											<div className={
-												tabName === "tab-deposit"
-													? "history-tab-item active"
-													: "history-tab-item"
-											}
+											<div
+												className={
+													tabName === "tab-deposit"
+														? "history-tab-item active"
+														: "history-tab-item"
+												}
 												onClick={() => _clickTabDeposit("tab-deposit")}
-												onKeyDown={() => ""} id="tab-deposit">
+												onKeyDown={() => ""}
+												id="tab-deposit"
+											>
 												ฝาก
 											</div>
-											<div className={
-												tabName === "tab-withdraw"
-													? "history-tab-item active"
-													: "history-tab-item"
-											}
+											<div
+												className={
+													tabName === "tab-withdraw"
+														? "history-tab-item active"
+														: "history-tab-item"
+												}
 												onClick={() => _clickTabDeposit("tab-withdraw")}
-												onKeyDown={() => ""} id="tab-withdraw">
+												onKeyDown={() => ""}
+												id="tab-withdraw"
+											>
 												ถอน
 											</div>
-											<div className={
-												tabName === "tab-bonus"
-													? "history-tab-item active"
-													: "history-tab-item"
-											}
+											<div
+												className={
+													tabName === "tab-bonus"
+														? "history-tab-item active"
+														: "history-tab-item"
+												}
 												onClick={() => _clickTabDeposit("tab-bonus")}
-												onKeyDown={() => ""} id="tab-bonus">
+												onKeyDown={() => ""}
+												id="tab-bonus"
+											>
 												โบนัส
 											</div>
 										</div>
@@ -3217,7 +3231,11 @@ export default function Home() {
 										</div>
 
 										{/* <!-- โบนัส --> */}
-										<div className="history-bonus" id="history-content-bonus" style={{ display: "none" }}>
+										<div
+											className="history-bonus"
+											id="history-content-bonus"
+											style={{ display: "none" }}
+										>
 											<div className="history-list">
 												<div className="history-list-left">
 													<label className="history-list-label">
@@ -4728,7 +4746,12 @@ export default function Home() {
 
 			<footer className="footer" id="footer-desktop">
 				<div className="menu-wrapper">
-					<div className="footer-item flexCenter" id="footer-login-button">
+					<div
+						className="footer-item flexCenter"
+						id="footer-login-button"
+						onClick={handleLoginClick}
+						onKeyDown={() => ""}
+					>
 						<img src="/assets/icons/login-icon.svg" alt="login" />
 						<p className="font-20">เข้าสู่ระบบ</p>
 					</div>

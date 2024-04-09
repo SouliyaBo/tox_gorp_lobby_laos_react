@@ -10,7 +10,7 @@
   font-family: 'NotoSansLaos' !important;
 }
 :root {
-  --first-color: #8800e3;
+  --first-color: #000;
   --secondary-color: #0a56a1;
   --background-btn-list: #8800e3;
   --background-list-cashback: radial-gradient(circle, rgba(136,0,227,1) 0%, rgba(10,86,161,1) 100%);
@@ -295,7 +295,7 @@ p {
           .card-container .card-wrapper .game-card:hover .btn-play-game-container .btn-play-game {
             background: linear-gradient(109.6deg, #ffdb2f 11.2%, #f4fd00 100.2%);
             border-radius: 20px;
-            color: #ffff;
+            color: #000;
             cursor: pointer; }
         .card-container .card-wrapper .game-card:hover .game-container-home {
           box-shadow: 0 0 50px #ffff;
@@ -468,7 +468,7 @@ p {
     z-index: 20;
     border-radius: 0px 20px 20px 0px;
     border: 2px solid #f9df7b;
-    background: radial-gradient(#8800e3 36%, #0a56a1 100%);
+background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #000 81.25%, #242424 100%);
     animation: slideInFromLeft 0.5s ease-in-out;
     padding: 26px 31px; }
     .sidebar-container .sidebar img {
@@ -503,7 +503,7 @@ p {
  border: 2px solid #f9df7b;
     cursor: pointer;
     height: 45px;
-    background-color: #8800e3;
+    background-color: #000;
     color: white;
     font-weight: 600;
     font-size: 16px;
@@ -2639,8 +2639,7 @@ p {
   .modal .modal-content {
     position: relative !important;
     z-index: 10 !important;
-    background: #8800e3 !important;
-    background: radial-gradient(circle, #8800e3 36%, #0a56a1 100%) !important;
+    background-color: #000;
     border-radius: 20px !important;
     height: 100% !important;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important; }
@@ -2657,8 +2656,7 @@ p {
       position: relative;
       margin: auto;
       width: fit-content;
-      background: #8800e3;
-      background: radial-gradient(circle, #8800e3 0%, #0a56a1 100%);
+      background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #000000 81.25%, #242424 100%);
       border-radius: 15px;
       padding: 10px;
       display: flex;
@@ -2744,7 +2742,7 @@ p {
       height: 44px;
       border-radius: 10px;
       border: 1px solid #f9df7b;
-      background: #c1923b47;
+      background: #c1933b;
       font-size: 16px;
       font-weight: 500;
       cursor: pointer; }
@@ -2754,7 +2752,7 @@ p {
       height: 44px;
       border-radius: 10px;
       border: 1px solid #f9df7b;
-      background: #0000001f;
+      background: #000000;
       font-size: 16px;
       font-weight: 500;
       color: #ffff;
@@ -3080,7 +3078,7 @@ p {
         justify-content: center;
         align-items: center;
         border-radius: 10px;
-        background: var(--background-list-cashback);
+        background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #000 81.25%, #242424 100%);
  }
         .change-cashback-modal-content .card-cashback .card-body .name-cashback-game img {
           width: 65px;
@@ -3225,7 +3223,7 @@ p {
 .type-of-withdrawal {
   position: relative;
   z-index: -15;
-  background: var(--gradient-gold);
+  background: linear-gradient(90deg, #f9df7b 0%, #b57e10 20%, #b78113 26%, #be8c1f 32%, #cb9d32 38%, #dcb64e 44%, #f2d570 49%, #f9df7b 51%, #fff3a6 52%, #f9df7b 59%, #b57e10 84%, #e5c25b 95%, #f9df7b 100%);
   border-radius: 10px;
   margin: auto;
   padding: 2px;
@@ -3233,7 +3231,7 @@ p {
   animation-name: slideIn;
   animation-duration: 0.4s; }
   .type-of-withdrawal .withdrawal {
-    background: var(--background-list-cashback);
+    background: linear-gradient(to left, #242424, #0a0000, #191919, #000000, #242424);
     width: 100%;
     border-radius: 9px;
     display: flex;
@@ -3242,7 +3240,7 @@ p {
     align-items: center;
     gap: 8px;
     font-weight: 600;
-   box-shadow: var(--box-shadow-btn-list);
+   /* box-shadow: var(--box-shadow-btn-list); */
   }
 
 .button-line {
@@ -3602,8 +3600,8 @@ p {
       text-align: center;
       color: #fff;
       border-radius: 10px;
-      background: var(--background-list-cashback);
-      box-shadow: var(--box-shadow-btn-list);
+      background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #000000 81.25%, #242424 100%);
+      /* box-shadow: var(--box-shadow-btn-list); */
       cursor: pointer; }
     .bag-modal-content .bag-modal-menu .bag-modal-menu-item::before {
       content: "";

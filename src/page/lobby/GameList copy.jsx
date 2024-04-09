@@ -11,44 +11,28 @@ export default function GameList() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [sidebarAnimation, setSidebarAnimation] = useState(true);
   const [tabs, setTabs] = useState("ประวัติฝาก");
-  const [gotoStepTwo, setGotoStepTwo] = useState(false);
   const [tabName, setTabName] = useState("tab-deposit");
   const [current, setCurrent] = useState(0);
 
+  useEffect(() => {
+    const pageClickEvent = (e) => {
+      // If the active element exists and is clicked outside of
+      if (sidebarUseRef.current !== "") {
+        setSidebarAnimation(false);
+        setTimeout(() => {
+          setSidebarVisible(false);
+        }, 500);
+      }
+    };
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  // useEffect(() => {
-  //   let slideIndex = 1;
+    if (sidebarVisible) {
+      window.addEventListener("click", pageClickEvent);
+    }
 
-  //   const plusSlides = (n) => {
-  //     // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-  //     showSlides(slideIndex += n);
-  //   };
-
-  //   const showSlides = (n) => { // Define showSlides function here
-  //     let i;
-  //     const slides = document.getElementsByClassName("mySlides");
-  //     const dots = document.getElementsByClassName("dot");
-  //     if (n > slides.length) {
-  //       slideIndex = 1
-  //     }
-  //     if (n < 1) {
-  //       slideIndex = slides.length
-  //     }
-  //     for (i = 0; i < slides.length; i++) {
-  //       slides[i].style.display = "none";
-  //     }
-  //     for (i = 0; i < dots.length; i++) {
-  //       dots[i].className = dots[i].className.replace(" slide-active", "");
-  //     }
-  //     slides[slideIndex - 1].style.display = "block";
-  //     dots[slideIndex - 1].className += " slide-active";
-  //   };
-  //   const interval = setInterval(() => {
-  //     plusSlides(1);
-  //   }, 3000);
-  //   return () => clearInterval(interval);
-  // }, []);
+    return () => {
+      window.removeEventListener("click", pageClickEvent);
+    };
+  }, [sidebarVisible]);
 
   const toggleSidebar = (event) => {
     event.stopPropagation();
@@ -98,38 +82,6 @@ export default function GameList() {
     return null;
   }
 
-  const _gotoSet1 = () => {
-    setGotoStepTwo(false);
-  };
-  const _gotoSet2 = () => {
-    setGotoStepTwo(!false);
-  };
-
-  const handleLoginClick = () => {
-    const loginModal = document.querySelector(".login-modal");
-    if (loginModal !== null) {
-      setTimeout(() => {
-        loginModal.setAttribute("style", "display: flex;");
-        loginModal.childNodes[1].setAttribute(
-          "style",
-          "animation: scaleUp 0.5s ease-in-out;",
-        );
-      }, 400);
-    }
-  };
-
-  const handleCloseLoginClick = () => {
-    const loginModal = document.querySelector(".login-modal");
-    if (loginModal !== null) {
-      setTimeout(() => {
-        loginModal.setAttribute("style", "display: none;");
-        loginModal.childNodes[1].setAttribute(
-          "style",
-          "animation: scaleDown 0.5s ease-in-out;",
-        );
-      }, 400);
-    }
-  };
   return (
     <div>
       <header className="header">
@@ -159,17 +111,17 @@ export default function GameList() {
             data-bs-toggle="modal"
             data-bs-target="#signUpModal"
           >
-            สมัครสมาชิก
+            ສະໝັກສະມາຊິກ
           </button>
-          <button type='button' className="font-20 desktop-button button" id="loginBtn" onClick={handleLoginClick}>
-            เข้าสู่ระบบ
+          <button type='button' className="font-20 desktop-button button" id="loginBtn">
+            ເຂົ້າສູ່ລະບົບ
           </button>
-          <button type='button' className="font-20 mobile-button button" id="registerBtn-mobile" >
-            สมัครสมาชิก
+          <button type='button' className="font-20 mobile-button button" id="registerBtn-mobile">
+            ສະໝັກສະມາຊິກ
           </button>
           <a href="/pages/register-step1.html">
             <button type='button' className="font-20 mobile-button button" id="loginBtn-mobile">
-              เข้าสู่ระบบ
+              ເຂົ້າສູ່ລະບົບ
             </button>
           </a>
           <img
@@ -184,27 +136,27 @@ export default function GameList() {
         <div className="featured-game-wrapper" id="mobile">
           <div className="featured-game flexBetween">
             <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
-            <p>สล็อต</p>
+            <p>ສະລັອດ</p>
           </div>
           <div className="featured-game flexBetween">
             <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
-            <p>คาสิโน</p>
+            <p>ຄາສິໂນ</p>
           </div>
           <div className="featured-game flexBetween">
             <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
-            <p>ยิงปลา</p>
+            <p>ຍິງປາ</p>
           </div>
           <div className="featured-game flexBetween">
             <img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-            <p>ป็อกเด้ง</p>
+            <p>ປັອກເດັ້ງ</p>
           </div>
           <div className="featured-game flexBetween">
             <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
-            <p>กีฬา</p>
+            <p>ກິລາ</p>
           </div>
           <div className="featured-game flexBetween">
             <img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-            <p>เกมกราฟ</p>
+            <p>ເກມກຣາຟ</p>
           </div>
         </div>
 
@@ -260,8 +212,9 @@ export default function GameList() {
         <div className="marquee-custome" id="mobile">
           {/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
           <marquee className="description">
-            เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
-            100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
+
+            ເວັບໄຊທ໌ໂດຍກົງ, ບໍ່ຜ່ານຕົວແທນ, ເລກ 1, ຝາກ-ຖອນ, ບໍ່ມີຕໍ່າສຸດ, ຖອນສູງສຸດຕໍ່ມື້.
+            100 ລ້ານສະລັອດ, ບາຄາຣ່າ, ຫວຍ, ກິລາ, ທັງຫມົດຢູ່ໃນສະຖານທີ່ດຽວ.
           </marquee>
         </div>
 
@@ -269,27 +222,27 @@ export default function GameList() {
           <div className="container flexBetween">
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
-              <p>สล็อต</p>
+              <p>ສະລັອດ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
-              <p>คาสิโน</p>
+              <p>ຄາສິໂນ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
-              <p>ยิงปลา</p>
+              <p>ຍິງປາ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-              <p>ป็อกเด้ง</p>
+              <p>ປ໋ອກເດັ້ງ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
-              <p>กีฬา</p>
+              <p>ກິລາ</p>
             </div>
             <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-              <p>เกมกราฟ</p>
+              <p>ເກມກຣາຟ</p>
             </div>
           </div>
         </section>
@@ -342,109 +295,109 @@ export default function GameList() {
           <div className="card-wrapper">
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
             <div className="game-card">
               <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+                <button type="button" className="btn-play-game">ຫຼີ້ນເລີຍ</button>
               </div>
               <img src="/assets/images/game-card.svg" alt="card" />
             </div>
@@ -455,20 +408,19 @@ export default function GameList() {
           <div className="top flexBetween">
             <div className="card">
               <img src="/assets/images/image 84.svg" alt="game icon" />
-              <p>แนะนำบาคาร่า</p>
+              <p>ແນະນຳບາຄາຣ່າ</p>
             </div>
             <div className="card">
               <img src="/assets/images/image 85.png" alt="game icon" />
-              <p>สล็อตมาแรง</p>
+              <p>ສະລັອດມາແຮງ</p>
             </div>
             <div className="card">
               <img src="/assets/images/image 86.png" alt="game icon" />
-              <p>4 เกมสล็อต
-                แตกหนัก</p>
+              <p>4 ເກມສະລັອດ ທີ່ແຕກຫຼາຍ</p>
             </div>
             <div className="card">
               <img src="/assets/images/image 87.png" alt="game icon" />
-              <p>เกมฮิต</p>
+              <p>ເກມນິຍົມ</p>
             </div>
           </div>
           <div className="bottom">
@@ -481,12 +433,12 @@ export default function GameList() {
             <div className="left flexBetween">
               <img src="/assets/images/image 90.png" alt="logo" />
               <h4>
-                สล็อตออนไลน์ <br />
-                รวมทุกค่ายเกม
+                ສະລັອດອອນລາຍ <br />
+                ລວມທຸກຄ່າຍເກມ
               </h4>
             </div>
             <div className="right">
-              <button type='button' >เพี่มเตีม</button>
+              <button type='button' >ເພີ່ມເຕີມ</button>
             </div>
           </div>
           <img
@@ -527,12 +479,12 @@ export default function GameList() {
             <div className="left flexBetween">
               <img src="/assets/images/image 91.png" alt="logo" />
               <h4>
-                คาสิโนสด บาคาร่า <br />
-                ออนไลน์
+                ຄາສິໂນສົດ ບາຄາຣ່າ <br />
+                ອອນລາຍ
               </h4>
             </div>
             <div className="right">
-              <button type='button' >เพี่มเตีม</button>
+              <button type='button' >ເພີ່ມເຕີມ</button>
             </div>
           </div>
           <img
@@ -572,10 +524,10 @@ export default function GameList() {
           <div className="title flexBetween">
             <div className="left flexBetween">
               <img src="/assets/images/image 92.png" alt="logo" />
-              <h4>เกมยิงปลา</h4>
+              <h4>ເກມຍິງປາ</h4>
             </div>
             <div className="right">
-              <button type='button'>เพี่มเตีม</button>
+              <button type='button'>ເພີ່ມເຕີມ</button>
             </div>
           </div>
           <img
@@ -614,17 +566,16 @@ export default function GameList() {
         <section className="info-wrapper" id="desktop">
           <p>TT Casino Club</p>
           <p style={{ marginBottom: 10 }}>
-            ผู้ให้บริการคาสิโนออนไลน์เราคือ เว็บพนันออนไลน์ ครบวงจร มั่นคง ปลอดภัย
-            ให้บริการ บาคาร่าออนไลน์ สล็อตออนไลน์ ทุกค่าย slotxo pgslot joker jili
-            โปรโมชั่นมากมาย บริการด้วยใจ ฝากถอน รวดเร็ว ไม่มีขั้นต่ำ
+            ຜູ້ໃຫ້ບໍລິການຄາສິໂນອອນລາຍເຮົາແມ່ນ ເວັບພະນັນອອນລາຍ ຄົບວົງຈອນ ໝັ່ນຄົງ ປອດໄພ
+            ໃຫ້ບໍລິການ ບາຄາຣ່າອອນລາຍ ສະລັອດອອນລາຍ ທຸກຄ່າຍ slotxo pgslot joker jili
+            ໂປຼໂມຊັ່ນລາກຫຼາຍ ບໍລິການດ້ອຍໃຈ ຝາກຖອນ ວອງໄວ ບໍ່ມີຂັ້ນຕ່ຳ
           </p>
-          <p>TT Casino Club มีอะไรดีที่เพื่อนๆ ต้องไม่พลาดสมัครสมาชิก</p>
+          <p>TT Casino Club ມີຫຍັງດີໆໃຫ້ເພື່ອນຕ້ອງບໍ່ພາດ ສະໝັກສະມາຊິກ</p>
           <ol>
             <li>
-              ไม่มีการฝากขั้นต่ำ: ไม่เหมือนเว็บไซต์การพนันออนไลน์อื่น ๆ Fullbet
-              ไม่กำหนดข้อกําหนดการฝากขั้นต่ำ ๆ
-              คุณมีความเสรีในการฝากเงินใดก็ได้ที่คุณรู้สึกสบายใจ
-              ทำให้คุณควบคุมงบประมาณการพนันของคุณได้อย่างเต็มที่
+              ບໍ່ມີການຝາກຂັ້ນຕ່ຳ: ບໍ່ຄືກັບເວັບໄຊການພະນັນອອນລາຍອື່ນໆ fullbet ບໍ່ມີຂໍ້ກຳນົດການຝາກຂັ້ນຕຳ
+              ທ່ານມີຄວາມເສລີໃນການຝາກເງິນໃດກໍ່ໄດ້ທີ່ທ່ານຮູ້ສຶກສະບາຍໃຈ ເຮັດໃຫ້ທ່ານຄວບຄຸມງົບປະມານການພະນັນທີ່ໄດ້ຍ່າງເຕັມທີ່
+
             </li>
             <li>
               การถอนเงินโดยตรง: บอกลากระบวนการถอนที่ยาวนาน
@@ -687,8 +638,8 @@ export default function GameList() {
         </section>
 
         <section className="hero-text flexCenter">
-          <h4>Casino คาสิโนออนไลน์ ที่ดีที่สุด</h4>
-          <p>เพื่อประสบการณ์ที่ดีทของผู้เล่นอย่างแท้จริง</p>
+          <h4>Casino ຄາສິໂນອອນລາຍ ທີ່ດີທີ່ສຸດ</h4>
+          <p>ເພື່ອປະສົບການທີ່ດີຂອງຜູ້ຫຼີ້ນຢ່າງແທ້ຈິງ</p>
         </section>
 
         <h3 style={{ margin: "20px auto", textAlign: "center", color: "white" }}>
@@ -844,7 +795,7 @@ export default function GameList() {
                 <p>095-222-9999</p>
               </div>
               <div className="balance">
-                <small>ยอดเงินคงเหลือ</small>
+                <small>ຍອດຍັງເຫຼືອ</small>
                 <p>1,000.00</p>
               </div>
 
@@ -856,7 +807,7 @@ export default function GameList() {
                   data-bs-toggle="modal"
                   data-bs-target="#profile"
                 >
-                  โปรไฟล์
+                  ໂປຣຟາຍ
                 </button>
                 <button
                   type='button'
@@ -865,7 +816,7 @@ export default function GameList() {
                   data-bs-target="#depositWithdraw"
                   style={{ width: "50%" }}
                 >
-                  ฝาก-ถอน
+                  ຝາກ-ຖອນ
                 </button>
               </div>
               <div className="flexBetween" style={{ gap: 13 }}>
@@ -877,7 +828,7 @@ export default function GameList() {
                   data-bs-toggle="modal"
                   data-bs-target="#bagModal"
                 >
-                  กระเป๋า
+                  ກະເປົ້າ
                 </button>
                 <button
                   type='button'
@@ -887,7 +838,7 @@ export default function GameList() {
                   data-bs-toggle="modal"
                   data-bs-target="#historyModal"
                 >
-                  ประวัติ
+                  ປະຫວັດ
                 </button>
               </div>
               <div className="flexBetween" style={{ gap: 13 }}>
@@ -896,14 +847,14 @@ export default function GameList() {
                   className="gradient-border sidebar-button flexCenter"
                   style={{ width: "50%" }}
                 >
-                  ไลน์บอท
+                  ລາຍບ໋ອດ
                 </button>
                 <button
                   type='button'
                   className="gradient-border sidebar-button flexCenter"
                   style={{ width: "50%" }}
                 >
-                  ติดต่อพนักงาน
+                  ຕິດຕໍ່ພະນັກງານ
                 </button>
               </div>
               <button
@@ -913,34 +864,25 @@ export default function GameList() {
                 data-bs-toggle="modal"
                 data-bs-target="#changePasswordModal"
               >
-                เปลี่ยนรหัสผ่าน
+                ປ່ຽນລະຫັດຜ່ານ
               </button>
               <button
                 type='button'
                 className="gradient-border sidebar-button flexCenter"
                 style={{ width: "100%", marginBottom: 16 }}
               >
-                ออกจากระบบ
+                ອອກຈາກລະບົບ
               </button>
 
-              <div className="download-container">
-                <h3>ดาวน์โหลดแอปเลย !</h3>
-                <div className="flexBetween" style={{ gap: 6 }}>
-                  <img
-                    src="/assets//images/get-it-playstore.svg"
-                    alt="download icon"
-                    style={{ height: 32, cursor: "pointer" }}
-                  />
-                  <img
-                    src="/assets//images/get-it-appstore.svg"
-                    alt="download icon"
-                    style={{ height: 32, cursor: "pointer" }}
-                  />
-                </div>
-              </div>
 
-              <h4>Power by</h4>
-              <img src="/assets/images/newicon/TTT-03.png" alt="powerby" />
+              <div className='power-by'>
+                <h4>Power by</h4>
+                <img
+                  style={{ width: 200 }}
+                  src="/assets/images/newicon/TTT-03.png"
+                  alt="powerby"
+                />
+              </div>
             </aside>
             <div className="sidebar-container-background" />
           </div>
@@ -955,11 +897,9 @@ export default function GameList() {
               alt="close-icon"
               className="close-btn"
               id="login-modal-close-btn"
-              onClick={() => handleCloseLoginClick()}
-              onKeyDown={() => ""}
             />
             <img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
-            <h3>เข้าสู่ระบบ</h3>
+            <h3>ເຂົ້າສູ່ລະບົບ</h3>
             <div className="phone-input">
               <img src="/assets/icons/phone.svg" alt="icon" />
               <label htmlFor="phone" />
@@ -981,12 +921,12 @@ export default function GameList() {
                 placeholder="กรอกรหัสผ่าน"
               />
             </div>
-            <div className="danger-text"> รหัสคือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ</div>
+            <div className="danger-text"> ລະຫັດຄື: ເລກບັນຊີທະນາຄານທີ່ລູກຄ້າສະໝັກເລີຍ</div>
             <div className="button-container">
-              <button type='button' id="login-btn">เข้าสู่ระบบ</button>
-              <button type='button'>สมัครสมาชิก</button>
+              <button type='button' id="login-btn">ເຂົ້າສູ່ລະບົບ</button>
+              <button type='button'>ສະໝັກສະມາຊິກ</button>
             </div>
-            <div className="problem">พบปัญหาติดต่อเรา</div>
+            <div className="problem">ມີບັນຫາຕິດຕໍ່ພະນັກງານ</div>
           </div>
           <div className="background" id="login-modal-background" />
         </div>
@@ -1018,28 +958,22 @@ export default function GameList() {
                       alt="logo"
                     />
                     <div className="step-container">
-                      <div className={`step-item${gotoStepTwo === false ? " active" : ""}`}
-                        onClick={() => _gotoSet1()} onKeyDown={() => ''}>
+                      <div className="step-item active" id="step-item1">
                         <span className="step-item-box">1</span>
-                        <span className="step-item-text">กรอกเบอร์</span>
+                        <span className="step-item-text">ປ້ອນເບີໂທ</span>
                       </div>
                       <span className="step-line" />
-                      <div className={`step-item${gotoStepTwo === true ? " active" : ""
-                        }`}
-                        id="step-item2">
+                      <div className="step-item" id="step-item2">
                         <span className="step-item-box">2</span>
-                        <span className="step-item-text">บัญชีธนาคาร</span>
+                        <span className="step-item-text">ບັນຊີທະນາຄານ</span>
                       </div>
 
                     </div>
 
                     {/* <!-- step one --> */}
-                    <div className="step-one" id="form-step-one"
-                      style={{
-                        display: gotoStepTwo === true ? "none" : "block",
-                      }}>
-                      <h3 className="signup-header">สมัครสมาชิก</h3>
-                      <h3 className="signup-title">กรอกเบอร์</h3>
+                    <div className="step-one" id="form-step-one">
+                      <h3 className="signup-header">ສະໝັກສະມາຊິກ</h3>
+                      <h3 className="signup-title">ປ້ອນເບີໂທ</h3>
 
                       <div className="phone-input">
                         <img src="/assets/icons/phone.svg" alt="icon" />
@@ -1053,21 +987,18 @@ export default function GameList() {
                         />
                       </div>
 
-                      <button type='button' onClick={() => _gotoSet2()} id="goto-step2">ถัดไป</button>
+                      <button type='button' id="goto-step2">ຖັດໄປ</button>
                       <div className="already-have-account">
-                        คุณมีบัญชีอยู่แล้ว
-                        <span className="go-to-login" data-bs-dismiss="modal"
-                          onClick={handleLoginClick} onKeyDown={() => ''}>เข้าสู่ระบบ</span>
+                        ເຈົ້າມີບັນຊີຢູ່ແລ້ວ
+                        <span className="go-to-login">ເຂົ້າສູ່ລະບົບ</span>
                       </div>
                     </div>
                     {/* <!-- end step one --> */}
 
                     {/* <!-- step two --> */}
-                    <div className="step-two" id="form-step-two" style={{
-                      display: gotoStepTwo === false ? "none" : "block",
-                    }}>
-                      <h3 className="signup-header">สมัครสมาชิก</h3>
-                      <h3 className="signup-title">กรอกเลขที่บัญชี</h3>
+                    <div className="step-two" id="form-step-two">
+                      <h3 className="signup-header">ສະໝັກສະມາຊິ</h3>
+                      <h3 className="signup-title">ປ້ອນເລກບັນຊີ</h3>
 
                       <div className="bank-list-container" id="bank-list-container">
                         <img
@@ -1210,7 +1141,7 @@ export default function GameList() {
                         data-bs-toggle="modal"
                         data-bs-target="#successRegisterModal"
                       >
-                        ยืนยัน สมัครสมาชิก
+                        ຢືນຢັນ ສະໝັກສະມາຊິກ
                       </button>
                     </div>
                     {/* <!-- step two end --> */}
@@ -1233,7 +1164,7 @@ export default function GameList() {
               <div className="modal-content">
                 <div className="modal-header-container">
                   <div className="modal-header">
-                    <p className="modal-title">สมัครสมาชิกสำเร็จ</p>
+                    <p className="modal-title">ສະໝັກສະມາຊິສຳເລັດ</p>
                     <img
                       src="/assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -1247,7 +1178,7 @@ export default function GameList() {
                   <div className="register-success-modal-content">
                     <div className="border-input-gold">
                       <div className="register-info-content">
-                        <p className="register-info-title">ข้อมูลสมัคร</p>
+                        <p className="register-info-title">ຂໍ້ມູນສະໝັກ</p>
                         <div className="register-info-group">
                           <p className="register-info-text">Username :</p>
                           <p className="register-info-text-bold">0181449403</p>
@@ -1256,7 +1187,7 @@ export default function GameList() {
                       </div>
                     </div>
                     <div className="suggest-info">
-                      รหัสคือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ ขอให้เล่นให้สนุกเฮงเฮงรวยรวยนะคะลูกค้า
+                      ລະຫັດແມ່ນ ເລກບັນຊີທະນາຄານທີ່ລູກຄ້າສະໝັກເລີຍ ຂໍໃຫ້ຫຼີ້ນໃຫ້ມ່ວນເຮັ່ງເຮັ່ງລວຍລວຍເດີ້
                     </div>
 
                     <button
@@ -1266,7 +1197,7 @@ export default function GameList() {
                       data-bs-dismiss="modal"
                       aria-label="Close"
                     >
-                      เข้าสู่ระบบ
+                      ເຂົ້າສູ່ລະບົບ
                     </button>
                   </div>
                 </div>
@@ -1288,13 +1219,14 @@ export default function GameList() {
               <div className="modal-content">
                 <div className="modal-header-container">
                   <div className="modal-header">
-                    {/* <img
+                    <img
                       src="./assets/icons/icon-back-modal.svg"
                       className="modal-icon-back"
                       alt=""
+                      data-bs-toggle="modal"
                       data-bs-dismiss="modal"
-                    /> */}
-                    <p className="modal-title">โปรไฟล์</p>
+                    />
+                    <p className="modal-title">ໂປຣຟາຍ</p>
                     <img
                       src="./assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -1309,7 +1241,7 @@ export default function GameList() {
                     <div className="detail-card-kbank">
                       <div className="card-kbank">
                         <div className="font-17">
-                          <p>ธนาคารกสิกรไทย</p>
+                          <p>ທະນາຄານ ການຄ້າຕ່າງປະເພດ</p>
                           <div
                             style={{ display: "flex", justifyContent: "space-between" }}
                           >
@@ -1324,12 +1256,12 @@ export default function GameList() {
                         <div>
                           <p className="font-17">นาย xxxxx xxxxx</p>
                           <p style={{ marginTop: 13, fontSize: 14 }}>
-                            ยอดคงเหลือในระบบ
+                            ຍອດຍັງເຫຼືອ
                           </p>
                         </div>
                         <div className="font-17">
                           <p>026-999999-9</p>
-                          <p>1000.00 บาท</p>
+                          <p>1000.00 ບາດ</p>
                         </div>
                         <div
                           style={{
@@ -1348,13 +1280,13 @@ export default function GameList() {
                       <div className="none-active" />
                     </div>
                     <div className="custom-btn">
-                      <button type='button' className="setting">ตั้งเป็นบัญชีหลัก</button>
+                      <button type='button' className="setting">ຕັ້ງເປັ້ນບັນຊິຫຼັກ</button>
                       <button
                         type='button'
                         className="add-account"
                         data-bs-toggle="modal"
                         data-bs-target="#addAccount"
-                        data-bs-dismiss="modal">เพิ่มบัญชี</button>
+                        data-bs-dismiss="modal">ເພີ່ມບັນຊີ</button>
                     </div>
                     <div className="change-password-hr">
                       <div className="hr" />
@@ -1400,7 +1332,7 @@ export default function GameList() {
                           />
                         </svg>
                       </div>
-                      <p>เปลี่ยนรหัสผ่าน</p>
+                      <p>ປ່ຽນລະຫັດຜ່ານ</p>
                     </div>
                   </div>
                 </div>
@@ -1429,7 +1361,7 @@ export default function GameList() {
                       data-bs-toggle="modal"
                       data-bs-dismiss="modal"
                     />
-                    <p className="modal-title" id="addAccount">เพิ่มบัญชี</p>
+                    <p className="modal-title" id="addAccount">ເພີ່ມບັນຊີ</p>
                     <img
                       src="/assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -1442,7 +1374,7 @@ export default function GameList() {
                 <div className="modal-body">
                   <div className="add-account-content-pc flexCenter">
                     <div className="bank-section">
-                      <p>กรุณาเลือกธนาคาร</p>
+                      <p>ກະລຸນາເລືອກທະນາຄານ</p>
                       <div className="bank-list">
                         <img
                           src="/assets/icons/icon-bank-default/Ellipse 10.svg"
@@ -1548,7 +1480,7 @@ export default function GameList() {
                     </div>
 
                     <div className="bank-number">
-                      <p>กรุณากรอกเลขบัญชี</p>
+                      <p>ກະລຸນາປ້ອນເລກສະມາຊິກ</p>
                       <div className="bank-number-input flexCenter">
                         <div className="icon">
                           {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
@@ -1576,7 +1508,7 @@ export default function GameList() {
                       </div>
                     </div>
 
-                    <button type="button" className="button-warning">ยืนยัน</button>
+                    <button type="button" className="button-warning">ຢືນຢັນ</button>
                   </div>
                 </div>
               </div>
@@ -1603,7 +1535,7 @@ export default function GameList() {
                       className="modal-icon-back"
                       alt=""
                       data-bs-toggle="modal"
-                      data-bs-target="#bagModal"
+                      data-bs-dismiss="modal"
                     />
                     <p className="modal-title">Cashback</p>
                     <img
@@ -1627,8 +1559,8 @@ export default function GameList() {
                           <div className="name-cashback-game">
                             <img src="/assets/images/cashback-1.svg" alt="" />
                             <div className="text">
-                              <p className="name-game">สล๊อต</p>
-                              <p className="balance">คืนยอดเสีย 5.0%</p>
+                              <p className="name-game">ສະລັອດ</p>
+                              <p className="balance">ຄືນຍອດເສຍ 5.0%</p>
                             </div>
                           </div>
                         </div>
@@ -1637,8 +1569,8 @@ export default function GameList() {
                         <div className="name-cashback-game">
                           <img src="/assets/images/cashback-2.svg" alt="" />
                           <div className="text">
-                            <p className="name-game">บาคาร่า</p>
-                            <p className="balance">คืนยอดเสีย 5.0%</p>
+                            <p className="name-game">ບາຄາຣ່າ</p>
+                            <p className="balance">ຄືນຍອດເສຍ 5.0%</p>
                           </div>
                         </div>
                       </div>
@@ -1646,8 +1578,8 @@ export default function GameList() {
                         <div className="name-cashback-game">
                           <img src="/assets/images/cashback-3.svg" alt="" />
                           <div className="text">
-                            <p className="name-game">ยิงปลา</p>
-                            <p className="balance">คืนยอดเสีย 5.0%</p>
+                            <p className="name-game">ຍິງປາ</p>
+                            <p className="balance">ຄືນຍອດເສຍ 5.0%</p>
                           </div>
                         </div>
                       </div>
@@ -1655,8 +1587,8 @@ export default function GameList() {
                         <div className="name-cashback-game">
                           <img src="/assets/images/cashback-4.svg" alt="" />
                           <div className="text">
-                            <p className="name-game">ป้อกเด้ง</p>
-                            <p className="balance">คืนยอดเสีย 5.0%</p>
+                            <p className="name-game">ປ້ອກເດັ້ງ</p>
+                            <p className="balance">ຄືນຍອດເສຍ 5.0%</p>
                           </div>
                         </div>
                       </div>
@@ -1664,8 +1596,8 @@ export default function GameList() {
                         <div className="name-cashback-game">
                           <img src="/assets/images/cashback-5.svg" alt="" />
                           <div className="text">
-                            <p className="name-game">หวย</p>
-                            <p className="balance">คืนยอดเสีย 5.0%</p>
+                            <p className="name-game">ຫວຍ</p>
+                            <p className="balance">ຄືນຍອດເສຍ 5.0%</p>
                           </div>
                         </div>
                       </div>
@@ -1673,8 +1605,8 @@ export default function GameList() {
                         <div className="name-cashback-game">
                           <img src="/assets/images/cashback-6.svg" alt="" />
                           <div className="text">
-                            <p className="name-game">กีฬา</p>
-                            <p className="balance">คืนยอดเสีย 5.0%</p>
+                            <p className="name-game">ກິລາ</p>
+                            <p className="balance">ຄືນຍອດເສຍ 5.0%</p>
                           </div>
                         </div>
                       </div>
@@ -1707,6 +1639,7 @@ export default function GameList() {
                       alt=""
                       data-bs-toggle="modal"
                       data-bs-target="#cashback"
+                      data-bs-dismiss="modal"
                     />
                     <p className="modal-title">Cashback</p>
                     <img
@@ -1721,27 +1654,27 @@ export default function GameList() {
                 <div className="modal-body">
                   <div className="change-cashback-detail-modal-content">
                     <div className="detail">
-                      <div className="title">ยอดเสียเกมส์ สล็อต</div>
+                      <div className="title">ยอดเสียเกมส์ สล็อต ຍອດເສຍເກມ ສະລັອດ</div>
                       <div className="accumulated-lot-amount">
                         <div className="text-amount">
-                          <div className="text-left">ยอดเสียสะสม 0</div>
+                          <div className="text-left">ຍອດເສຍສະສົມ 0</div>
                           <div className="text-right">Cashback 5.00 %</div>
                         </div>
                         <div className="text-amount">
-                          <div className="text-left">ยอดเสียวันนี้ 0</div>
-                          <div className="text-right history-background">ประวัติการรับ</div>
+                          <div className="text-left">ຍອດເສຍວັນນີ້ 0</div>
+                          <div className="text-right history-background">ປະຫວັດການຮັບ</div>
                         </div>
                       </div>
-                      <div className="your-loss">ยอดเสียของคุณ</div>
+                      <div className="your-loss">ຍອດເສຍຂອງທ່ານ</div>
                       <div className="loss">0</div>
-                      <div className="updated">อัพเดทล่าสุด 09-09-65 12.00 น.</div>
+                      <div className="updated">ອັບເດດລ່າສຸດ 09-09-65 12.00 น.</div>
                       <div className="btn">
-                        <button type='button' className="receive-credit">รับเข้าเครดิต</button>
-                        <button type='button' className="withdraw-to-accont">ถอนเข้าบัญชี</button>
+                        <button type='button' className="receive-credit">ຮັບເຂົ້າເຄຣດິດ</button>
+                        <button type='button' className="withdraw-to-accont">ຖອນເຂົ້າບັນຊີ</button>
                       </div>
                       <div className="description">
-                        <p className="text-left">ขั้นต่ำ 1 สูงสุด 10000</p>
-                        <p className="text-right">ปิดใช้งานก่อนเข้าบัญชี</p>
+                        <p className="text-left">ຂັ້ນຕ່ຳ 1 ສູງສຸດ 10000</p>
+                        <p className="text-right">ປິດໃຊ້ງານກ່ອນເຂົ້າບັນຊີ</p>
                       </div>
                     </div>
                   </div>
@@ -1771,7 +1704,7 @@ export default function GameList() {
                       className="modal-icon-back"
                       alt=""
                     />
-                    <p className="modal-title" id="depositWithdraw">ฝาก - ถอน</p>
+                    <p className="modal-title" id="depositWithdraw">ຝາກ - ຖອນ</p>
                     <img
                       src="./assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -1785,7 +1718,7 @@ export default function GameList() {
                   <div className="detail-card-kbank">
                     <div className="card-kbank">
                       <div className="font-17">
-                        <p>ธนาคารกสิกรไทย</p>
+                        <p>ທະນາຄານ ການຄ້າຕ່າງປະເທດ</p>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           KBank
                           <img
@@ -1798,7 +1731,7 @@ export default function GameList() {
                       <div>
                         <p className="font-17">นาย xxxxx xxxxx</p>
                         <p style={{ marginTop: '13px', fontSize: '14px' }}>
-                          ยอดคงเหลือในระบบ
+                          ຍອດຍັງເຫຼືອໃນລະບົບ
                         </p>
                       </div>
                       <div className="font-17">
@@ -1844,7 +1777,7 @@ export default function GameList() {
                             src="/assets/images/credit-card-machine.svg"
                             alt="kkk"
                           />
-                          <div>ฝากเงินออโต้</div>
+                          <div>ຝາກອໍໂຕ້</div>
                         </div>
                       </div>
                     </div>
@@ -1857,7 +1790,7 @@ export default function GameList() {
                       <div className="type-of-withdrawal">
                         <div className="withdrawal">
                           <img src="/assets/images/Leave a-decimal.svg" alt="kkk" />
-                          <div>ฝากทศนิยม</div>
+                          <div>ຝາກທົດສະນິຍົມ</div>
                         </div>
                       </div>
                     </div>
@@ -1870,7 +1803,7 @@ export default function GameList() {
                       <div className="type-of-withdrawal">
                         <div className="withdrawal">
                           <img src="/assets/images/Withdraw-money.svg" alt="kkk" />
-                          <div>ถอนเงิน</div>
+                          <div>ຖອນເງິນ</div>
                         </div>
                       </div>
                     </div>
@@ -1902,23 +1835,6 @@ export default function GameList() {
                         </div>
                       </div>
                     </div>
-                    {/*
-                    <div
-                      style={{ cursor: "pointer" }}
-                      data-bs-toggle="modal"
-                      data-bs-target="#trueWallet"
-                      data-bs-dismiss="modal"
-                    >
-                      <div className="type-of-withdrawal">
-                        <div className="withdrawal">
-                          <img
-                            src="/assets/images/true-money-wallet.svg"
-                            alt="kkk"
-                          />
-                          <div>Truewallet</div>
-                        </div>
-                      </div>
-                    </div> */}
                   </div>
 
                   <div
@@ -1929,7 +1845,7 @@ export default function GameList() {
                     }}
                   >
                     <div>
-                      พบปัญหา
+                      ພົບປັນຫາ
                       <span
                         style={{
                           color: "rgba(0, 252, 252, 1)",
@@ -1937,8 +1853,7 @@ export default function GameList() {
                           cursor: "pointer",
                         }}
 
-                      >ติดต่อฝ่ายบริการลูกค้า</span
-                      >
+                      >ຕິດຕໍ່ຝາຍບໍລິການລູກຄ້າ</span>
                     </div>
                   </div>
                   <div className="button-line">
@@ -1948,7 +1863,7 @@ export default function GameList() {
                         alt="line"
                         style={{ width: 30, height: 30 }}
                       />
-                      ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                      ລາຍບ໋ອດ / ແຈ້ງເຕືອນຝາກ - ຖອນ
                     </div>
                   </div>
                 </div>
@@ -1980,7 +1895,7 @@ export default function GameList() {
                       data-bs-target="#depositWithdraw"
                       data-bs-dismiss="modal"
                     />
-                    <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
+                    <p className="modal-title" id="autoDeposit">ຝາກອໍໂຕ້</p>
                     <img
                       src="/assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -1994,7 +1909,7 @@ export default function GameList() {
                   <div className="detail-card-scb">
                     <div className="card-scb">
                       <div className="left">
-                        <p>ธนาคารกสิกรไทย</p>
+                        <p>ທະນາຄານກາານຄ້າຕ່າງປະເພດ</p>
                         <p>
                           026-999999-9
                           <span><img src="/assets/images/icon-coppy.svg" alt="" style={{
@@ -2026,7 +1941,7 @@ export default function GameList() {
                   <div>
                     <div className="button-validationt">
                       <div style={{ color: 'white' }}>
-                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                        ກະລຸນາໃຊ້ເລກບັນຊີທີ່ສະໝັກໂອນເຂົ້າມາເທົ່ານັ້ນ
                       </div>
                     </div>
                   </div>
@@ -2034,15 +1949,14 @@ export default function GameList() {
                     style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}
                   >
                     <div>
-                      พบปัญหา
+                      ພົບປັນຫາ
                       <span
                         style={{
                           color: ' rgba(0, 252, 252, 1)',
                           textDecoration: 'underline',
                           cursor: 'pointer',
                         }}
-                      >ติดต่อฝ่ายบริการลูกค้า</span
-                      >
+                      >ຕິດຕໍ່ຝ່າຍບໍລິການລູກຄ້າ</span >
                     </div>
                   </div>
                   <div className="button-line">
@@ -2052,7 +1966,7 @@ export default function GameList() {
                         style={{ width: 28, height: 28 }}
                         alt="line"
                       />
-                      ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                      ລາຍບັອດ / ແຈ້ງເຕືອນຍອດຝາກ - ຖອນ
                     </div>
                   </div>
                 </div>
@@ -2084,7 +1998,7 @@ export default function GameList() {
                       data-bs-target="#depositWithdraw"
                       data-bs-dismiss="modal"
                     />
-                    <p className="modal-title" id="leaveAdecimal">ฝากทศนิยม</p>
+                    <p className="modal-title" id="leaveAdecimal">ຝາກທົດສະນິຍົມ</p>
                     <img
                       src="./assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -2100,7 +2014,7 @@ export default function GameList() {
                     paddingTop: '30px'
                   }}>
                     <ul>
-                      <li>ฝากขั้นต่ำ 1.00 บาท สูงสุด 2,000.00 บาท</li>
+                      <li>ຝາກຂັ້ນຕ່ຳ 1.00 ບາດ ສູງສຸດ 2,000.00 ບາດ</li>
                     </ul>
                   </div>
                   <div style={{ width: "100%" }}>
@@ -2109,7 +2023,7 @@ export default function GameList() {
                       className="text-amount-money"
                       placeholder="กรอกจำนวนเงินที่ต้องการฝาก"
                     />
-                    <p style={{ color: "#ff0000", fontSize: 14 }}>กรุณากรอกข้อมูล</p>
+                    <p style={{ color: "#ff0000", fontSize: 14 }}>ກະລຸນາປ້ອນຂໍ້ມູນ</p>
                   </div>
                   <div style={{ width: "100%" }}>
                     <div
@@ -2119,22 +2033,21 @@ export default function GameList() {
                       data-bs-target="#leaveAdecimal1"
                       data-bs-dismiss="modal"
                     >
-                      <div>ยืนยันจำนวนเงิน</div>
+                      <div>ຢືນຢັນຈຳນວນເງິນ</div>
                     </div>
                   </div>
                   <div
                     style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}
                   >
                     <div>
-                      พบปัญหา
+                      ພົບປັນຫາ
                       <span
                         style={{
                           color: 'rgba(0, 252, 252, 1)',
                           textDecoration: 'underline',
                           cursor: 'pointer'
                         }}
-                      >ติดต่อฝ่ายบริการลูกค้า</span
-                      >
+                      >ຕິດຕໍ່ຝ່າຍບໍິການ</span>
                     </div>
                   </div>
                   <div className="button-line" style={{
@@ -2150,7 +2063,7 @@ export default function GameList() {
                         }}
                         alt="line"
                       />
-                      <span> ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน </span>
+                      <span> ລາຍບັອດ / ແຈ້ງເຕືອນ - ຖອນ </span>
                     </div>
                   </div>
                 </div>
@@ -2182,7 +2095,7 @@ export default function GameList() {
                       data-bs-target="#leaveAdecimal"
                       data-bs-dismiss="modal"
                     />
-                    <p className="modal-title" id="leaveAdecimal1">ฝากทศนิยม</p>
+                    <p className="modal-title" id="leaveAdecimal1">ຝາກທົດສະນິຍົມ</p>
                     <img
                       src="./assets/icons/icon-close-modal.svg"
                       className="modal-icon-close"
@@ -2201,7 +2114,7 @@ export default function GameList() {
                       fontWeight: 'normal' // specify the font weight you need, e.g., 'bold' or 'normal'
                     }}
                   >
-                    ยอดเงินที่ต้องโอน
+                    ຍອດເງິນທີ່ຕ້ອງໂອນ
 
                     <div
                       style={{
@@ -2214,14 +2127,14 @@ export default function GameList() {
                       111.11
                     </div>
                     <div style={{ fontSize: 14 }}>
-                      กรุณาโอนเงินภายใน
-                      <span style={{ color: "#ff0000" }}>00.00</span> นาที
+                      ກະລຸນາໂອນເງິນພາຍໃນ
+                      <span style={{ color: "#ff0000" }}>00.00</span> ນາທີ
                     </div>
                   </div>
                   <div className="detail-card-scb1">
                     <div className="card-scb1">
                       <div className="left">
-                        <p>ธนาคารกสิกรไทย</p>
+                        <p>ທະນາຄານການຄ້າຕ່າງປະເທດ</p>
                         <p>นาย xxxxx xxxxx <span><img src="/assets/images/icon-coppy.svg" alt="" style={{
                           width: '20px',
                           height: '20px',
@@ -2247,21 +2160,20 @@ export default function GameList() {
                   <div>
                     <div className="button-validationt">
                       <div style={{ color: "white" }}>
-                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                        ກະລຸນາໃຊ້ເລກບັນຊີທີ່ສະມົກໂອນເຂົ້າມາເທົ່ານັ້ນ
                       </div>
                     </div>
                   </div>
                   <div style={{ textAlign: "center", marginTop: 10 }}>
                     <div>
-                      พบปัญหา
+                      ພົບບັນຫາ
                       <span
                         style={{
                           color: 'rgba(0, 252, 252, 1)',
                           textDecoration: 'underline',
                           cursor: 'pointer'
                         }}
-                      >ติดต่อฝ่ายบริการลูกค้า</span
-                      >
+                      >ຕິດຕໍ່ຝ່າຍບໍລິການລູກຄ້າ</span>
                     </div>
                   </div>
                   <div className="button-line">
@@ -2271,7 +2183,7 @@ export default function GameList() {
                         style={{ width: 30, height: 30 }}
                         alt="line"
                       />
-                      ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                      ລາຍບັອດ / ແຈ້ງເຕືອນຝາກ - ຖອນ
                     </div>
                   </div>
                 </div>
@@ -2305,7 +2217,7 @@ export default function GameList() {
                     data-bs-target="#depositWithdraw"
                     data-bs-dismiss="modal"
                   />
-                  <p className="modal-title" id="withdraw">ถอนเงิน</p>
+                  <p className="modal-title" id="withdraw">ຖອນເງິນ</p>
                   <img
                     src="/assets/icons/icon-close-modal.svg"
                     className="modal-icon-close"
@@ -2320,7 +2232,7 @@ export default function GameList() {
                   <div className="detail-card-kbank">
                     <div className="card-kbank">
                       <div className="font-17">
-                        <p>ธนาคารกสิกรไทย</p>
+                        <p>ທະນາຄານການຄ້າຕ່າງປະເທດ</p>
                         <div
                           style={{
                             display: 'flex',
@@ -2336,14 +2248,14 @@ export default function GameList() {
                         </div>
                       </div>
                       <div>
-                        <p className="font-17">นาย xxxxx xxxxx</p>
+                        <p className="font-17">ທ່ານ xxxxx xxxxx</p>
                         <p style={{ marginTop: 13, fontSize: 14 }}>
-                          ยอดคงเหลือในระบบ
+                          ຍອດຍັງເຫຼືອໃຈລະບົບ
                         </p>
                       </div>
                       <div className="font-17">
                         <p>026-999999-9</p>
-                        <p>1000.00 บาท</p>
+                        <p>1000.00 ບາດ</p>
                       </div>
                       <div
                         style={{
@@ -2364,21 +2276,21 @@ export default function GameList() {
                   </div>
 
                   <div className="money-input flexBetween">
-                    <p>จำนวนเงินที่ถอนได้</p>
+                    <p>ຈຳນວນເງິນທີ່ຖອນໄດ້</p>
                     <input type="text" placeholder="1000" />
                   </div>
                   <div className="money-input flexBetween">
-                    <p style={{ color: "red" }}>กรุณาระบุจำนวนที่จะถอน</p>
+                    <p style={{ color: "red" }}>ກະລຸນາແຈ້ງຈຳນວນທີ່ຈະຖອນ</p>
                     <input type="text" placeholder="1000" />
                   </div>
 
-                  <div className="button-warning">ถอนเงิน</div>
+                  <div className="button-warning">ຖອນເງິນ</div>
 
-                  <p>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
+                  <p>ພົບບັນຫາ <a href="/">ຕິດຕໍ່ຝ່າຍໃຫ້ບໍລິການລູກຄາ</a></p>
 
                   <button type='button' className="line-button flexCenter">
                     <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                    <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
+                    <p>ລາຍບັອດ / ແຈ້ງເຕືອນຝາກ - ຖອນ</p>
                   </button>
                 </div>
               </div>
@@ -2423,7 +2335,7 @@ export default function GameList() {
                 <div className="qr-pay-content-1">
                   <div className="notic-text">
                     <ul>
-                      <li>ฝากขั้นต่ำ 100 บาท สูงสุด 50,000.00 บาท *</li>
+                      <li>ຝາກຂັ້ນຕ່ຳ 100 ບາດ ສູງສຸດ 50,000.00 ບາດ *</li>
                     </ul>
                   </div>
                   <div
@@ -2434,7 +2346,7 @@ export default function GameList() {
                       color: 'red'
                     }}
                   >
-                    เลือกธนาคาร
+                    ເລືອກທະນາຄານ
                   </div>
                   <div className="bank-selector">
                     <select className="vodiapicker">
@@ -2464,7 +2376,7 @@ export default function GameList() {
                       </div>
                     </div>
 
-                    <div className="show-username-bank">นาย ปปปปป ปปปปป</div>
+                    <div className="show-username-bank">ທ່ານ ປປປປປ ປປປປປ</div>
                   </div>
 
                   <div
@@ -2477,7 +2389,7 @@ export default function GameList() {
                     <input
                       type="text"
                       className="text-amount-money"
-                      placeholder="กรอกจำนวนเงินที่ต้องการฝาก"
+                      placeholder="ປ້ອນຈຳນວນເງິນທີ່ຕ້ອງການຝາກ"
                     />
                     <div
                       className="confirm-the-amount"
@@ -2486,13 +2398,13 @@ export default function GameList() {
                       data-bs-target="#showQR"
                       data-bs-dismiss="modal"
                     >
-                      <div>ยืนยันจำนวนเงิน</div>
+                      <div>ຢືນຢັນຈຳນວນເງິນ</div>
                     </div>
                   </div>
 
                   <div className="info-text" style={{ fontSize: 13 }}>
                     <p>
-                      พบปัญหา
+                      ພົບບັນຫາ
                       <a
                         href="/"
                         style={{
@@ -2500,8 +2412,7 @@ export default function GameList() {
                           textDecoration: 'underline',
                           cursor: 'pointer'
                         }}
-                      >ติดต่อฝ่ายบริการลูกค้า</a
-                      >
+                      >ຕິດຕໍ່ຝ່າຍບໍລິການລູກຄ້າ</a>
                     </p>
                   </div>
                   <div className="button-line">
@@ -2514,7 +2425,7 @@ export default function GameList() {
                         }}
                         alt="line"
                       />
-                      ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                      ລາຍບັອດ / ແຈ້ງເຕືອນຝາກ - ຖອນ
                     </div>
                   </div>
                 </div>
@@ -2558,44 +2469,43 @@ export default function GameList() {
               <div className="modal-body">
                 <div style={{ marginTop: 20 }}>
                   <div className="detail-qr">
-                    <div className="div1">จำนวนเงินฝากผ่าน QR Code</div>
+                    <div className="div1">ຈຳນວນເງິນຝາກຜ່ານ QR Code</div>
                     <div className="div2">111.11 บาท</div>
                     <div className="div3">
                       <img src="/assets/images/qrpay.png" alt="qr" />
                     </div>
                     <div className="div4">
                       <button type='button' className="save">
-                        <img src="/assets/icons/farm.svg" alt="save" /> บันทึก
+                        <img src="/assets/icons/farm.svg" alt="save" /> ບັນທຶກ
                       </button>
                       <button type='button' className="refresh">
-                        <img src="/assets/icons/reload.svg" alt="save" /> รีเฟรช
+                        <img src="/assets/icons/reload.svg" alt="save" /> ຣິເຟສ
                       </button>
                     </div>
-                    <div className="div5">วิธีการชำระเงิน</div>
+                    <div className="div5">ວິທີສຳລະເງິນ</div>
                     <div className="div6">
-                      <p>1.บันทึกภาพ หรือ แคปหน้าจอ QR Code</p>
-                      <p>2.เข้าแอปพลิเคชั่นธนาคารที่ต้องการทำรายการฝาก</p>
+                      <p>1.ບັນທຶກຮູບ ຫຼື ແຄັບໜ້າຈໍ QR Code</p>
+                      <p>2.ເຂົ້າແອັບລີເຄຊັ່ນທະນາຄານທີ່ຕ້ອງການຝາກ</p>
                       <p className="danger">
-                        ต้องใช้บัญชีที่ผูกกับระบบทำรายการเข้ามาเท่านั้น
+                        ຕ້ອງໃຊ້ບັນຊີທີ່ຜູກກັບລະບົບທຳລາຍການເຂົ້າມາເທົ່ານັ້ນ
                       </p>
-                      <p>3.กดเลือกสแกนจ่ายที่แอปธนาคารนั้น ๆ</p>
+                      <p>3.ກົດເລືອກສະແກນຈ່າຍທີ່ແອັບທະນາຄາຄານນັ້ນ</p>
                       <p>
-                        4.เลือกรูปภาพ QR Code ที่บันทึกหรือแคป เพื่อทำรายการจ่าย
+                        4.ເລືອກຮູບພາບ QR Code ທີ່ບັນທືກຫຼືແຄັບ ເພື່ອເຮັດລາຍການຈ່າຍ
                       </p>
                     </div>
                     <div
                       style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}
                     >
                       <div>
-                        พบปัญหา
+                        ພົບບັນຫາ
                         <span
                           style={{
                             color: 'rgba(0, 252, 252, 1)',
                             textDecoration: 'underline',
                             cursor: 'pointer'
                           }}
-                        >ติดต่อฝ่ายบริการลูกค้า</span
-                        >
+                        > ຕິດຕໍ່ຝ່າຍບໍລິການລູກຄ້າ</span>
                       </div>
                     </div>
                   </div>
@@ -2698,7 +2608,7 @@ export default function GameList() {
       {/* <!-- slip verify end --> */}
 
       {/* <!-- true wallet end modal --> */}
-      {/* <div
+      <div
         className="modal fade"
         id="trueWallet"
         tabIndex="-1"
@@ -2771,7 +2681,7 @@ export default function GameList() {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
       {/* <!-- true wallet end --> */}
 
       {/* <!-- history modal --> */}
@@ -3053,7 +2963,9 @@ export default function GameList() {
               </div>
               <div className="modal-body">
                 <div className="bag-modal-content">
-
+                  <div className="bag-modal-slide-container">
+                    <img src="./assets/images/bag-background.png" alt="" />
+                  </div>
 
                   <div className="bag-modal-menu">
                     <div
@@ -3119,7 +3031,7 @@ export default function GameList() {
                       </div>
                       <p className="bag-modal-menu-title">กรอกโค้ด</p>
                     </div>
-                    {/* <div
+                    <div
                       className="bag-modal-menu-item"
                       id="spinner-modal-btn"
                       data-bs-toggle="modal"
@@ -3134,7 +3046,7 @@ export default function GameList() {
                         />
                       </div>
                       <p className="bag-modal-menu-title">กงล้อ</p>
-                    </div> */}
+                    </div>
                     <div
                       className="bag-modal-menu-item"
                       id="credit-modal-btn"
@@ -3166,7 +3078,7 @@ export default function GameList() {
                       </div>
                       <p className="bag-modal-menu-title">คืนยอดเสีย</p>
                     </div>
-                    {/* <div
+                    <div
                       className="bag-modal-menu-item"
                       id="diamond-modal-btn"
                       data-bs-toggle="modal"
@@ -3181,8 +3093,8 @@ export default function GameList() {
                         />
                       </div>
                       <p className="bag-modal-menu-title">แลกเพรช</p>
-                    </div> */}
-                    {/* <div
+                    </div>
+                    <div
                       className="bag-modal-menu-item"
                       id="tournament-modal-btn"
                       data-bs-toggle="modal"
@@ -3197,8 +3109,8 @@ export default function GameList() {
                         />
                       </div>
                       <p className="bag-modal-menu-title">ทัวร์นาเมนต์</p>
-                    </div> */}
-                    {/* <div className="bag-modal-menu-item">
+                    </div>
+                    <div className="bag-modal-menu-item">
                       <div className="bag-menu-img-container">
                         <img
                           className="bag-menu-icon"
@@ -3207,7 +3119,7 @@ export default function GameList() {
                         />
                       </div>
                       <p className="bag-modal-menu-title">Road Map</p>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -4327,8 +4239,7 @@ export default function GameList() {
 
       <footer className="footer" id="footer-desktop">
         <div className="menu-wrapper">
-          <div className="footer-item flexCenter" id="footer-login-button" onClick={handleLoginClick}
-            onKeyDown={() => ""}>
+          <div className="footer-item flexCenter" id="footer-login-button">
             <img src="/assets/icons/login-icon.svg" alt="login" />
             <p className="font-20">เข้าสู่ระบบ</p>
           </div>
