@@ -16,6 +16,7 @@ export default function AfterLogin() {
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
     const [slideIndex, setSlideIndex] = useState(1);
+    const [reMessage, setReMessage] = useState("");
 
 
 
@@ -121,20 +122,74 @@ export default function AfterLogin() {
     const [deviceType, setDeviceType] = useState(false);
 
 
+    const [dataUser, setDataUser] = useState()
+
     useEffect(() => {
         let _data = DataLocalStorage()
         if (_data) {
             setdataFromLogin(_data)
-            FillerCategory("FAVORITE", _data, setCategoryGame)
+            setCategoryGame(dataFromLogin?.info?.brandList?.FAVORITE)
         }
     }, [])
+    useEffect(() => {
+        _getData()
+    }, [dataFromLogin])
+
+    const _getData = async () => {
+        let _res = await axios({
+            method: 'post',
+            url: Constant.SERVER_URL + '/Member/Balance',
+            data: {
+                "s_agent_code": dataFromLogin?.agent,
+                "s_username": dataFromLogin?.username,
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataUser(_res?.data?.data)
+        }
+    }
 
     const _clickCategoryGame = (value) => {
-        setdataGameList()
-        FillerCategory(value, dataFromLogin, setCategoryGame)
+        if (value === "FAVORITE") {
+            setCategoryGame(dataFromLogin?.info?.brandList?.FAVORITE)
+            return
+        } else {
+            setdataGameList()
+            FillerCategory(value, setCategoryGame)
+        }
+    }
+    const _clickFavarite = async (value) => {
+        setdataGameList([])
+        let _getData = await axios({
+            method: 'post',
+            url: Constant.SERVER_URL + '/Game/Brand/List',
+            data: {
+                "s_agent_code": dataFromLogin?.agent,
+                "s_username": dataFromLogin?.username,
+            },
+        });
+        if (_getData?.data?.statusCode === 0) {
+            setCategoryGame(_getData?.data?.data?.FAVORITE)
+        }
+    }
+    const _addFavorite = async (value) => {
+        let _getData = await axios({
+            method: 'post',
+            url: Constant.SERVER_URL + '/Favorite/Select',
+            data: {
+                "s_agent_code": dataFromLogin?.agent,
+                "s_username": dataFromLogin?.username,
+                "id_favorite": value?.id_favorite,
+                "actionBy": "ADM"
+            },
+        });
+        if (_getData?.data?.statusCode === 0) {
+            _getDataGame(value)
+        }
     }
     const _getDataGame = async (value) => {
-        if(value?.s_type ==="CASINO" || value?.s_type === "SPORT"){
+        console.log("🚀 ~ const_getDataGame= ~ value:", value)
+        if (value?.s_type === "CASINO" || value?.s_type === "SPORT") {
             _getDataGamePlayGame(value)
             return
         }
@@ -153,7 +208,7 @@ export default function AfterLogin() {
     const _getDataGamePlayGame = async (value) => {
         try {
             const _data = {
-                s_game_code: value?.s_type ==="CASINO" ? "B001" : value?.s_type ==="SPORT" ? "B001":value?.s_game_code,
+                s_game_code: value?.s_type === "CASINO" ? "B001" : value?.s_type === "SPORT" ? "B001" : value?.s_game_code,
                 s_brand_code: value?.s_brand_code,
                 s_username: dataFromLogin?.username,
                 s_agent_code: Constant?.AGEN_CODE,
@@ -173,9 +228,34 @@ export default function AfterLogin() {
             if (_res?.data) {
                 OpenNewTabWithHTML(_res?.data?.res_html);
             }
-
         } catch (error) {
             console.error("Error playing the game:", error);
+        }
+    }
+    const _withdrawMoney = async () => {
+        try {
+            const _data = {
+                "s_agent_code": Constant?.AGEN_CODE,
+                "s_username": dataFromLogin?.username,
+                "f_amount": dataUser?.amount,
+                "i_bank": dataFromLogin?.info?.bankList[0]?.id,
+                "i_ip": "1.2.3.4",
+                "actionBy": "adm"
+            };
+            console.log("🚀 ~ const_withdrawMoney= ~ Constant?.AGEN_CODE:", Constant?.AGEN_CODE)
+            // Send the data to the server to get the game URL
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Withdraw/CreateTransaction`,
+                data: _data,
+            });
+            if (_res?.data?.statusCode === 0) {
+                _getData()
+            } else {
+                setReMessage(_res?.data?.statusDesc)
+            }
+        } catch (error) {
+
         }
     }
 
@@ -187,8 +267,7 @@ export default function AfterLogin() {
                 <div className="left">
                     <div className="coin-balance">
                         <img src="/assets/images/coin.svg" alt="coin" />
-                        {dataFromLogin?.balance?.amount}
-
+                        {dataUser?.amount}
                     </div>
                 </div>
                 <div className="middle">
@@ -203,7 +282,7 @@ export default function AfterLogin() {
                 <div className="right">
                     <div className="gem-balance">
                         <img src="/assets/images/gem.svg" alt="gem" />
-                        {dataFromLogin?.balance?.point}
+                        {dataUser?.point}
                     </div>
                     <img
                         src="/assets/images/icon-hamburger.svg"
@@ -241,7 +320,7 @@ export default function AfterLogin() {
                 </div>
                 <section className="featured-game-wrapper">
                     <div className="container flexBetween">
-                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("FAVORITE")}>
+                        <div className="featured-game flexBetween" onClick={() => _clickFavarite()}>
                             <img src="/assets/images/newicon/favorite.png" alt="game icon" />
                             <p>เกมโปรด</p>
                         </div>
@@ -274,13 +353,16 @@ export default function AfterLogin() {
                             <div
                                 key={game?.s_img}
                                 className="game-card"
-                                onClick={() => _getDataGamePlayGame(game)}
                             >
+                                <div style={{ position: "absolute", top: "0", left: "0", zIndex: 2, backgroundColor: "red" }} onClick={() => _addFavorite(game)}>
+                                    AAAA
+                                </div>
                                 <img
                                     src={game?.s_img ?? "/assets/images/jilli_card.svg"}
                                     id="game-card"
                                     className="game-image"
                                     alt="game"
+                                    onClick={() => _getDataGamePlayGame(game)}
                                 />
                             </div>) : categoryGame?.map((item) => (
                                 <div
@@ -289,7 +371,7 @@ export default function AfterLogin() {
                                     onClick={() => _getDataGame(item)}
                                 >
                                     <img
-                                        src={item?.s_img ?? "/assets/images/jilli_card.svg"}
+                                        src={item?.s_img ?? item?.s_lobby_url}
                                         id="game-card"
                                         className="game-image"
                                         alt="game"
@@ -921,7 +1003,7 @@ export default function AfterLogin() {
                                     </div>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="detail-card-kbank">
+                                    {/* <div className="detail-card-kbank">
                                         <div className="card-kbank">
                                             <div className="font-17" style={{ marginTop: 20 }}>
                                                 <p>ธนาคารกสิกรไทย</p>
@@ -956,7 +1038,7 @@ export default function AfterLogin() {
                                                 <img src="/assets/icons/visa.svg" alt="visa" />
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                     <div className="slide-image">
                                         <div className="active" />
                                         <div className="none-active" />
@@ -988,7 +1070,7 @@ export default function AfterLogin() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div
+                                        {/* <div
                                             style={{ cursor: 'pointer' }}
                                             data-bs-toggle="modal"
                                             data-bs-target="#leaveAdecimal"
@@ -1000,7 +1082,7 @@ export default function AfterLogin() {
                                                     <div>ฝากทศนิยม</div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div
                                             style={{ cursor: "pointer" }}
                                             data-bs-toggle="modal"
@@ -1015,7 +1097,7 @@ export default function AfterLogin() {
                                             </div>
                                         </div>
 
-                                        <div
+                                        {/* <div
                                             style={{ cursor: 'pointer' }}
                                             data-bs-toggle="modal"
                                             data-bs-target="#qrplay"
@@ -1027,9 +1109,9 @@ export default function AfterLogin() {
                                                     <div>QR PAY</div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> */}
 
-                                        <div
+                                        {/* <div
                                             style={{ cursor: 'pointer' }}
                                             data-bs-toggle="modal"
                                             data-bs-target="#slipVerify"
@@ -1039,23 +1121,6 @@ export default function AfterLogin() {
                                                 <div className="withdrawal">
                                                     <img src="/assets/images/verified.svg" alt="kkk" />
                                                     <div>Slip Verify</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* <div
-                                            style={{ cursor: "pointer" }}
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#trueWallet"
-                                            data-bs-dismiss="modal"
-                                        >
-                                            <div className="type-of-withdrawal">
-                                                <div className="withdrawal">
-                                                    <img
-                                                        src="/assets/images/true-money-wallet.svg"
-                                                        alt="kkk"
-                                                    />
-                                                    <div>Truewallet</div>
                                                 </div>
                                             </div>
                                         </div> */}
@@ -1068,9 +1133,10 @@ export default function AfterLogin() {
                                             พบปัญหา
                                             <span
                                                 style={{
-                                                    color: 'rgba(0, 252, 252, 1)',
+                                                    color: 'red',
                                                     textDecoration: 'underline',
-                                                    cursor: 'pointer',
+                                                    marginLeft: 5,
+                                                    // cursor: 'pointer',
                                                 }}
                                             >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
@@ -1127,9 +1193,9 @@ export default function AfterLogin() {
                                     <div className="detail-card-scb1">
                                         <div className="card-scb1">
                                             <div className="left">
-                                                <p>ธนาคารกสิกรไทยddd</p>
-                                                <p>นาย xxxxx xxxxx</p>
-                                                <p>026-999999-9</p>
+                                                <p>{dataFromLogin?.info?.bankDeposit[0]?.s_fname_th}</p>
+                                                <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_name}</p>
+                                                <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_no}</p>
                                             </div>
                                             <div className="right">
                                                 <div className="bank">
@@ -1139,16 +1205,16 @@ export default function AfterLogin() {
                                                     </div>
                                                 </div>
 
-                                                <div className="visa">
+                                                {/* <div className="visa">
                                                     <img src="/assets/icons/visa.svg" alt="visa" />
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="slide-image" style={{ marginTop: 12 }}>
+                                    {/* <div className="slide-image" style={{ marginTop: 12 }}>
                                         <div className="active" />
                                         <div className="none-active" />
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <div className="button-validationt">
                                             <div style={{ color: "white" }}>
@@ -1162,11 +1228,11 @@ export default function AfterLogin() {
                                         <div>
                                             พบปัญหา
                                             <span
-                                                style={{
-                                                    color: ' rgba(0, 252, 252, 1)',
-                                                    textDecoration: 'underline',
-                                                    cursor: 'pointer',
-                                                }}
+                                            // style={{
+                                            //     color: ' rgba(0, 252, 252, 1)',
+                                            //     textDecoration: 'underline',
+                                            //     cursor: 'pointer',
+                                            // }}
                                             >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
                                         </div>
@@ -1250,11 +1316,11 @@ export default function AfterLogin() {
                                         <div>
                                             พบปัญหา
                                             <span
-                                                style={{
-                                                    color: ' rgba(0, 252, 252, 1)',
-                                                    textDecoration: 'underline',
-                                                    cursor: 'pointer',
-                                                }}
+                                            // style={{
+                                            //     color: ' rgba(0, 252, 252, 1)',
+                                            //     textDecoration: 'underline',
+                                            //     cursor: 'pointer',
+                                            // }}
                                             >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
                                         </div>
@@ -1367,11 +1433,11 @@ export default function AfterLogin() {
                                         <div>
                                             พบปัญหา
                                             <span
-                                                style={{
-                                                    color: ' rgba(0, 252, 252, 1)',
-                                                    textDecoration: 'underline',
-                                                    cursor: 'pointer',
-                                                }}
+                                            // style={{
+                                            //     color: ' rgba(0, 252, 252, 1)',
+                                            //     textDecoration: 'underline',
+                                            //     cursor: 'pointer',
+                                            // }}
                                             >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
                                         </div>
@@ -1429,46 +1495,34 @@ export default function AfterLogin() {
                             </div>
                             <div className="modal-body">
                                 <div className="withdraw-modal-content flexCenter">
-                                    <div className="card flexBetween">
-                                        <div className="left flexCenter">
-                                            <p>ธนาคารกสิกรไทย</p>
-                                            <p>นาย xxxxx xxxxx</p>
-                                            <p>026-999999-9</p>
-                                        </div>
-                                        <div className="right flexCenter">
-                                            <div className="flexCenter bank">
-                                                <h4>KBank</h4>
-                                                <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
-                                                    <img src="/assets/images/kbank 1.png" alt="kbank" />
+                                    {dataFromLogin?.info?.bankList?.map((item, index) => (
+                                        <div className="card flexBetween">
+                                            <div className="left flexCenter">
+                                                <p>{item?.s_account_name}</p>
+                                                <p>{item?.s_account_no}</p>
+                                            </div>
+                                            <div className="right flexCenter">
+                                                <div className="flexCenter bank">
+                                                    <h4>KBank</h4>
+                                                    <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
+                                                        <img src={"/assets/images/bank/" + item?.s_icon} alt="kbank" />
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="balance">
-                                                <p>ยอดคงเหลือในระบบ</p>
-                                                <p>1000.00 บาท</p>
-                                            </div>
-                                            <div className="visa">
-                                                <img src="/assets/icons/visa.svg" alt="visa" />
-                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div className="slider-wrapper flexBetween">
-                                        <div className="active slider" />
-                                        <div className="slider" />
-                                    </div>
-
+                                    ))}
                                     <div className="money-input flexBetween">
                                         <p>จำนวนเงินที่ถอนได้</p>
-                                        <input type="text" placeholder="1000" />
-                                    </div>
-                                    <div className="money-input flexBetween">
-                                        <p style={{ color: 'red' }}>กรุณาระบุจำนวนที่จะถอน</p>
-                                        <input type="text" placeholder="1000" />
+                                        <input type="text" value={dataUser?.amount} disabled={true} />
                                     </div>
 
-                                    <div className="button-warning">ถอนเงิน</div>
+                                    <div style={{ color: "red" }}>{reMessage}</div>
 
-                                    <p>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
+                                    <div className="button-warning" onClick={() => _withdrawMoney()}>ถอนเงิน</div>
+
+                                    <p style={{ display: "flex" }}>พบปัญหา
+                                        <div style={{ marginLeft: "5px", color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</div>
+                                    </p>
 
                                     <button type='button' className="line-button flexCenter">
                                         <img src="/assets/icons/icon-line.svg" alt="line icon" />
@@ -1584,9 +1638,9 @@ export default function AfterLogin() {
                                         <p>
                                             พบปัญหา
                                             <a
-                                                href="/"
+                                                // href="/"
                                                 style={{
-                                                    color: ' rgba(0, 252, 252, 1)',
+                                                    color: 'red',
                                                     textDecoration: 'underline',
                                                     cursor: 'pointer',
                                                 }}
@@ -1678,7 +1732,7 @@ export default function AfterLogin() {
                                                 พบปัญหา
                                                 <span
                                                     style={{
-                                                        color: 'rgba(0, 252, 252, 1)',
+                                                        color: 'red',
                                                         textDecoration: 'underline',
                                                         cursor: 'pointer',
                                                     }}
@@ -1782,7 +1836,7 @@ export default function AfterLogin() {
                                     </div>
 
                                     <button type='button' className="button-warning">ยืนยันยอดฝาก</button>
-                                    <p>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
+                                    <p>พบปัญหา <a style={{ color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</a></p>
                                 </div>
                             </div>
                         </div>
@@ -1849,7 +1903,7 @@ export default function AfterLogin() {
                                     </div>
 
                                     <p className="suggest-text">
-                                        พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a>
+                                        พบปัญหา ติดต่อฝ่ายบริการลูกค้า
                                     </p>
 
                                     <button type='button' className="line-button">
@@ -3381,3 +3435,6 @@ export default function AfterLogin() {
         </div>
     )
 }
+
+
+

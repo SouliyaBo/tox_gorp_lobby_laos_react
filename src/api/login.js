@@ -52,7 +52,7 @@ const LoginController = () => {
                 s_agent_code: Constant.AGEN_CODE,
                 s_phone: inputPhonenumber,
                 s_password: inputPassword,
-                i_bank: "20",
+                i_bank: "1", //scb =1
                 s_account_no: inputBank,
                 s_channel: "GOOGLE",
                 s_line: "line@",
