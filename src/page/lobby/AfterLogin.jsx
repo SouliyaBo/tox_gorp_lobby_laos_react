@@ -4,11 +4,12 @@ import axios from "axios";
 import 'react-slideshow-image/dist/styles.css'
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
-import { DataLocalStorage } from "../../helper";
+import { DataLocalStorage, FillerCategory, OpenNewTabWithHTML } from "../../helper";
 import Constant from "../../constant";
+import { GamgeList } from "../../api/game";
 
 export default function AfterLogin() {
-    
+
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
@@ -21,6 +22,32 @@ export default function AfterLogin() {
 
 
     useEffect(() => {
+        let hasTouchScreen = false;
+        if ("maxTouchPoints" in navigator) {
+            hasTouchScreen = navigator.maxTouchPoints > 0;
+        } else if ("msMaxTouchPoints" in navigator) {
+            hasTouchScreen = navigator.msMaxTouchPoints > 0;
+        } else {
+            const mQ = window.matchMedia && matchMedia("(pointer:coarse)");
+            if (mQ && mQ.media === "(pointer:coarse)") {
+                hasTouchScreen = !!mQ.matches;
+            } else if ("orientation" in window) {
+                hasTouchScreen = true; // deprecated, but good fallback
+            } else {
+                // Only as a last resort, fall back to user agent sniffing
+                const UA = navigator.userAgent;
+                hasTouchScreen =
+                    /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+                    /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA);
+            }
+        }
+        if (hasTouchScreen) {
+            setDeviceType("Mobile");
+            // console.log("Mobile: ");
+        } else {
+            setDeviceType("Desktop");
+            // console.log("Desktop: ");
+        }
         const pageClickEvent = (e) => {
             // If the active element exists and is clicked outside of
             if (sidebarUseRef.current !== "") {
@@ -72,7 +99,6 @@ export default function AfterLogin() {
     };
 
     const plusSlides = (n) => {
-        console.log("n: ", n)
         showSlides(slideIndex + n);
     }
 
@@ -81,61 +107,78 @@ export default function AfterLogin() {
     }
 
     const showSlides = (n) => {
-
         const slides = document.getElementsByClassName("mySlides");
         const dots = document.getElementsByClassName("dot");
         if (n > slides.length) {
             // setSlideIndex(1);
         }
-        // if (n < 1) {
-        //     setSlideIndex(slides.length);
-        // }
-        // for (let i = 0; i < slides.length; i++) {
-        //     slides[i].style.display = "none";
-        // }
-        // for (let i = 0; i < dots.length; i++) {
-        //     dots[i].className = dots[i].className.replace(" slide-active", "");
-        // }
-        // slides[slideIndex - 1].style.display = "block";
-        // dots[slideIndex - 1].className += " slide-active";
-        // setSlideIndex(n);
     }
 
     // =============> connect data <================
     const [dataFromLogin, setdataFromLogin] = useState({})
-    const [codeGameSelect, setCodeGameSelect] = useState("B006")
     const [dataGameList, setdataGameList] = useState()
+    const [categoryGame, setCategoryGame] = useState([])
+    const [deviceType, setDeviceType] = useState(false);
 
 
     useEffect(() => {
-        _getDataGame()
-     let _data =DataLocalStorage()
-     if(_data){
-        setdataFromLogin(_data)
-     }
+        let _data = DataLocalStorage()
+        if (_data) {
+            setdataFromLogin(_data)
+            FillerCategory("FAVORITE", _data, setCategoryGame)
+        }
     }, [])
 
-    const _getDataGame =async(value)=>{
-        try {
-            setCodeGameSelect(value)
-            const _res = await axios({
-				method: "post",
-				url: `${Constant.SERVER_URL}/Game/ListGame`,
-				data: {
-					s_agent_code: Constant.AGEN_CODE,
-					s_brand_code: value,
-				},
-			});
-            if (_res?.data?.statusCode === 0) {
-                console.log("🚀 ~ const_getDataGame=async ~ _res?.data:", _res?.data)
-                
-            }
-        } catch (error) {
-            
+    const _clickCategoryGame = (value) => {
+        setdataGameList()
+        FillerCategory(value, dataFromLogin, setCategoryGame)
+    }
+    const _getDataGame = async (value) => {
+        if(value?.s_type ==="CASINO" || value?.s_type === "SPORT"){
+            _getDataGamePlayGame(value)
+            return
+        }
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Game/ListGame`,
+            data: {
+                s_agent_code: Constant.AGEN_CODE,
+                s_brand_code: value?.s_brand_code,
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setdataGameList(_res?.data?.data)
         }
     }
-    console.log("🚀 ~ useEffect ~ _data:", dataFromLogin)
-    
+    const _getDataGamePlayGame = async (value) => {
+        try {
+            const _data = {
+                s_game_code: value?.s_type ==="CASINO" ? "B001" : value?.s_type ==="SPORT" ? "B001":value?.s_game_code,
+                s_brand_code: value?.s_brand_code,
+                s_username: dataFromLogin?.username,
+                s_agent_code: Constant?.AGEN_CODE,
+                isMobile: deviceType === "Mobile" ? "true" : "false",
+                ip_client: "184.22.14.167",
+                s_lang: "th",
+            };
+            // Send the data to the server to get the game URL
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Game/Access`,
+                data: _data,
+            });
+            if (_res?.data?.url) {
+                window.open(_res?.data?.url, _res?.data?.url);
+            }
+            if (_res?.data) {
+                OpenNewTabWithHTML(_res?.data?.res_html);
+            }
+
+        } catch (error) {
+            console.error("Error playing the game:", error);
+        }
+    }
+
 
 
     return (
@@ -198,263 +241,65 @@ export default function AfterLogin() {
                 </div>
                 <section className="featured-game-wrapper">
                     <div className="container flexBetween">
-                        <div className="featured-game flexBetween">
+                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("FAVORITE")}>
+                            <img src="/assets/images/newicon/favorite.png" alt="game icon" />
+                            <p>เกมโปรด</p>
+                        </div>
+                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")}>
+                            <img src="/assets/images/newicon/hothit.png" alt="game icon" />
+                            <p style={{ fontSize: 20 }}>เป็นที่นิยม</p>
+                        </div>
+                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")}>
                             <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
                             <p>สล็อต</p>
                         </div>
-                        <div className="featured-game flexBetween">
+                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("CASINO")}>
                             <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
                             <p>คาสิโน</p>
                         </div>
-                        <div className="featured-game flexBetween">
+                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("FISHING")}>
                             <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
                             <p>ยิงปลา</p>
                         </div>
-                        <div className="featured-game flexBetween">
-                            <img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-                            <p>ป็อกเด้ง</p>
-                        </div>
-                        <div className="featured-game flexBetween">
+                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SPORT")}>
                             <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
                             <p>กีฬา</p>
-                        </div>
-                        <div className="featured-game flexBetween">
-                            <img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-                            <p>เกมกราฟ</p>
                         </div>
                     </div>
                 </section>
 
                 <section className="card-container">
                     <div className="card-wrapper">
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
+                        {dataGameList?.length ? dataGameList?.map((game) =>
+                            <div
+                                key={game?.s_img}
+                                className="game-card"
+                                onClick={() => _getDataGamePlayGame(game)}
+                            >
+                                <img
+                                    src={game?.s_img ?? "/assets/images/jilli_card.svg"}
+                                    id="game-card"
+                                    className="game-image"
+                                    alt="game"
+                                />
+                            </div>) : categoryGame?.map((item) => (
+                                <div
+                                    key={item?.s_img}
+                                    className="game-card"
+                                    onClick={() => _getDataGame(item)}
                                 >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"><button type='button' className="btn-play-game">เล่นเลย</button></a>
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
-                        <div className="game-card">
-                            <div className="btn-play-game-container">
-                                <a href="after-login-game-list.html"
-                                ><button type='button' className="btn-play-game">เล่นเลย</button></a
-                                >
-                            </div>
-                            <img src="/assets/images/jilli_card.svg" alt="card" />
-                        </div>
+                                    <img
+                                        src={item?.s_img ?? "/assets/images/jilli_card.svg"}
+                                        id="game-card"
+                                        className="game-image"
+                                        alt="game"
+                                    />
+                                </div>
+                            ))}
+
                     </div>
                 </section>
 
-
-                <section className="info-wrapper">
-                    <p>TT Casino Club</p>
-                    <p style={{ marginBottom: 10 }}>
-                        ผู้ให้บริการคาสิโนออนไลน์เราคือ เว็บพนันออนไลน์ ครบวงจร มั่นคง ปลอดภัย
-                        ให้บริการ บาคาร่าออนไลน์ สล็อตออนไลน์ ทุกค่าย slotxo pgslot joker jili
-                        โปรโมชั่นมากมาย บริการด้วยใจ ฝากถอน รวดเร็ว ไม่มีขั้นต่ำ
-                    </p>
-                    <p>TT Casino Club มีอะไรดีที่เพื่อนๆ ต้องไม่พลาดสมัครสมาชิก</p>
-                    <ol>
-                        <li>
-                            ไม่มีการฝากขั้นต่ำ: ไม่เหมือนเว็บไซต์การพนันออนไลน์อื่น ๆ Fullbet
-                            ไม่กำหนดข้อกําหนดการฝากขั้นต่ำ ๆ
-                            คุณมีความเสรีในการฝากเงินใดก็ได้ที่คุณรู้สึกสบายใจ
-                            ทำให้คุณควบคุมงบประมาณการพนันของคุณได้อย่างเต็มที่
-                        </li>
-                        <li>
-                            การถอนเงินโดยตรง: บอกลากระบวนการถอนที่ยาวนาน
-                            เพราะเรามีการถอนเงินโดยตรง
-                            ทำให้คุณสามารถเข้าถึงเงินรางวัลของคุณได้อย่างรวดเร็วและสะดวกสบาย
-                            ไม่ต้องรอนานหรือผ่านขั้นตอนการยืนยันที่ไม่จำเป็น
-                        </li>
-                        <li>
-                            เกมที่หลากหลาย มากกว่า 1000 เกม :
-                            เราภูมิใจในการมอบให้บริการช่วงเกมที่หลากหลายเพื่อตอบสนองความต้องการของนักพนันทุกคน
-                            ตั้งแต่เกมคาสิโนคลาสสิกเช่นแบล็คแจ็คและรูเล็ตไปจนถึงเครื่องสล็อตยอดนิยม
-                            คุณจะไม่มีทางจบลงในการสำรวจ
-                        </li>
-                        <li>
-                            ปลอดภัยและเชื่อถือได้ 100% :
-                            ความปลอดภัยของคุณเป็นสิ่งสำคัญที่สุดของเรา TT Casino Club
-                            ใช้มาตรการรักษาความปลอดภัยขั้นสูงเพื่อปกป้องข้อมูลส่วนตัวและการเงินของคุณ
-                            คุณสามารถเล่นพนันได้อย่างมั่นใจในความสงบใจที่ข้อมูลของคุณถูกเข้ารหัสและเก็บไว้เป็นความลับ
-                        </li>
-                    </ol>
-                    <p>
-                        คําถามที่พบบ่อย TT Casino ClubX เราคือใคร ? TT Casino Clubx
-                        เป็นเว็บไซต์การพนันออนไลน์ที่มีเกมหลากหลายให้ผู้เล่นสนุกได้
-                        นี่เป็นเว็บไซต์ตรงที่คุณสามารถฝากและถอนเงินได้อย่างง่ายดายโดยไม่มีข้อกำหนดขั้นต่ำใดๆ
-                        ข้อดีของการเล่น TT Casino Club ? มีข้อดีหลายอย่างในการเล่นบน TT Casino Club
-                        ก่อนอื่น ไม่มีเงินฝากขั้นต่ำที่จำเป็น
-                        ทำให้ผู้เล่นทุกคนสามารถเข้าร่วมได้ นอกจากนี้
-                        เว็บไซต์ยังมีการถอนเงินโดยตรง
-                        เพื่อให้คุณสามารถเข้าถึงเงินรางวัลของคุณได้อย่างง่ายดาย นอกจากนี้
-                        TT Casino Club ยังมีเกมหลากหลายเพื่อให้ทุกคนได้เลือกเล่น วิธีฝากเงินบน
-                        TT Casino Club? การฝากเงินบน TT Casino Club
-                        เป็นกระบวนการที่เรียบง่ายและง่ายดาย
-                        คุณสามารถโอนเงินจากบัญชีธนาคารของคุณไปยังบัญชี TT Casino Club
-                        ของคุณได้อย่างง่ายดายโดยใช้วิธีการชำระเงินต่างๆ เช่น
-                        โอนเงินผ่านธนาคารหรือการใช้งาน วอลเล็ต
-                        และเว็บไซต์จะมีคำแนะนำอย่างละเอียดเกี่ยวกับวิธีการฝากเงิน
-                        เพื่อให้คุณสามารถเริ่มเล่นเกมที่คุณชื่นชอบได้ทันที การเล่นคาสิโนกับเรา
-                        TT Casino Club ปลอดภัยหรือไม่? ใช่ การเล่นบน TT Casino Club
-                        เป็นการเล่นที่ปลอดภัย
-                        เว็บไซต์นี้ใช้มาตรการความปลอดภัยขั้นสูงเพื่อปกป้องข้อมูลส่วนบุคคลและข้อมูลการเงินของคุณ
-                        เขาใช้เทคโนโลยีการเข้ารหัสที่ปลอดภัยเพื่อให้การทำธุรกรรมทั้งหมดเป็นไปอย่างปลอดภัย
-                        ซึ่งจะทำให้คุณมั่นใจเมื่อเล่นบนแพลตฟอร์มของพวกเขา เรามีเกมส์อะไร
-                        ให้เล่นบ้าง? TT Casino Club มีเกมหลากหลายให้ผู้เล่นสนุกได้
-                        คุณสามารถค้นหาเกมคาสิโนยอดนิยม เช่น สล็อต รูเล็ต แบล็คแจ็ค
-                        และโป๊กเกอร์ นอกจากนี้ พวกเขายังมีการเดิมพันกีฬา
-                        เพื่อให้คุณสามารถวางเดิมพันในเหตุการณ์กีฬาต่างๆ ฉันสามารถเล่นบน
-                        xx ได้ผ่านอุปกรณ์มือถือไหม? แน่นอน! TT Casino Club
-                        เป็นเว็บไซต์ที่เข้ากับอุปกรณ์มือถือได้ง่าย
-                        คุณสามารถเล่นเกมที่คุณชื่นชอบได้ทุกที่ทุกเวลา ไม่ว่าคุณจะใช้อุปกรณ์
-                        iOS หรือ Android
-                        คุณสามารถเข้าถึงเว็บไซต์ผ่านเบราว์เซอร์บนมือถือของคุณและเพลิดเพลินกับประสบการณ์การเล่นเกมที่น
-                        seamless TT Casino Club
-                        เป็นเว็บไซต์การพนันออนไลน์ที่ให้ประสบการณ์ที่ไม่ธรรมดาพร้อมกับการฝากถอนโดยตรงและไม่มีขั้นต่ำ
-                        โดยการให้บริการอินเทอร์เฟซที่ใช้งานง่ายและมีเกมหลากหลาย
-                        รับรองว่าผู้เล่นจะได้รับประสบการณ์การพนันที่ไม่มีข้อบกพร่องและสนุกสนาน
-                        อย่าพลาดการอัปเดตโพสต์นี้ในอนาคต
-                        เพื่อให้เราสามารถให้ข้อมูลล่าสุดเกี่ยวกับ TT Casino Club และการเสนอของมัน
-                        อย่าพลาดโอกาสในการเพิ่มคุณลักษณะหรือโปรโมชั่นใหม่!
-                    </p>
-                </section>
 
                 <section className="hero-text flexCenter">
                     <h4>Casino คาสิโนออนไลน์ ที่ดีที่สุด</h4>

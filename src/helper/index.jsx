@@ -2,6 +2,7 @@ import Constant from "../constant";
 var Buffer = require('buffer/').Buffer
 
 
+
 export const _clickTabDeposit = (tab, setTabs, setTabName) => {
   setTabName(tab);
   if (tab === "tab-deposit") {
@@ -12,6 +13,18 @@ export const _clickTabDeposit = (tab, setTabs, setTabName) => {
     setTabs("ประวัติโบนัส");
   }
 };
+
+export const FillerCategory = async (value,data,setCategoryGame) => {
+  if (value === "ALL") setCategoryGame(data?.info?.brandList?.ALL)
+  if (value === "CASINO") setCategoryGame(data?.info?.brandList?.CASINO)
+  if (value === "FAVORITE") setCategoryGame(data?.info?.brandList?.FAVORITE)
+  if (value === "FISHING") setCategoryGame(data?.info?.brandList?.FISHING)
+  if (value === "HOTHIT") setCategoryGame(data?.info?.brandList?.HOTHIT)
+  if (value === "LOTTO") setCategoryGame(data?.info?.brandList?.LOTTO)
+  if (value === "SLOT") setCategoryGame(data?.info?.brandList?.SLOT)
+  if (value === "SPORT") setCategoryGame(data?.info?.brandList?.SPORT)
+}
+
 
 export const EncriptBase64 = (date) => {
   let tokens = date;
@@ -32,7 +45,6 @@ export const EncriptBase64 = (date) => {
 
 }
 
-
 export const DataLocalStorage = () => {
   const user = JSON.parse(localStorage.getItem(Constant.LOGIN_USER_DATA));
   return user || undefined;
@@ -43,3 +55,19 @@ export const LogoutClearLocalStorage = () => {
   localStorage.clear();
   window.location.reload();
 };
+
+export const OpenNewTabWithHTML=(htmlContent)=> {
+	// Create a new blob with the HTML content
+	const blob = new Blob([htmlContent], { type: "text/html" });
+
+	// Create a data URL for the blob
+	const dataUrl = URL.createObjectURL(blob);
+
+	// Open a new tab with the data URL
+	const newTab = window.open(dataUrl, "_blank");
+
+	// Release the object URL when the tab is closed
+	newTab.addEventListener("beforeunload", () => {
+		URL.revokeObjectURL(dataUrl);
+	});
+}
