@@ -3,8 +3,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { _clickTabDeposit } from "../../helper"
-import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
+import Sidebar from "../../component/Sidebar";
 
 export default function GameList() {
   const sidebarUseRef = useRef(null);
@@ -14,42 +14,9 @@ export default function GameList() {
   const [gotoStepTwo, setGotoStepTwo] = useState(false);
   const [tabName, setTabName] = useState("tab-deposit");
   const [current, setCurrent] = useState(0);
-
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  // useEffect(() => {
-  //   let slideIndex = 1;
-
-  //   const plusSlides = (n) => {
-  //     // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-  //     showSlides(slideIndex += n);
-  //   };
-
-  //   const showSlides = (n) => { // Define showSlides function here
-  //     let i;
-  //     const slides = document.getElementsByClassName("mySlides");
-  //     const dots = document.getElementsByClassName("dot");
-  //     if (n > slides.length) {
-  //       slideIndex = 1
-  //     }
-  //     if (n < 1) {
-  //       slideIndex = slides.length
-  //     }
-  //     for (i = 0; i < slides.length; i++) {
-  //       slides[i].style.display = "none";
-  //     }
-  //     for (i = 0; i < dots.length; i++) {
-  //       dots[i].className = dots[i].className.replace(" slide-active", "");
-  //     }
-  //     slides[slideIndex - 1].style.display = "block";
-  //     dots[slideIndex - 1].className += " slide-active";
-  //   };
-  //   const interval = setInterval(() => {
-  //     plusSlides(1);
-  //   }, 3000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
+  const [content, setContent] = useState(
+    Array.from({ length: 28 }, (_, i) => `Item ${i + 1}`),
+  );
   const toggleSidebar = (event) => {
     event.stopPropagation();
     setSidebarVisible(true);
@@ -130,6 +97,7 @@ export default function GameList() {
       }, 400);
     }
   };
+
   return (
     <div>
       <header className="header">
@@ -161,14 +129,14 @@ export default function GameList() {
           >
             สมัครสมาชิก
           </button>
-          <button type='button' className="font-20 desktop-button button" id="loginBtn" onClick={handleLoginClick}>
+          <button type='button' className="font-20 desktop-button button1" id="loginBtn" onClick={handleLoginClick}>
             เข้าสู่ระบบ
           </button>
           <button type='button' className="font-20 mobile-button button" id="registerBtn-mobile" >
             สมัครสมาชิก
           </button>
           <a href="/pages/register-step1.html">
-            <button type='button' className="font-20 mobile-button button" id="loginBtn-mobile">
+            <button type='button' className="font-20 mobile-button button1" id="loginBtn-mobile">
               เข้าสู่ระบบ
             </button>
           </a>
@@ -210,7 +178,7 @@ export default function GameList() {
 
         <div className="brand">
           <div className="slideshow-container">
-            <div className='slider-banner'>
+            <div class="mySlides fade-slide">
               <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
               <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
               {SliderData.map((slide, index) => {
@@ -220,41 +188,13 @@ export default function GameList() {
                     key={slide?.image}
                   >
                     {index === current && (
-                      <img src={slide.image} alt='travel' className='image' />
+                      <img src={slide.image} alt='travel' style={{ width: '100%' }} />
                     )}
                   </div>
                 );
               })}
             </div>
-
           </div>
-
-
-
-
-
-
-          {/* <div className="slideshow-container">
-
-            <div className="mySlides fade-slide">
-              <img src="/assets/images/Cardgame/7.png" style={{ width: "100%" }} alt='' />
-            </div>
-            <div className="mySlides fade-slide">
-              <img src="/assets/images/Cardgame/4.png" style={{ width: "100%" }} alt='' />
-            </div>
-            <div className="mySlides fade-slide">
-              <img src="/assets/images/Cardgame/3.png" style={{ width: "100%" }} alt='' />
-            </div>
-
-            <div className="prev" onClick={() => plusSlides(-1)} onKeyDown={() => ''}>❮</div>
-            <div className="next" onClick={() => plusSlides(1)} onKeyDown={() => ''}>❯</div>
-          </div> */}
-
-          {/* <div style={{ textAlign: "center" }}>
-            <span className="dot" onClick={() => currentSlide(1)} onKeyDown={() => ''} />
-            <span className="dot" onClick={() => currentSlide(2)} onKeyDown={() => ''} />
-            <span className="dot" onClick={() => currentSlide(3)} onKeyDown={() => ''} />
-          </div> */}
         </div>
 
         <div className="marquee-custome" id="mobile">
@@ -280,17 +220,10 @@ export default function GameList() {
               <p>ยิงปลา</p>
             </div>
             <div className="featured-game flexBetween">
-              <img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-              <p>ป็อกเด้ง</p>
-            </div>
-            <div className="featured-game flexBetween">
               <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
               <p>กีฬา</p>
             </div>
-            <div className="featured-game flexBetween">
-              <img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-              <p>เกมกราฟ</p>
-            </div>
+
           </div>
         </section>
 
@@ -340,114 +273,19 @@ export default function GameList() {
             </div>
           </div>
           <div className="card-wrapper">
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
+            {content.map((item, index) => (
+              <div className="game-card">
+                <div className="btn-play-game-container">
+                  <a href="game-list.html">
+                    <button className="btn-play-game" type="button">
+                      เล่นเลย
+                    </button>
+                  </a>
+                </div>
+                <img src="/assets/images/game-card.svg" alt="card" />
               </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
-            <div className="game-card">
-              <div className="btn-play-game-container">
-                <button type="button" className="btn-play-game">เล่นเลย</button>
-              </div>
-              <img src="/assets/images/game-card.svg" alt="card" />
-            </div>
+            ))}
+
           </div>
         </section>
 
@@ -823,127 +661,7 @@ export default function GameList() {
 
         {/* <!-- Side Bar --> */}
         {sidebarVisible ? (
-          <div className="sidebar-container" ref={sidebarUseRef}>
-            <aside className="sidebar"
-              style={{
-                animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
-                  } 0.5s ease-in-out`,
-              }}>
-              <div className="icon-turn-back"
-                onClick={() => closeSidebar()}
-                onKeyDown={() => ""}>
-                <img src="/assets/images/turn-back 1.png" alt="" />
-              </div>
-              <img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
-              <div className="flexBetween font-14">
-                <p>Username:</p>
-                <p>ST1561651</p>
-              </div>
-              <div className="flexBetween font-14">
-                <p>Phone :</p>
-                <p>095-222-9999</p>
-              </div>
-              <div className="balance">
-                <small>ยอดเงินคงเหลือ</small>
-                <p>1,000.00</p>
-              </div>
-
-              <div className="flexBetween" style={{ gap: 13 }}>
-                <button
-                  type='button'
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{ width: "50%" }}
-                  data-bs-toggle="modal"
-                  data-bs-target="#profile"
-                >
-                  โปรไฟล์
-                </button>
-                <button
-                  type='button'
-                  className="gradient-border sidebar-button flexCenter"
-                  data-bs-toggle="modal"
-                  data-bs-target="#depositWithdraw"
-                  style={{ width: "50%" }}
-                >
-                  ฝาก-ถอน
-                </button>
-              </div>
-              <div className="flexBetween" style={{ gap: 13 }}>
-                <button
-                  type='button'
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{ width: '50%' }}
-                  id="bag-modal-btn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#bagModal"
-                >
-                  กระเป๋า
-                </button>
-                <button
-                  type='button'
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{ width: "50%" }}
-                  id="history-btn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#historyModal"
-                >
-                  ประวัติ
-                </button>
-              </div>
-              <div className="flexBetween" style={{ gap: 13 }}>
-                <button
-                  type='button'
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{ width: "50%" }}
-                >
-                  ไลน์บอท
-                </button>
-                <button
-                  type='button'
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{ width: "50%" }}
-                >
-                  ติดต่อพนักงาน
-                </button>
-              </div>
-              <button
-                type='button'
-                className="gradient-border sidebar-button flexCenter"
-                style={{ width: "100%", marginBottom: 16 }}
-                data-bs-toggle="modal"
-                data-bs-target="#changePasswordModal"
-              >
-                เปลี่ยนรหัสผ่าน
-              </button>
-              <button
-                type='button'
-                className="gradient-border sidebar-button flexCenter"
-                style={{ width: "100%", marginBottom: 16 }}
-              >
-                ออกจากระบบ
-              </button>
-
-              <div className="download-container">
-                <h3>ดาวน์โหลดแอปเลย !</h3>
-                <div className="flexBetween" style={{ gap: 6 }}>
-                  <img
-                    src="/assets//images/get-it-playstore.svg"
-                    alt="download icon"
-                    style={{ height: 32, cursor: "pointer" }}
-                  />
-                  <img
-                    src="/assets//images/get-it-appstore.svg"
-                    alt="download icon"
-                    style={{ height: 32, cursor: "pointer" }}
-                  />
-                </div>
-              </div>
-
-              <h4>Power by</h4>
-              <img src="/assets/images/newicon/TTT-03.png" alt="powerby" />
-            </aside>
-            <div className="sidebar-container-background" />
-          </div>
+          <Sidebar sidebarUseRef={sidebarUseRef} sidebarAnimation={sidebarAnimation} closeSidebar={closeSidebar} setSidebarAnimation={setSidebarAnimation} setSidebarVisible={setSidebarVisible} sidebarVisible={sidebarVisible} />
         ) : null}
 
         {/* <!-- Login Modal --> */}
@@ -4342,7 +4060,7 @@ export default function GameList() {
             <p className="font-20">สมัครสมาชิก</p>
           </div>
           <div className="footer-item flexCenter">
-            <img src="/assets/icons/contact-admin.svg" alt="login" />
+            <img src="/assets/images/contact-admin.svg" alt="login" />
             <p className="font-20">ติดต่อแอดมิน</p>
           </div>
         </div>

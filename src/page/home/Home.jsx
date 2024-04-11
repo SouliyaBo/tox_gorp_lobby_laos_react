@@ -4,21 +4,22 @@ import React, { useState, useRef, useEffect } from "react";
 import _LoginController from "../../api/login";
 
 import constant from "../../constant";
-import { useHistory,useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
-
+import Sidebar from "../../component/Sidebar";
+import { _clickTabDeposit } from "../../helper"
 export default function Home() {
-	
+
 	const history = useHistory();
 	const UseParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
-
+	const [current, setCurrent] = useState(0);
 
 	const { handleLogin, handleRegister, loginWithToken } = _LoginController();
 
 	// const useParams = useParams();
 	const [content, setContent] = useState(
-		Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`),
+		Array.from({ length: 18 }, (_, i) => `Item ${i + 1}`),
 	);
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
@@ -36,6 +37,7 @@ export default function Home() {
 		if (parsed?.ref) setShowRegisterPopup(true);
 	}, [parsed?.ref]);
 	// ========> loginWithToken <=======
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (UseParams?.token) {
 			loginWithToken(UseParams?.token)
@@ -43,25 +45,6 @@ export default function Home() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [UseParams]);
 
-	useEffect(() => {
-		const pageClickEvent = (e) => {
-			// If the active element exists and is clicked outside of
-			if (sidebarUseRef.current !== "") {
-				setSidebarAnimation(false);
-				setTimeout(() => {
-					setSidebarVisible(false);
-				}, 500);
-			}
-		};
-
-		if (sidebarVisible) {
-			window.addEventListener("click", pageClickEvent);
-		}
-
-		return () => {
-			window.removeEventListener("click", pageClickEvent);
-		};
-	}, [sidebarVisible]);
 
 	const handleClick = () => {
 		window.location.reload();
@@ -112,17 +95,6 @@ export default function Home() {
 		setGotoStepTwo(!false);
 	};
 
-	const _clickTabDeposit = (tab) => {
-		setTabName(tab);
-		if (tab === "tab-deposit") {
-			setTabs("ประวัติฝาก");
-		} else if (tab === "tab-withdraw") {
-			setTabs("ประวัติถอน");
-		} else {
-			setTabs("ประวัติโบนัส");
-		}
-	};
-
 	// ===== LoginController =====>
 	const _Login = async () => {
 		const _res = await handleLogin(userNameInput, passwordInput);
@@ -146,6 +118,113 @@ export default function Home() {
 		);
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
+
+	const SliderData = [
+		{
+			image:
+				'/assets/images/Cardgame/image 70.png'
+		},
+		{
+			image:
+				'/assets/images/Cardgame/5.png'
+		},
+		{
+			image:
+				'/assets/images/Cardgame/6.png'
+		},
+		{
+			image:
+				'/assets/images/Cardgame/7.png'
+		},
+		{
+			image:
+				'/assets/images/Cardgame/3.png'
+		}
+	];
+
+	const length = SliderData.length;
+
+	const nextSlide = () => {
+		setCurrent(current === length - 1 ? 0 : current + 1);
+	};
+
+	const prevSlide = () => {
+		setCurrent(current === 0 ? length - 1 : current - 1);
+	};
+	if (!Array.isArray(SliderData) || SliderData.length <= 0) {
+		return null;
+	}
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	useEffect(() => {
+		const cardElements = document.querySelectorAll(".card");
+		const bottomImg = document.querySelector(".bottom");
+		cardElements[0].classList.remove("card")
+		cardElements[0].classList.add("active-card");
+
+		bottomImg.innerHTML = `
+        <img src="/assets/images/Rectangle 382.svg" alt="game icon" />
+        <img src="/assets/images/Rectangle 383.svg" alt="game icon" />
+        <img src="/assets/images/Rectangle 384.svg" alt="game icon" />
+        <img src="/assets/images/Rectangle 385.svg" alt="game icon" />
+      `;
+		const updateBottomImages = (index) => {
+			if (index === 0) {
+				bottomImg.innerHTML = `
+          <img src="/assets/images/Rectangle 382.svg" alt="game icon" />
+          <img src="/assets/images/Rectangle 383.svg" alt="game icon" />
+          <img src="/assets/images/Rectangle 384.svg" alt="game icon" />
+          <img src="/assets/images/Rectangle 385.svg" alt="game icon" />
+        `;
+			} else if (index === 1) {
+				bottomImg.innerHTML = `
+          <img src="/assets/images/Rectangle 382.png" alt="game icon" />
+          <img src="/assets/images/Rectangle 383.png" alt="game icon" />
+          <img src="/assets/images/Rectangle 384.png" alt="game icon" />
+          <img src="/assets/images/Rectangle 385.png" alt="game icon" />
+        `;
+			} else if (index === 2) {
+				bottomImg.innerHTML = `
+          <img src="/assets/images/111.png" alt="game icon" />
+          <img src="/assets/images/Rectangle 384.png" alt="game icon" />
+          <img src="/assets/images/Rectangle 383.png" alt="game icon" />
+          <img src="/assets/images/222.png" alt="game icon" />
+        `;
+			} else if (index === 3) {
+				bottomImg.innerHTML = `
+          <img src="/assets/images/444.png" alt="game icon" />
+          <img src="/assets/images/555.png" alt="game icon" />
+          <img src="/assets/images/666.png" alt="game icon" />
+          <img src="/assets/images/111.png" alt="game icon" />
+        `;
+			}
+			// Add other conditions for other cards if needed
+		};
+
+		const handleClick = (index) => {
+			// biome-ignore lint/complexity/noForEach: <explanation>
+			cardElements.forEach((card) => {
+				card.classList.remove("active-card");
+				card.classList.add("card");
+			});
+			cardElements[index].classList.remove("card");
+			cardElements[index].classList.add("active-card");
+
+			// Update bottom images based on the clicked card
+			updateBottomImages(index);
+		};
+
+		cardElements.forEach((card, index) => {
+			card.addEventListener("click", () => handleClick(index));
+		});
+
+		// Cleanup function
+		return () => {
+			cardElements.forEach((card, index) => {
+				card.removeEventListener("click", () => handleClick(index));
+			});
+		};
+	}, []); //
 
 	return (
 		<div>
@@ -177,12 +256,12 @@ export default function Home() {
 						data-bs-toggle="modal"
 						data-bs-target="#signUpModal"
 					>
-						สมัครสมาชิก
+						<p className="register">สมัครสมาชิก</p>
 					</button>
 
 					<button
 						type="button"
-						className="font-20 desktop-button button"
+						className="font-20 desktop-button button1"
 						id="loginBtn"
 						onClick={handleLoginClick}
 					>
@@ -198,7 +277,7 @@ export default function Home() {
 							className="font-20 mobile-button button"
 							id="registerBtn-mobile"
 						>
-							สมัครสมาชิก
+							<p className="register">สมัครสมาชิก</p>
 						</button>
 					</a>
 					<a
@@ -236,61 +315,30 @@ export default function Home() {
 						<p>ยิงปลา</p>
 					</div>
 					<div className="featured-game flexBetween">
-						<img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-						<p>ป็อกเด้ง</p>
-					</div>
-					<div className="featured-game flexBetween">
 						<img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
 						<p>กีฬา</p>
 					</div>
-					<div className="featured-game flexBetween">
-						<img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-						<p>เกมกราฟ</p>
-					</div>
-				</div>
 
-				<div className="search-container">
-					<img
-						src="/assets/icons/search-icon.svg"
-						alt="icon"
-						className="search-icon"
-					/>
-					<label for="search" />
-					<input type="text" name="search" id="search" placeholder="ค้นหา" />
 				</div>
 
 				<div className="brand">
 					<div className="slideshow-container">
-						<div className="mySlides fade-slide">
-							<img
-								src="/assets/images/Cardgame/image 70.png"
-								style={{ width: "100%" }}
-								alt="slide"
-							/>
+						<div class="mySlides fade-slide">
+							<div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
+							<div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
+							{SliderData.map((slide, index) => {
+								return (
+									<div
+										className={index === current ? 'slide1 active' : 'slide1'}
+										key={slide?.image}
+									>
+										{index === current && (
+											<img src={slide.image} alt='travel' style={{ width: '100%' }} />
+										)}
+									</div>
+								);
+							})}
 						</div>
-
-						{/* <div className="mySlides fade-slide">
-          <img src="/assets/images/WhatsApp Image 2023-12-20 at 00.38.00.jpeg" style="width: 100%" />
-        </div>
-
-        <div className="mySlides fade-slide">
-          <img src="/assets/images/WhatsApp Image 2023-12-20 at 00.46.27.jpeg" style="width: 100%" />
-        </div>  */}
-
-						{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
-						<a className="prev" onClick="plusSlides(-1)">
-							❮
-						</a>
-						{/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
-						<a className="next" onclick="plusSlides(1)">
-							❯
-						</a>
-					</div>
-
-					<div style={{ textAlign: "center" }}>
-						<span className="dot" onclick="currentSlide(1)" />
-						<span className="dot" onclick="currentSlide(2)" />
-						<span className="dot" onclick="currentSlide(3)" />
 					</div>
 				</div>
 
@@ -326,24 +374,10 @@ export default function Home() {
 						</div>
 						<div className="featured-game flexBetween">
 							<img
-								src="/assets/images/newicon/iconnew-04.png"
-								alt="game icon"
-							/>
-							<p>ป็อกเด้ง</p>
-						</div>
-						<div className="featured-game flexBetween">
-							<img
 								src="/assets/images/newicon/iconnew-05.png"
 								alt="game icon"
 							/>
 							<p>กีฬา</p>
-						</div>
-						<div className="featured-game flexBetween">
-							<img
-								src="/assets/images/newicon/iconnew-06.png"
-								alt="game icon"
-							/>
-							<p>เกมกราฟ</p>
 						</div>
 					</div>
 				</section>
@@ -353,7 +387,7 @@ export default function Home() {
 						{content.map((item, index) => (
 							<div className="game-card">
 								<div className="btn-play-game-container">
-									<a href="game-list.html">
+									<a href="/game-list">
 										<button className="btn-play-game" type="button">
 											เล่นเลย
 										</button>
@@ -892,131 +926,7 @@ export default function Home() {
 				{/* <!-- Side Bar --> */}
 				{/* {sidebarVisible && ( */}
 				{sidebarVisible ? (
-					<div className="sidebar-container" ref={sidebarUseRef}>
-						<aside
-							className="sidebar"
-							style={{
-								animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
-									} 0.5s ease-in-out`,
-							}}
-						>
-							<div
-								className="icon-turn-back"
-								onClick={() => closeSidebar()}
-								onKeyDown={() => ""}
-							>
-								<img src="/assets/images/turn-back 1.png" alt="logo" />
-							</div>
-							<img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
-							<div className="flexBetween font-14">
-								<p>Username:</p>
-								<p>ST1561651</p>
-							</div>
-							<div className="flexBetween font-14">
-								<p>Phone :</p>
-								<p>095-222-9999</p>
-							</div>
-							<div className="balance">
-								<small>ยอดเงินคงเหลือ</small>
-								<p>1,000.00</p>
-							</div>
-
-							<div className="flexBetween" style={{ gap: 13 }}>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-									data-bs-toggle="modal"
-									data-bs-target="#profile"
-								>
-									โปรไฟล์
-								</button>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									data-bs-toggle="modal"
-									data-bs-target="#depositWithdraw"
-									style={{ width: "50%" }}
-								>
-									ฝาก-ถอน
-								</button>
-							</div>
-							<div className="flexBetween" style={{ gap: 1 }}>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-									id="bag-modal-btn"
-									data-bs-toggle="modal"
-									data-bs-target="#bagModal"
-								>
-									กระเป๋า
-								</button>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-									id="history-btn"
-									data-bs-toggle="modal"
-									data-bs-target="#historyModal"
-								>
-									ประวัติ
-								</button>
-							</div>
-							<div className="flexBetween" style={{ gap: 13 }}>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-								>
-									ไลน์บอท
-								</button>
-								<button
-									type="button"
-									className="gradient-border sidebar-button flexCenter"
-									style={{ width: "50%" }}
-								>
-									ติดต่อพนักงาน
-								</button>
-							</div>
-							<button
-								type="button"
-								className="gradient-border sidebar-button flexCenter"
-								style={{ width: "100%", marginBottom: 16 }}
-								data-bs-toggle="modal"
-								data-bs-target="#changePasswordModal"
-							>
-								เปลี่ยนรหัสผ่าน
-							</button>
-							<button
-								type="button"
-								className="gradient-border sidebar-button flexCenter"
-								style={{ width: "100%", marginBottom: 16 }}
-							>
-								ออกจากระบบ
-							</button>
-
-							<div className="download-container">
-								<h3>ดาวน์โหลดแอปเลย !</h3>
-								<div className="flexBetween" style={{ gap: 6 }}>
-									<img
-										src="/assets//images/get-it-playstore.svg"
-										alt="download icon"
-										style={{ height: 32, cursor: "pointer" }}
-									/>
-									<img
-										src="/assets//images/get-it-appstore.svg"
-										alt="download icon"
-										style={{ height: 32, cursor: "pointer" }}
-									/>
-								</div>
-							</div>
-
-							<h4>Power by</h4>
-							<img src="/assets/images/newicon/TTT-03.png" alt="powerby" />
-						</aside>
-						<div className="sidebar-container-background" />
-					</div>
+					<Sidebar sidebarUseRef={sidebarUseRef} sidebarAnimation={sidebarAnimation} closeSidebar={closeSidebar} setSidebarAnimation={setSidebarAnimation} setSidebarVisible={setSidebarVisible} sidebarVisible={sidebarVisible} />
 				) : null}
 				{/* )} */}
 				{/* <!-- Login Modal --> */}
@@ -1164,7 +1074,7 @@ export default function Home() {
 												/>
 											</div>
 											<div className="phone-input">
-												<img src="/assets/icons/lock-alt.svg" alt="icon" />
+												<img src="/assets/icons/icons8-user-24.png" alt="icon" />
 												<label for="phone" />
 												<input
 													type="text"
@@ -1175,7 +1085,7 @@ export default function Home() {
 												/>
 											</div>
 											<div className="phone-input">
-												<img src="/assets/icons/lock-alt.svg" alt="icon" />
+												<img src="/assets/icons/icons8-user-24.png" alt="icon" />
 												<label for="phone" />
 												<input
 													type="text"
@@ -3029,7 +2939,7 @@ export default function Home() {
 														? "history-tab-item active"
 														: "history-tab-item"
 												}
-												onClick={() => _clickTabDeposit("tab-deposit")}
+												onClick={() => _clickTabDeposit("tab-deposit", setTabs, setTabName)}
 												onKeyDown={() => ""}
 												id="tab-deposit"
 											>
@@ -3041,7 +2951,7 @@ export default function Home() {
 														? "history-tab-item active"
 														: "history-tab-item"
 												}
-												onClick={() => _clickTabDeposit("tab-withdraw")}
+												onClick={() => _clickTabDeposit("tab-withdraw", setTabs, setTabName)}
 												onKeyDown={() => ""}
 												id="tab-withdraw"
 											>
@@ -3053,7 +2963,7 @@ export default function Home() {
 														? "history-tab-item active"
 														: "history-tab-item"
 												}
-												onClick={() => _clickTabDeposit("tab-bonus")}
+												onClick={() => _clickTabDeposit("tab-bonus", setTabs, setTabName)}
 												onKeyDown={() => ""}
 												id="tab-bonus"
 											>
@@ -4698,14 +4608,6 @@ export default function Home() {
 						<div className="modal-content">
 							<div className="modal-header-container">
 								<div className="modal-header">
-									<img
-										src="/assets/icons/icon-back-modal.svg"
-										className="modal-icon-back"
-										alt=""
-										data-bs-toggle="modal"
-										data-bs-target="#bagModal"
-										data-bs-dismiss="modal"
-									/>
 									<p className="modal-title">เปลี่ยนรหัส</p>
 									<img
 										src="/assets/icons/icon-close-modal.svg"
@@ -4775,7 +4677,7 @@ export default function Home() {
 						<p className="font-20">สมัครสมาชิก</p>
 					</div>
 					<div className="footer-item flexCenter">
-						<img src="/assets/icons/contact-admin.svg" alt="login" />
+						<img src="/assets/images/contact-admin.svg" alt="login" />
 						<p className="font-20">ติดต่อแอดมิน</p>
 					</div>
 				</div>
@@ -4802,7 +4704,7 @@ export default function Home() {
 						</div>
 					</a>
 					<div className="footer-item flexCenter">
-						<img src="/assets/icons/contact-admin.svg" alt="login" />
+						<img src="/assets/images/contact-admin.svg" alt="login" />
 						<p className="font-20">ติดต่อแอดมิน</p>
 					</div>
 				</div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { _clickTabDeposit } from "../../helper"
+import Sidebar from "../../component/Sidebar";
 
 export default function AfterLoginMobileAllGame() {
   const [content, setContent] = useState(Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`))
@@ -9,25 +10,6 @@ export default function AfterLoginMobileAllGame() {
   const [tabs, setTabs] = useState("ประวัติฝาก");
   const [tabName, setTabName] = useState("tab-deposit");
 
-  useEffect(() => {
-    const pageClickEvent = (e) => {
-      // If the active element exists and is clicked outside of
-      if (sidebarUseRef.current !== "") {
-        setSidebarAnimation(false);
-        setTimeout(() => {
-          setSidebarVisible(false);
-        }, 500);
-      }
-    };
-
-    if (sidebarVisible) {
-      window.addEventListener("click", pageClickEvent);
-    }
-
-    return () => {
-      window.removeEventListener("click", pageClickEvent);
-    };
-  }, [sidebarVisible]);
 
   const toggleSidebar = (event) => {
     event.stopPropagation();
@@ -203,179 +185,7 @@ export default function AfterLoginMobileAllGame() {
 
         {/* <!-- Side Bar --> */}
         {sidebarVisible ? (
-          <div className="sidebar-container" ref={sidebarUseRef}>
-            <aside className="sidebar" style={{
-              animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
-                } 0.5s ease-in-out`,
-            }}>
-              <div className="icon-turn-back" onClick={() => closeSidebar()}
-                onKeyDown={() => ""}>
-                <img
-                  src="/assets/images/turn-back 1.png"
-                  alt=""
-                />
-              </div>
-              <img
-                src="/assets/images/newicon/TTcc-01.png"
-                alt="logo"
-              />
-              <div className="flexBetween">
-                <p>Username:</p>
-                <p>ST1561651</p>
-              </div>
-              <div className="flexBetween">
-                <p>Phone :</p>
-                <p>095-222-9999</p>
-              </div>
-              <div className="balance">
-                <small>ยอดเงินคงเหลือ</small>
-                <p>1,000.00</p>
-              </div>
-
-              <div
-                className="flexBetween"
-                style={{ gap: "10px" }}
-              >
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "50%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                  data-bs-toggle="modal"
-                  data-bs-target="#profile"
-                >
-                  โปรไฟล์
-                </button>
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  data-bs-toggle="modal"
-                  data-bs-target="#depositWithdraw"
-                  style={{
-                    width: "50%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                >
-                  ฝาก-ถอน
-                </button>
-              </div>
-              <div
-                className="flexBetween"
-                style={{ gap: "13px" }}
-              >
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "50%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                  id="bag-modal-btn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#bagModal"
-                >
-                  กระเป๋า
-                </button>
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "50%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                  id="history-btn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#historyModal"
-                >
-                  ประวัติ
-                </button>
-              </div>
-              <div
-                className="flexBetween"
-                style={{ gap: "10px" }}
-              >
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "50%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                >
-                  ไลน์บอท
-                </button>
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "50%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                >
-                  ติดต่อพนักงาน
-                </button>
-              </div>
-              <div
-                className="flexCenter"
-                style={{
-                  flexDirection: "column",
-                  gap: "10px",
-                  margin: "10px 0",
-                  width: "100%",
-                }}
-              >
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "100%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                  data-bs-toggle="modal"
-                  data-bs-target="#changePasswordModal"
-                >
-                  เปลี่ยนรหัสผ่าน
-                </button>
-                <button
-                  type="button"
-                  className="gradient-border sidebar-button flexCenter"
-                  style={{
-                    width: "100%",
-                    height: "42px",
-                    borderRadius: "10px",
-                    fontSize: "13px",
-                  }}
-                >
-                  ออกจากระบบ
-                </button>
-              </div>
-              <div className='power-by'>
-                <h4>Power by</h4>
-                <img
-                  style={{ width: 200 }}
-                  src="/assets/images/newicon/TTT-03.png"
-                  alt="powerby"
-                />
-              </div>
-            </aside>
-            <div className="sidebar-container-background" />
-          </div>
+          <Sidebar sidebarUseRef={sidebarUseRef} sidebarAnimation={sidebarAnimation} closeSidebar={closeSidebar} setSidebarAnimation={setSidebarAnimation} setSidebarVisible={setSidebarVisible} sidebarVisible={sidebarVisible} />
         ) : (
           ""
         )}
