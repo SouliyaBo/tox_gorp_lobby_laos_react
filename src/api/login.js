@@ -23,11 +23,11 @@ const LoginController = () => {
 
             if (data?.statusCode === 0) {
                 localStorage.setItem(
-                    Constant.LOGIN_TOKEN_DATA,
+                    Constant.TOX_LOBBY_TOKEN,
                     data.data.token,
                 );
                 localStorage.setItem(
-                    Constant.LOGIN_USER_DATA,
+                    Constant.TOX_LOBBY_DATA,
                     JSON.stringify({
                         agent: data?.data?.agent,
                         username: data?.data?.username,

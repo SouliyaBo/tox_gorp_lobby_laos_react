@@ -48,12 +48,12 @@ export const EncriptBase64 = (date) => {
 }
 
 export const DataLocalStorage = () => {
-  const user = JSON.parse(localStorage.getItem(Constant.LOGIN_USER_DATA));
+  const user = JSON.parse(localStorage.getItem(Constant.TOX_LOBBY_DATA));
   return user || undefined;
 };
 
 export const LogoutClearLocalStorage = () => {
-  localStorage.removeItem(Constant.LOGIN_USER_DATA);
+  localStorage.removeItem(Constant.TOX_LOBBY_DATA);
   localStorage.clear();
   window.location.reload();
 };
