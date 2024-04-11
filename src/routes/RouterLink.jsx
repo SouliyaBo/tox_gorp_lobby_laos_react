@@ -27,20 +27,18 @@ function RouterLink() {
       <Router>
         <Switch>
           <PublicRoute exact path={Const.HOME} component={Home} />
-          <PublicRoute exact path={Const.PAGE_LOGIN_CAN_LOGIN_PLAY+"/:token"} component={Home} />
-
+          <PublicRoute exact path={Const.PAGE_LOGIN_CAN_LOGIN_PLAY + "/:token"} component={Home} />
           <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE} component={LoginPageMobile} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP1} component={RegisterStep1} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP2} component={RegisterStep2} />
-          <PublicRoute exact path={Const.AFTER_LOGIN} component={AfterLogin} />
-          <PublicRoute exact path={Const.AFTER_LOGIN_MOBILE} component={AfterLoginMobile} />
-          <PublicRoute exact path={Const.GAME_LIST} component={GameList} />
-          <PublicRoute exact path={Const.GAME_LIST_MOBILE} component={AfterLoginMobileAllGame} />
           <Route
             render={({ location, history }) => (
               <React.Fragment>
                 <>
-                  {/* <PrivateRoute exact path={Const.HOME} component={Home} /> */}
+                  <PrivateRoute exact path={Const.AFTER_LOGIN} component={AfterLogin} />
+                  <PrivateRoute exact path={Const.AFTER_LOGIN_MOBILE} component={AfterLoginMobile} />
+                  <PrivateRoute exact path={Const.GAME_LIST} component={GameList} />
+                  <PrivateRoute exact path={Const.GAME_LIST_MOBILE} component={AfterLoginMobileAllGame} />
                 </>
               </React.Fragment>
             )}

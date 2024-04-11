@@ -1,4 +1,5 @@
 import Constant from "../constant";
+import { dataCradGame } from "./listCardGame";
 var Buffer = require('buffer/').Buffer
 
 
@@ -14,16 +15,17 @@ export const _clickTabDeposit = (tab, setTabs, setTabName) => {
   }
 };
 
-export const FillerCategory = async (value,data,setCategoryGame) => {
-  if (value === "ALL") setCategoryGame(data?.info?.brandList?.ALL)
-  if (value === "CASINO") setCategoryGame(data?.info?.brandList?.CASINO)
-  if (value === "FAVORITE") setCategoryGame(data?.info?.brandList?.FAVORITE)
-  if (value === "FISHING") setCategoryGame(data?.info?.brandList?.FISHING)
-  if (value === "HOTHIT") setCategoryGame(data?.info?.brandList?.HOTHIT)
-  if (value === "LOTTO") setCategoryGame(data?.info?.brandList?.LOTTO)
-  if (value === "SLOT") setCategoryGame(data?.info?.brandList?.SLOT)
-  if (value === "SPORT") setCategoryGame(data?.info?.brandList?.SPORT)
+export const FillerCategory = async (value,setCategoryGame) => {
+  if (value === "ALL") setCategoryGame(dataCradGame?.ALL)
+  if (value === "CASINO") setCategoryGame(dataCradGame?.CASINO)
+  if (value === "FAVORITE") setCategoryGame(dataCradGame?.FAVORITE)
+  if (value === "FISHING") setCategoryGame(dataCradGame?.FISHING)
+  if (value === "HOTHIT") setCategoryGame(dataCradGame?.HOTHIT)
+  if (value === "LOTTO") setCategoryGame(dataCradGame?.LOTTO)
+  if (value === "SLOT") setCategoryGame(dataCradGame?.SLOT)
+  if (value === "SPORT") setCategoryGame(dataCradGame?.SPORT)
 }
+
 
 
 export const EncriptBase64 = (date) => {
