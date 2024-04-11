@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import _LoginController from "../../api/login";
 
 import constant from "../../constant";
@@ -30,6 +31,10 @@ export default function Home() {
 	const [passwordInput, setPasswordInput] = useState();
 	const [messageCreate, setMessageCreate] = useState();
 	const [dataGameList, setDataGameList] = useState(dataCradGame?.SLOT)
+	const [warningPhone, setWarningPhone] = useState("")
+	const [warningPassword, setWarningPassword] = useState("")
+	const [warningFirstName, setWarningFirstName] = useState("")
+	const [warningLastName, setWarningLastName] = useState("")
 
 	// ========> register by code friend <=======
 
@@ -45,12 +50,6 @@ export default function Home() {
 
 	const handleClick = () => {
 		window.location.reload();
-	};
-
-	const toggleSidebar = (event) => {
-		event.stopPropagation();
-		setSidebarVisible(true);
-		setSidebarAnimation(true);
 	};
 
 	const closeSidebar = () => {
@@ -89,7 +88,21 @@ export default function Home() {
 		setGotoStepTwo(false);
 	};
 	const _gotoSet2 = () => {
-		setGotoStepTwo(!false);
+		if (inputPhonenumber === "") {
+			setWarningPhone("กรุณากรอกเบอร์โทร");
+			console.log("กรุณากรอกเบอร์โทร")
+		} else if (inputPassword === "") {
+			setWarningPassword("กรุณาป้อนรหัสผ่าน");
+			console.log("กรุณาป้อนรหัสผ่าน")
+		} else if (inputFirstname === "") {
+			setWarningFirstName("กรุณาป้อนชื่อ")
+			console.log("กรุณาป้อนชื่อ")
+		} else if (inputLastname === "") {
+			setWarningLastName("กรุณาป้อนนามสกุล")
+			console.log("กรุณาป้อนนามสกุล")
+		} else {
+			setGotoStepTwo(!false);
+		}
 	};
 
 	// ===== LoginController =====>
@@ -98,10 +111,10 @@ export default function Home() {
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 	// ===== CreateUser =====>
-	const [inputPhonenumber, setInputPhonenumber] = useState();
-	const [inputPassword, setInputPassword] = useState();
-	const [inputFirstname, setInputFirstname] = useState();
-	const [inputLastname, setInputLastname] = useState();
+	const [inputPhonenumber, setInputPhonenumber] = useState("");
+	const [inputPassword, setInputPassword] = useState("");
+	const [inputFirstname, setInputFirstname] = useState("");
+	const [inputLastname, setInputLastname] = useState("");
 	const [inputBank, setInputBank] = useState();
 
 	const CreateUser = async () => {
@@ -164,6 +177,20 @@ export default function Home() {
 			setDataGameList(dataCradGame?.FISHING);
 		} else { }
 	}
+
+	const handleChange = useCallback((event) => {
+		const re = /^[0-9\b]+$/;
+		if (event.target.value === '' || re.test(event.target.value)) {
+			setInputPhonenumber(event.target.value)
+		}
+	});
+
+	const handleChangeBank = useCallback((event) => {
+		const re = /^[0-9\b]+$/;
+		if (event.target.value === "" || re.test(event.target.value)) {
+			setInputBank(event?.target?.value);
+		}
+	});
 	return (
 		<div>
 			<header className="header">
@@ -241,10 +268,10 @@ export default function Home() {
 			<main className="home">
 				<div className="brand">
 					<div className="slideshow-container">
-						<div class="mySlides fade-slide">
+						<div className="mySlides fade-slide">
 							<div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
 							<div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
-							{SliderData.map((slide, index) => {
+							{SliderData.length > 0 && SliderData?.map((slide, index) => {
 								return (
 									<div
 										className={index === current ? 'slide1 active' : 'slide1'}
@@ -648,7 +675,7 @@ export default function Home() {
 
 				<div id="term-condition" className="flexCenter">
 					<p>Term & Condition</p>
-					<p>Copyright 2022 Casino Alrights Reserved.</p>
+					<p>Copyright 2024 Casino Alrights Reserved.</p>
 				</div>
 
 				{/* <!-- Side Bar --> */}
@@ -677,6 +704,7 @@ export default function Home() {
 								type="number"
 								id="phone"
 								name="phone"
+								maxLength={10}
 								placeholder="เบอร์โทรศัพท์"
 								onChange={(e) => setUserNameInput(e?.target?.value)}
 							/>
@@ -776,15 +804,17 @@ export default function Home() {
 												<img src="/assets/icons/phone.svg" alt="icon" />
 												<label for="phone" />
 												<input
-													type="number"
+													type="text"
 													id="phone"
+													maxLength={10}
 													name="phone"
+													value={inputPhonenumber}
 													placeholder="เบอร์โทรศัพท์"
-													onChange={(e) =>
-														setInputPhonenumber(e?.target?.value)
-													}
+													onChange={(event) => { handleChange(event) }}
 												/>
+
 											</div>
+											<span style={{ color: "red" }}>{inputPhonenumber !== "" ? "" : warningPhone}</span>
 											<div className="phone-input">
 												<img src="/assets/icons/lock-alt.svg" alt="icon" />
 												<label for="phone" />
@@ -796,6 +826,7 @@ export default function Home() {
 													onChange={(e) => setInputPassword(e?.target?.value)}
 												/>
 											</div>
+											<span style={{ color: "red" }}>{inputPassword !== "" ? "" : warningPassword}</span>
 											<div className="phone-input">
 												<img src="/assets/icons/icons8-user-24.png" alt="icon" />
 												<label for="phone" />
@@ -807,6 +838,7 @@ export default function Home() {
 													onChange={(e) => setInputFirstname(e?.target?.value)}
 												/>
 											</div>
+											<span style={{ color: "red" }}>{inputFirstname !== "" ? "" : warningFirstName}</span>
 											<div className="phone-input">
 												<img src="/assets/icons/icons8-user-24.png" alt="icon" />
 												<label for="phone" />
@@ -818,6 +850,7 @@ export default function Home() {
 													onChange={(e) => setInputLastname(e?.target?.value)}
 												/>
 											</div>
+											<span style={{ color: "red" }}>{inputLastname !== "" ? "" : warningLastName}</span>
 											<button
 												type="button"
 												onClick={() => _gotoSet2()}
@@ -1004,7 +1037,7 @@ export default function Home() {
 													}
 												>
 													<option>กรุณาเลือกธนาคารของคุณ</option>
-													{BackList?.map((bank) => (
+													{BackList.length > 0 && BackList?.map((bank) => (
 														<option key={bank?.code} value={bank?.code}>
 															{bank?.bankName}
 														</option>
@@ -1014,11 +1047,12 @@ export default function Home() {
 											<div className="phone-input">
 												<img src="/assets/icons/bank.svg" alt="icon" />
 												<input
-													type="number"
+													type="text"
 													id="number"
 													name="bank"
+													s value={inputBank}
 													placeholder="เลขบัญชีธนาคาร"
-													onChange={(e) => setInputBank(e?.target?.value)}
+													onChange={(event) => handleChangeBank(event)}
 												/>
 											</div>
 											<div style={{ textAlign: "center", padding: 10 }}>
