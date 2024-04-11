@@ -7,20 +7,19 @@ import constant from "../../constant";
 import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
 import Sidebar from "../../component/Sidebar";
-import { _clickTabDeposit } from "../../helper"
+import { _clickTabDeposit, } from "../../helper"
+import { BackList } from "../../constant/bankList";
+import { dataCradGame } from "../../helper/listCardGame"
 export default function Home() {
 
 	const history = useHistory();
 	const UseParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
 	const [current, setCurrent] = useState(0);
+	const [bankCode, setBankCode] = useState(0);
 
 	const { handleLogin, handleRegister, loginWithToken } = _LoginController();
 
-	// const useParams = useParams();
-	const [content, setContent] = useState(
-		Array.from({ length: 18 }, (_, i) => `Item ${i + 1}`),
-	);
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
@@ -30,12 +29,10 @@ export default function Home() {
 	const [userNameInput, setUserNameInput] = useState();
 	const [passwordInput, setPasswordInput] = useState();
 	const [messageCreate, setMessageCreate] = useState();
-	const [showRegisterPopup, setShowRegisterPopup] = useState(false);
+	const [dataGameList, setDataGameList] = useState(dataCradGame?.SLOT)
 
 	// ========> register by code friend <=======
-	useEffect(() => {
-		if (parsed?.ref) setShowRegisterPopup(true);
-	}, [parsed?.ref]);
+
 	// ========> loginWithToken <=======
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
@@ -114,6 +111,7 @@ export default function Home() {
 			inputPhonenumber,
 			inputPassword,
 			inputBank,
+			bankCode,
 			parsed?.ref,
 		);
 		if (_res) setMessageCreate(_res?.statusDesc);
@@ -155,77 +153,17 @@ export default function Home() {
 		return null;
 	}
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useEffect(() => {
-		const cardElements = document.querySelectorAll(".card");
-		const bottomImg = document.querySelector(".bottom");
-		cardElements[0].classList.remove("card")
-		cardElements[0].classList.add("active-card");
-
-		bottomImg.innerHTML = `
-        <img src="/assets/images/Rectangle 382.svg" alt="game icon" />
-        <img src="/assets/images/Rectangle 383.svg" alt="game icon" />
-        <img src="/assets/images/Rectangle 384.svg" alt="game icon" />
-        <img src="/assets/images/Rectangle 385.svg" alt="game icon" />
-      `;
-		const updateBottomImages = (index) => {
-			if (index === 0) {
-				bottomImg.innerHTML = `
-          <img src="/assets/images/Rectangle 382.svg" alt="game icon" />
-          <img src="/assets/images/Rectangle 383.svg" alt="game icon" />
-          <img src="/assets/images/Rectangle 384.svg" alt="game icon" />
-          <img src="/assets/images/Rectangle 385.svg" alt="game icon" />
-        `;
-			} else if (index === 1) {
-				bottomImg.innerHTML = `
-          <img src="/assets/images/Rectangle 382.png" alt="game icon" />
-          <img src="/assets/images/Rectangle 383.png" alt="game icon" />
-          <img src="/assets/images/Rectangle 384.png" alt="game icon" />
-          <img src="/assets/images/Rectangle 385.png" alt="game icon" />
-        `;
-			} else if (index === 2) {
-				bottomImg.innerHTML = `
-          <img src="/assets/images/111.png" alt="game icon" />
-          <img src="/assets/images/Rectangle 384.png" alt="game icon" />
-          <img src="/assets/images/Rectangle 383.png" alt="game icon" />
-          <img src="/assets/images/222.png" alt="game icon" />
-        `;
-			} else if (index === 3) {
-				bottomImg.innerHTML = `
-          <img src="/assets/images/444.png" alt="game icon" />
-          <img src="/assets/images/555.png" alt="game icon" />
-          <img src="/assets/images/666.png" alt="game icon" />
-          <img src="/assets/images/111.png" alt="game icon" />
-        `;
-			}
-			// Add other conditions for other cards if needed
-		};
-
-		const handleClick = (index) => {
-			// biome-ignore lint/complexity/noForEach: <explanation>
-			cardElements.forEach((card) => {
-				card.classList.remove("active-card");
-				card.classList.add("card");
-			});
-			cardElements[index].classList.remove("card");
-			cardElements[index].classList.add("active-card");
-
-			// Update bottom images based on the clicked card
-			updateBottomImages(index);
-		};
-
-		cardElements.forEach((card, index) => {
-			card.addEventListener("click", () => handleClick(index));
-		});
-
-		// Cleanup function
-		return () => {
-			cardElements.forEach((card, index) => {
-				card.removeEventListener("click", () => handleClick(index));
-			});
-		};
-	}, []); //
-
+	const _clickCategoryGame = (value) => {
+		if (value === "SLOT") {
+			setDataGameList(dataCradGame?.SLOT);
+		} else if (value === "CASINO") {
+			setDataGameList(dataCradGame?.CASINO);
+		} else if (value === "SPORT") {
+			setDataGameList(dataCradGame?.SPORT);
+		} else if (value === "FISHING") {
+			setDataGameList(dataCradGame?.FISHING);
+		} else { }
+	}
 	return (
 		<div>
 			<header className="header">
@@ -236,7 +174,7 @@ export default function Home() {
 						className="hamburger"
 						height="37px"
 						width="35px"
-						onClick={(event) => toggleSidebar(event)}
+						// onClick={(event) => toggleSidebar(event)}
 						onKeyDown={() => ""}
 					/>
 					<img
@@ -286,7 +224,7 @@ export default function Home() {
 					>
 						<button
 							type="button"
-							className="font-20 mobile-button button"
+							className="font-20 mobile-button button1"
 							id="loginBtn-mobile"
 						>
 							เข้าสู่ระบบ
@@ -301,26 +239,6 @@ export default function Home() {
 			</header>
 
 			<main className="home">
-				<div className="featured-game-wrapper" id="mobile">
-					<div className="featured-game flexBetween">
-						<img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
-						<p>สล็อต</p>
-					</div>
-					<div className="featured-game flexBetween">
-						<img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
-						<p>คาสิโน</p>
-					</div>
-					<div className="featured-game flexBetween">
-						<img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
-						<p>ยิงปลา</p>
-					</div>
-					<div className="featured-game flexBetween">
-						<img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
-						<p>กีฬา</p>
-					</div>
-
-				</div>
-
 				<div className="brand">
 					<div className="slideshow-container">
 						<div class="mySlides fade-slide">
@@ -344,35 +262,55 @@ export default function Home() {
 
 				<div className="marquee-custome" id="mobile">
 					{/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
-					<marquee className="description">
+					<marquee style={{ marginTop: 12 }} className="description">
 						เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ 100 ล้าน สล็อต
 						บาคาร่า หวย กีฬา มีครบจบที่เดียว
 					</marquee>
 				</div>
+				<div className="featured-game-wrapper" id="mobile">
+
+					<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('SLOT')} onKeyDown={() => ''}>
+						<img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+						<p>สล็อต</p>
+					</div>
+					<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('CASINO')} onKeyDown={() => ''}>
+						<img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
+						<p>คาสิโน</p>
+					</div>
+					<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('FISHING')} onKeyDown={() => ''}>
+						<img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
+						<p>ยิงปลา</p>
+					</div>
+					<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('SPORT')} onKeyDown={() => ''}>
+						<img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
+						<p>กีฬา</p>
+					</div>
+
+				</div>
 				<section className="featured-game-wrapper" id="desktop">
 					<div className="container flexBetween">
-						<div className="featured-game flexBetween">
+						<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('SLOT')} onKeyDown={() => ''}>
 							<img
 								src="/assets/images/newicon/iconnew-01.png"
 								alt="game icon"
 							/>
 							<p>สล็อต</p>
 						</div>
-						<div className="featured-game flexBetween">
+						<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('CASINO')} onKeyDown={() => ''}>
 							<img
 								src="/assets/images/newicon/iconnew-02.png"
 								alt="game icon"
 							/>
 							<p>คาสิโน</p>
 						</div>
-						<div className="featured-game flexBetween">
+						<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('FISHING')} onKeyDown={() => ''}>
 							<img
 								src="/assets/images/newicon/iconnew-03.png"
 								alt="game icon"
 							/>
 							<p>ยิงปลา</p>
 						</div>
-						<div className="featured-game flexBetween">
+						<div className="featured-game flexBetween" onClick={() => _clickCategoryGame('SPORT')} onKeyDown={() => ''}>
 							<img
 								src="/assets/images/newicon/iconnew-05.png"
 								alt="game icon"
@@ -383,201 +321,29 @@ export default function Home() {
 				</section>
 
 				<section className="card-container">
-					<div className="card-wrapper">
-						{content.map((item, index) => (
-							<div className="game-card">
-								<div className="btn-play-game-container">
-									<a href="/game-list">
-										<button className="btn-play-game" type="button">
-											เล่นเลย
-										</button>
-									</a>
-								</div>
-								<img src="/assets/images/jilli_card.svg" alt="card" />
+					<div className="card-wrapper" onClick={handleLoginClick} onKeyDown={() => ''}>
+						{dataGameList.length > 0 && dataGameList?.map((item, index) => (
+							<div key={item?.s_status} className="game-card">
+								<img src={item?.s_lobby_url ?? item?.s_img} alt="card" />
+								{/* {"/assets/images/jilli_card.svg" } */}
 							</div>
 						))}
 					</div>
 				</section>
 
-				<section className="mobile-suggest-game-container">
-					<div className="top flexBetween">
-						<div className="card">
-							<img
-								src="/assets/images/Cardgame/image 105.png"
-								alt="game icon"
-							/>
-							<p>แนะนำบาคาร่า</p>
+				<section className="mobile-suggest-game-container-landing-page">
+					<a href={constant?.PAGE_REGISTER_STEP1}>
+						<div className="top">
+							{dataGameList.length > 0 && dataGameList?.map((item, index) => (
+								<div key={item?.s_status} className="card">
+									<img src={item?.s_lobby_url ?? item?.s_img} alt="card" />
+									{/* {"/assets/images/jilli_card.svg" } */}
+								</div>
+							))}
 						</div>
-						<div className="card">
-							<img src="/assets/images/Cardgame/slot12.png" alt="game icon" />
-							<p>สล็อตมาแรง</p>
-						</div>
-						<div className="card">
-							<img
-								src="/assets/images/Cardgame/ic-nav-menu-hot-game.png"
-								alt="game icon"
-							/>
-							<p>4 เกมสล็อตแตกหนัก</p>
-						</div>
-						<div className="card">
-							<img
-								src="/assets/images/Cardgame/hot-summer-burning.png"
-								alt="game icon"
-							/>
-							<p>เกมฮิต</p>
-						</div>
-					</div>
-					<div className="bottom" />
-				</section>
+					</a>
 
-				<section className="game-section">
-					<div className="title flexBetween">
-						<div className="left flexBetween">
-							<img src="/assets/images/Cardgame/slot12.png" alt="logo" />
-							<h4>
-								สล็อตออนไลน์ <br />
-								รวมทุกค่ายเกม
-							</h4>
-						</div>
-						<div className="right">
-							<button type="button">เพี่มเตีม</button>
-						</div>
-					</div>
-					{/* <img
-          src="/assets/images/Rectangle 392.png"
-          alt="game"
-          className="top-image"
-        /> */}
-					<div className="game-list">
-						<div className="image-column">
-							<button type="button">
-								<img src="/assets/images/Group 205.png" alt="game" />
-							</button>
-						</div>
-						<div>
-							<button type="button">
-								<img src="assets/images/Rectangle 393.png" alt="game" />
-							</button>
-							<button type="button">
-								<img src="assets/images/Rectangle 397.png" alt="game" />
-							</button>
-							<button type="button">
-								<img src="assets/images/Rectangle 398.png" alt="game" />
-							</button>
-						</div>
-						<button type="button">
-							<img src="assets/images/Rectangle 399.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 400.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 401.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 402.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 403.png" alt="game" />
-						</button>
-					</div>
 				</section>
-
-				<section className="game-section">
-					<div className="title flexBetween">
-						<div className="left flexBetween">
-							<img src="/assets/images/Cardgame/image 105.png" alt="logo" />
-							<h4>
-								คาสิโนสด บาคาร่า <br />
-								ออนไลน์
-							</h4>
-						</div>
-						<div className="right">
-							<button type="button">เพี่มเตีม</button>
-						</div>
-					</div>
-					{/* <img src="/assets/images/Rectangle 413.png" alt="game" className="top-image" /> */}
-					<div className="game-list">
-						<div className="image-column">
-							<button type="button">
-								<img src="assets/images/sexy-game.png" alt="game" />
-							</button>
-						</div>
-						<div>
-							<button type="button">
-								<img src="assets/images/Rectangle 404.png" alt="game" />
-							</button>
-							<button type="button">
-								<img src="assets/images/Rectangle 405.png" alt="game" />
-							</button>
-							<button type="button">
-								<img src="assets/images/Rectangle 406.png" alt="game" />
-							</button>
-						</div>
-						<button type="button">
-							<img src="assets/images/Rectangle 407.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 411.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 409.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 410.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 411.png" alt="game" />
-						</button>
-					</div>
-				</section>
-
-				<section className="game-section">
-					<div className="title flexBetween">
-						<div className="left flexBetween">
-							<img src="/assets/images/image 92.png" alt="logo" />
-							<h4>เกมยิงปลา</h4>
-						</div>
-						<div className="right">
-							<button type="button">เพี่มเตีม</button>
-						</div>
-					</div>
-					{/* <img src="/assets/images/Rectangle 423.png" alt="game" className="top-image" /> */}
-					<div className="game-list">
-						<div className="image-column">
-							<button type="button">
-								<img src="assets/images/jili-yingpa.png" alt="game" />
-							</button>
-						</div>
-						<div>
-							<button type="button">
-								<img src="assets/images/Rectangle 414.png" alt="game" />
-							</button>
-							<button type="button">
-								<img src="assets/images/Rectangle 415.png" alt="game" />
-							</button>
-							<button type="button">
-								<img src="assets/images/Rectangle 416.png" alt="game" />
-							</button>
-						</div>
-						<button type="button">
-							<img src="assets/images/Rectangle 417.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 418.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 419.png" alt="game" />
-						</button>
-						<button type="button">
-							<img src="assets/images/Rectangle 421.png" alt="game" />
-						</button>
-						{/* <button>
-          <img src="assets/images/Rectangle 421.png" alt="game" />
-        </button>  */}
-					</div>
-				</section>
-
 				<section className="info-wrapper" id="desktop">
 					<p>TT Casino Club</p>
 					<p style={{ marginBottom: 10 }}>
@@ -769,126 +535,98 @@ export default function Home() {
 							</svg>
 						</button>
 						<div id="item-list" className="item-list">
+
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 10.svg"
+								src="/assets/icons/icon-bank-active/scb2.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 11.svg"
+								src="/assets/icons/icon-bank-active/ktb3.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 12.svg"
+								src="/assets/icons/icon-bank-active/bbl4.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 13.svg"
+								src="/assets/icons/icon-bank-active/bay5.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 14.svg"
+								src="/assets/icons/icon-bank-active/tmb6.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 15.svg"
+								src="/assets/icons/icon-bank-active/gsb8.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 16.svg"
+								src="/assets/icons/icon-bank-active/uob10.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 17.svg"
+								src="/assets/icons/icon-bank-active/kk11.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 18.svg"
+								src="/assets/icons/icon-bank-active/lh12.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 19.svg"
+								src="/assets/icons/icon-bank-active/ibank13.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 20.svg"
+								src="/assets/icons/icon-bank-active/tisco14.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 21.svg"
+								src="/assets/icons/icon-bank-active/ghb16.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 22.svg"
+								src="/assets/icons/icon-bank-active/cimb17.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 23.svg"
+								src="/assets/icons/icon-bank-active/baac18.png"
 								alt=""
 							/>
 							<img
 								id="item"
 								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 24.svg"
+								src="/assets/icons/icon-bank-active/icbc19.png"
 								alt=""
 							/>
-							<img
-								id="item"
-								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 25.svg"
-								alt=""
-							/>
-							<img
-								id="item"
-								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 26.svg"
-								alt=""
-							/>
-							<img
-								id="item"
-								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 27.svg"
-								alt=""
-							/>
-							<img
-								id="item"
-								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 28.svg"
-								alt=""
-							/>
-							<img
-								id="item"
-								className="item"
-								src="/assets/icons/icon-bank-active/Ellipse 29.svg"
-								alt=""
-							/>
+
 						</div>
 						<button
 							type="button"
@@ -906,16 +644,6 @@ export default function Home() {
 							</svg>
 						</button>
 					</div>
-				</div>
-
-				<div id="created-website-by" className="flexCenter">
-					<h3>Created Website By</h3>
-					{/* <img src="/assets/images/newicon/TTT-03.png" alt="powerby" style="
-      width: 67%;
-      height: 57px;
-      position: absolute;
-      margin-top: 105px;
-  " />  */}
 				</div>
 
 				<div id="term-condition" className="flexCenter">
@@ -1031,11 +759,6 @@ export default function Home() {
 												<span className="step-item-box">2</span>
 												<span className="step-item-text">บัญชีธนาคาร</span>
 											</div>
-											{/* <span className="step-line"></span>
-                  <div className="step-item" id="step-item3">
-                    <span className="step-item-box">3</span>
-                    <span className="step-item-text">สำเร็จ</span>
-                  </div>  */}
 										</div>
 
 										{/* <!-- step one --> */}
@@ -1126,18 +849,167 @@ export default function Home() {
 												<h3 className="signup-header">สมัครสมาชิก</h3>
 												<h3 className="signup-title">กรอกเลขที่บัญชี</h3>
 											</div>
+
 											<div
 												className="bank-list-container"
 												id="bank-list-container"
 											>
-												<div style={{ textAlign: "center" }}>
-													<img
+												<div style={{ opacity: bankCode === 2 ? 1 : 0.5 }} className={bankCode === 2 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(2)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/scb2.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 1 ? 1 : 0.5 }} className={bankCode === 1 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(1)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/kbank1.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+
+												<div style={{ opacity: bankCode === 3 ? 1 : 0.5 }} className={bankCode === 3 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(3)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/ktb3.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 4 ? 1 : 0.5 }} className={bankCode === 4 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(4)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/bbl4.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 5 ? 1 : 0.5 }} className={bankCode === 5 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(5)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/bay5.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 6 ? 1 : 0.5 }} className={bankCode === 6 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(6)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/tmb6.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 8 ? 1 : 0.5 }} className={bankCode === 8 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(8)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/gsb8.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 10 ? 1 : 0.5 }} className={bankCode === 10 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(10)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/uob10.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 11 ? 1 : 0.5 }} className={bankCode === 11 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(11)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/kk11.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 12 ? 1 : 0.5 }} className={bankCode === 12 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(12)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/lh12.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 13 ? 1 : 0.5 }} className={bankCode === 13 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(13)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/ibank13.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 14 ? 1 : 0.5 }} className={bankCode === 14 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(14)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/tisco14.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 16 ? 1 : 0.5 }} className={bankCode === 16 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(16)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/ghb16.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 17 ? 1 : 0.5 }} className={bankCode === 17 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(17)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/cimb17.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 18 ? 1 : 0.5 }} className={bankCode === 18 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(18)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/baac18.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 19 ? 1 : 0.5 }} className={bankCode === 19 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(19)} onKeyDown={() => ""}
+														className="bank-item"
+														src="/assets/icons/icon-bank-active/icbc19.png"
+														id="bank1"
+														alt="icon"
+													/>
+												</div>
+												<div style={{ opacity: bankCode === 20 ? 1 : 0.5 }} className={bankCode === 18 ? "active-bank" : ""}>
+													<img onClick={() => setBankCode(20)} onKeyDown={() => ""}
 														className="bank-item"
 														src="/assets/icons/login/bcel.png"
 														id="bank1"
 														alt="icon"
 													/>
 												</div>
+
+											</div>
+											<div className="phone-input">
+												<select
+													style={{ background: "transparent", border: 0, color: '#FFF' }}
+													id="bank"
+													value={bankCode}
+													placeholder="เลขบัญชีธนาคาร"
+													onChange={(event) =>
+														setBankCode(Number.parseInt(event?.target?.value))
+													}
+												>
+													<option>กรุณาเลือกธนาคารของคุณ</option>
+													{BackList?.map((bank) => (
+														<option key={bank?.code} value={bank?.code}>
+															{bank?.bankName}
+														</option>
+													))}
+												</select>
 											</div>
 											<div className="phone-input">
 												<img src="/assets/icons/bank.svg" alt="icon" />
