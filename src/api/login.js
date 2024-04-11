@@ -21,14 +21,27 @@ const LoginController = () => {
                 },
             );
 
-            if (data.statusCode === 0) {
+            if (data?.statusCode === 0) {
                 localStorage.setItem(
                     Constant.LOGIN_TOKEN_DATA,
                     data.data.token,
                 );
                 localStorage.setItem(
                     Constant.LOGIN_USER_DATA,
-                    JSON.stringify(data.data),
+                    JSON.stringify({
+                        agent: data?.data?.agent,
+                        username: data?.data?.username,
+                        balance: data?.data?.balance,
+                        info: {
+                            bankDeposit: data?.data?.info?.bankDeposit,
+                            bankList: data?.data?.info?.bankList,
+                            brandList: data?.data?.info?.brandList,
+                            cashback: data?.data?.info?.cashback,
+                            profile: data?.data?.info?.profile,
+                            promotionList: data?.data?.info?.promotionList,
+                            slide: data?.data?.info?.slide,
+                        }
+                    }),
                 );
                 history.push(Constant.AFTER_LOGIN);
             }

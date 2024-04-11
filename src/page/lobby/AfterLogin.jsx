@@ -2111,9 +2111,9 @@ export default function AfterLogin() {
                             </div>
                             <div className="modal-body">
                                 <div className="bag-modal-content">
-                                    <div className="bag-modal-slide-container">
+                                    {/* <div className="bag-modal-slide-container">
                                         <img src="/assets/images/bag-background.png" alt="" />
-                                    </div>
+                                    </div> */}
 
                                     <div className="bag-modal-menu">
                                         <div
@@ -2179,7 +2179,7 @@ export default function AfterLogin() {
                                             </div>
                                             <p className="bag-modal-menu-title">กรอกโค้ด</p>
                                         </div>
-                                        <div
+                                        {/* <div
                                             className="bag-modal-menu-item"
                                             id="spinner-modal-btn"
                                             data-bs-toggle="modal"
@@ -2194,8 +2194,8 @@ export default function AfterLogin() {
                                                 />
                                             </div>
                                             <p className="bag-modal-menu-title">กงล้อ</p>
-                                        </div>
-                                        <div
+                                        </div> */}
+                                        {/* <div
                                             className="bag-modal-menu-item"
                                             id="credit-modal-btn"
                                             data-bs-toggle="modal"
@@ -2210,7 +2210,7 @@ export default function AfterLogin() {
                                                 />
                                             </div>
                                             <p className="bag-modal-menu-title">เครดิตฟรี</p>
-                                        </div>
+                                        </div> */}
                                         <div
                                             className="bag-modal-menu-item"
                                             data-bs-toggle="modal"
@@ -2226,7 +2226,7 @@ export default function AfterLogin() {
                                             </div>
                                             <p className="bag-modal-menu-title">คืนยอดเสีย</p>
                                         </div>
-                                        <div
+                                        {/* <div
                                             className="bag-modal-menu-item"
                                             id="diamond-modal-btn"
                                             data-bs-toggle="modal"
@@ -2241,8 +2241,8 @@ export default function AfterLogin() {
                                                 />
                                             </div>
                                             <p className="bag-modal-menu-title">แลกเพรช</p>
-                                        </div>
-                                        <div
+                                        </div> */}
+                                        {/* <div
                                             className="bag-modal-menu-item"
                                             id="tournament-modal-btn"
                                             data-bs-toggle="modal"
@@ -2257,8 +2257,8 @@ export default function AfterLogin() {
                                                 />
                                             </div>
                                             <p className="bag-modal-menu-title">ทัวร์นาเมนต์</p>
-                                        </div>
-                                        <div className="bag-modal-menu-item">
+                                        </div> */}
+                                        {/* <div className="bag-modal-menu-item">
                                             <div className="bag-menu-img-container">
                                                 <img
                                                     className="bag-menu-icon"
@@ -2267,7 +2267,7 @@ export default function AfterLogin() {
                                                 />
                                             </div>
                                             <p className="bag-modal-menu-title">Road Map</p>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>
