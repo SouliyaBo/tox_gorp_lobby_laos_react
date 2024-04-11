@@ -1,20 +1,20 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
+import { useHistory } from "react-router-dom";
 import queryString from "query-string";
 
-import { useHistory } from "react-router-dom";
 import Constant from "../../constant";
 export default function RegisterStep1() {
-	const parsed = queryString.parse(history?.location?.search);
-
     const history = useHistory()
+    const parsed = queryString.parse(history?.location?.search);
+
 
     const [inputPhonenumber, setInputPhonenumber] = useState()
-	const [inputPassword, setInputPassword] = useState()
-	const [inputFirstname, setInputFirstname] = useState()
-	const [inputLastname, setInputLastname] = useState()
-	const [inputRef, setInputRef] = useState(parsed?.ref)
+    const [inputPassword, setInputPassword] = useState()
+    const [inputFirstname, setInputFirstname] = useState()
+    const [inputLastname, setInputLastname] = useState()
+    const [inputRef, setInputRef] = useState(parsed?.ref)
     const _clickNextStep = () => {
-        history.push(Constant.PAGE_REGISTER_STEP2,{
+        history.push(Constant.PAGE_REGISTER_STEP2, {
             inputPhonenumber,
             inputPassword,
             inputFirstname,
@@ -34,16 +34,6 @@ export default function RegisterStep1() {
                 </a>
                 <img className="logo" src="/assets/images/newicon/TTcc-01.png" alt="logo" />
 
-                <div className="banner">
-                    <img src="/assets/images/login-banner.png" alt="login-banner" />
-                </div>
-
-                <div className="slide-game ">
-                    <img src="/assets/images/login-game-1.png" alt="game" />
-                    <img src="/assets/images/login-game-2.png" alt="game" />
-                    <img src="/assets/images/login-game-3.png" alt="game" />
-                </div>
-
                 <div className="progress-step-container flexCenter">
                     <div className="progress-step flexCenter">
                         <div className="step-active flexCenter">1</div>
@@ -55,7 +45,7 @@ export default function RegisterStep1() {
                         <small>บัญชีธนาคาร</small>
                     </div>
                 </div>
-                <div className="text-container" style={{textAlign: "center"}}>
+                <div className="text-container" style={{ textAlign: "center" }}>
                     <h3>สมัครสมาชิก</h3>
                 </div>
                 <div className="phone-input">
@@ -68,13 +58,13 @@ export default function RegisterStep1() {
                             type="text"
                             maxlength="13"
                             placeholder="เบอร์โทรศัพท์"
-							onChange={(e) => setInputPhonenumber(e?.target?.value)}
+                            onChange={(e) => setInputPhonenumber(e?.target?.value)}
                         />
                     </div>
                 </div>
                 <div className="phone-input">
                     <div className="input-container flexCenter">
-                        <img src="/assets/icons/phone.svg" alt="phone icon" />
+                        <img src="/assets/icons/lock-alt.svg" alt="phone icon" />
                         <label for="phone" />
                         <input
                             name="password"
@@ -87,8 +77,8 @@ export default function RegisterStep1() {
                 </div>
                 <div className="phone-input">
                     <div className="input-container flexCenter">
-                        <img src="/assets/icons/phone.svg" alt="phone icon" />
-                        <label for="phone" />
+                        <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
+                        <label for="s_firstname" />
                         <input
                             name="s_firstname"
                             id="s_firstname"
@@ -100,8 +90,8 @@ export default function RegisterStep1() {
                 </div>
                 <div className="phone-input">
                     <div className="input-container flexCenter">
-                        <img src="/assets/icons/phone.svg" alt="phone icon" />
-                        <label for="phone" />
+                        <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
+                        <label for="s_lastname" />
                         <input
                             name="s_lastname"
                             id="s_lastname"

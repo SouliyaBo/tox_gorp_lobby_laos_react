@@ -931,14 +931,17 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
   #signUpModal .signup-modal-content .bank-list-container {
     padding: 16px 12px;
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(9, 1fr);
     /* Creates 3 columns of equal size */
     justify-content: center;
-    grid-gap: 11px; }
+    grid-gap: 6px; }
     #signUpModal .signup-modal-content .bank-list-container .bank-item {
-      width: 50px;
-      height: 50px;
-      text-align: center; }
+      width: 45px;
+      height: 45px;
+      opacity: 0.8;
+      text-align: center;
+      cursor: pointer;
+    }
   #signUpModal .signup-modal-content .img-success-container {
     width: 100%;
     text-align: center; }
@@ -1123,6 +1126,39 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
         .home .featured-game-wrapper > * p {
           font-size: 12px;
           font-weight: 600; }
+
+      /* ------- start landing page ------ */
+    .home .mobile-suggest-game-container-landing-page {
+      width: 348px;
+      border-radius: 15px;
+      margin: 10px auto;
+    }
+      .home .mobile-suggest-game-container-landing-page .top {
+        gap: 20px 2px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        justify-content: center;
+        padding: 13px 8px;
+      }
+        .home .mobile-suggest-game-container-landing-page .top .card {
+          width: 100px;
+          height: 120px;
+          background: transparent;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border: 0;
+          }
+          .home .mobile-suggest-game-container-landing-page .top .card img {
+            width: 100px;
+            height: 120px;
+            background-size:contain;
+          }
+    /* ------- end landing page ------ */
+
+
+
+     /* ------- start lobby page ------ */
     .home .mobile-suggest-game-container {
       width: 348px;
       height: 322px;
@@ -1176,7 +1212,10 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
         justify-content: center;
         gap: 10px;
         flex-wrap: wrap; }
-    .home .brand {
+    /* ------- end lobby page ------ */
+
+
+        .home .brand {
       height: 130px; }
     .home .featured-game-wrapper#desktop {
       display: none; }
@@ -1368,6 +1407,16 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       border: none;
       margin-bottom: 10px;
       cursor: pointer; }
+
+     .register-page .banking-list {
+      display: flex;
+      justify-content: flex-start;
+      align-items: start;
+     }
+     .register-page .banking-list img{
+      width: 34px;
+      height: 34px;
+     }
   .login-page h1 {
     color: #fff;
     font-size: 25px;
@@ -1833,9 +1882,15 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
         width: 25px;
         height: 25px; }
   .history-modal-content {
-    padding-top: 20px; } }
+    padding-top: 20px; }
+
+
+
+  }
+
 
 @media only screen and (min-width: 481px) {
+
   .slideshow-container {
   position: relative;
   margin: auto;
@@ -1892,6 +1947,8 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
   .featured-game-wrapper#mobile {
     display: none; }
   .mobile-suggest-game-container {
+    display: none; }
+ .mobile-suggest-game-container-landing-page {
     display: none; }
   .game-section {
     display: none; }
@@ -5054,4 +5111,12 @@ button {
   transform: scale(1.08);
 }
 
+.bank-list-register {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+}
 
+.active-bank {
+  border: 2px solid #ffc757;
+  border-radius: 8px;
+}

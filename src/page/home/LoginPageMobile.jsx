@@ -1,20 +1,19 @@
-import React, { useState } from 'react'
-import constant from "../../constant"
-import _LoginController from "../../api/login"
+import React, { useState } from "react";
+import constant from "../../constant";
+import _LoginController from "../../api/login";
 
 export default function LoginPageMobile() {
-
     const [userNameInput, setUserNameInput] = useState();
     const [passwordInput, setPasswordInput] = useState();
-    const [messageCreate, setMessageCreate] = useState()
+    const [messageCreate, setMessageCreate] = useState();
 
-    const { handleLogin } = _LoginController()
+    const { handleLogin } = _LoginController();
 
     // ===== LoginController =====>
     const _Login = async () => {
-        let _res = await handleLogin(userNameInput, passwordInput);
-        if (_res) setMessageCreate(_res?.statusDesc)
-    }
+        const _res = await handleLogin(userNameInput, passwordInput);
+        if (_res) setMessageCreate(_res?.statusDesc);
+    };
 
     return (
         <div>
@@ -32,16 +31,6 @@ export default function LoginPageMobile() {
                     alt="banner"
                 />
 
-                <div className="banner">
-                    <img src="/assets/images/login-banner.png" alt="login-banner" />
-                </div>
-
-                <div className="slide-game ">
-                    <img src="/assets/images/login-game-1.png" alt="game" />
-                    <img src="/assets/images/login-game-2.png" alt="game" />
-                    <img src="/assets/images/login-game-3.png" alt="game" />
-                </div>
-
                 <h1>เข้าสู่ระบบ</h1>
 
                 <div className="phone-input">
@@ -56,7 +45,6 @@ export default function LoginPageMobile() {
                             maxlength="9"
                             placeholder="เบอร์โทรศัพท์"
                             onChange={(e) => setUserNameInput(e?.target?.value)}
-
                         />
                     </div>
                 </div>
@@ -81,17 +69,24 @@ export default function LoginPageMobile() {
                 <div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
                 <div className="button-container flexCenter">
                     {/* <a href={constant?.AFTER_LOGIN_MOBILE}>  */}
-                    <button type='button' style={{ cursor: 'pointer' }} id="loginBtn"
+                    <button
+                        type="button"
+                        style={{ cursor: "pointer" }}
+                        id="loginBtn"
                         onClick={() => _Login()}
-                    >เข้าสู่ระบบ</button>
+                    >
+                        เข้าสู่ระบบ
+                    </button>
                     {/* </a> */}
                     {/* <a href={constant?.PAGE_REGISTER_STEP1}>  */}
-                    <button type='button' style={{ cursor: 'pointer' }} id="signupBtn">สมัครสมาชิก</button>
+                    <button type="button" style={{ cursor: "pointer" }} id="signupBtn">
+                        สมัครสมาชิก
+                    </button>
                     {/* </a> */}
                 </div>
 
                 <a href="/">พบปัญหาติดต่อเรา</a>
             </main>
         </div>
-    )
+    );
 }
