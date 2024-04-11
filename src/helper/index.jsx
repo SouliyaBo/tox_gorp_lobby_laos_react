@@ -47,6 +47,10 @@ export const EncriptBase64 = (date) => {
 
 }
 
+export const DataLoginInRout = (data) => {
+  const user = data
+  return user || undefined;
+};
 export const DataLocalStorage = () => {
   const user = JSON.parse(localStorage.getItem(Constant.LOGIN_USER_DATA));
   return user || undefined;

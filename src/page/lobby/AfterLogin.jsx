@@ -2,14 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { useHistory } from "react-router-dom";
 
 import 'react-slideshow-image/dist/styles.css'
 import 'react-slideshow-image/dist/styles.css'
-import { DataLocalStorage, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
+import { DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 
 export default function AfterLogin() {
+
+    const history = useHistory();
 
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -123,12 +126,10 @@ export default function AfterLogin() {
     const [categoryGame, setCategoryGame] = useState([])
     const [deviceType, setDeviceType] = useState(false);
     const [dataGameType, setDataGameType] = useState("FAVORITE"); // FAVORITE || HOTHIT
-
-
     const [dataUser, setDataUser] = useState()
 
     useEffect(() => {
-        let _data = DataLocalStorage()
+        let _data = DataLoginInRout(history?.location?.state)
         if (_data) {
             setdataFromLogin(_data)
         }
@@ -241,7 +242,7 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.url) {
-                window.open(_res?.data?.url, _res?.data?.url);
+                window.open(_res?.data?.url, '_blank');
             }
             if (_res?.data) {
                 OpenNewTabWithHTML(_res?.data?.res_html);
