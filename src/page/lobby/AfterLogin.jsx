@@ -128,10 +128,10 @@ export default function AfterLogin() {
         let _data = DataLocalStorage()
         if (_data) {
             setdataFromLogin(_data)
-            setCategoryGame(dataFromLogin?.info?.brandList?.FAVORITE)
         }
     }, [])
     useEffect(() => {
+        _clickCategoryGame("FAVORITE")
         _getData()
     }, [dataFromLogin])
 
@@ -149,10 +149,20 @@ export default function AfterLogin() {
         }
     }
 
-    const _clickCategoryGame = (value) => {
+    const _clickCategoryGame = async (value) => {
+        setdataGameList([])
         if (value === "FAVORITE") {
-            setCategoryGame(dataFromLogin?.info?.brandList?.FAVORITE)
-            return
+            let _getData = await axios({
+                method: 'post',
+                url: Constant.SERVER_URL + '/Game/Brand/List',
+                data: {
+                    "s_agent_code": dataFromLogin?.agent,
+                    "s_username": dataFromLogin?.username,
+                },
+            });
+            if (_getData?.data?.statusCode === 0) {
+                setCategoryGame(_getData?.data?.data?.FAVORITE)
+            }
         } else {
             setdataGameList()
             FillerCategory(value, setCategoryGame)
@@ -260,6 +270,7 @@ export default function AfterLogin() {
     }
 
 
+    console.log("🚀 ~ AfterLogin ~ dataGameList:", dataGameList)
 
     return (
         <div>
@@ -312,7 +323,6 @@ export default function AfterLogin() {
                     </div>
                 </div>
                 <div className="marquee-custome">
-                    {/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
                     <marquee className="description">
                         เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
                         100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
@@ -354,7 +364,7 @@ export default function AfterLogin() {
                                 key={game?.s_img}
                                 className="game-card"
                             >
-                                <div style={{ position: "absolute", top: "0", left: "0", zIndex: 2, backgroundColor: "red" }} onClick={() => _addFavorite(game)}>
+                                <div style={{ position: "absolute", top: "0", left: "0", zIndex: 1, backgroundColor: "red" }} onClick={() => _addFavorite(game)}>
                                     AAAA
                                 </div>
                                 <img
@@ -381,19 +391,8 @@ export default function AfterLogin() {
 
                     </div>
                 </section>
-
-
-                <section className="hero-text flexCenter">
-                    <h4>Casino คาสิโนออนไลน์ ที่ดีที่สุด</h4>
-                    <p>เพื่อประสบการณ์ที่ดีทของผู้เล่นอย่างแท้จริง</p>
-                </section>
-
-                <h3 style={{ margin: "20px auto", textAlign: "center", color: "white" }}>
-                    PARTNERSHIPS
-                </h3>
-
                 <div className="partnership-container">
-                    <div>
+                    {/* <div>
                         <img alt="partnership" src="/assets/images/logo3-2-3 1 (1).png" />
                     </div>
                     <div>
@@ -498,27 +497,26 @@ export default function AfterLogin() {
                     </div>
                     <div>
                         <img alt="partnership" src="/assets/images/Rectangle (29).png" />
-                    </div>
+                    </div> */}
                 </div>
 
-                <h3 style={{ margin: "20px auto", textAlign: "center", color: "white" }}>
+                {/* <h3 style={{ margin: "20px auto", textAlign: "center", color: "white" }}>
                     PAYMENT ACCEPTED
-                </h3>
+                </h3> */}
 
-                <div className="bank-container">
+                {/* <div className="bank-container">
                     <div className="draggable flexCenter">
-                        {/* <!-- All bank icon here --> */}
                     </div>
-                </div>
+                </div> */}
 
-                <div id="created-website-by" className="flexCenter">
+                {/* <div id="created-website-by" className="flexCenter">
                     <h3>Created Website By</h3>
-                </div>
+                </div> */}
 
-                <div id="term-condition" className="flexCenter">
+                {/* <div id="term-condition" className="flexCenter">
                     <p>Term & Condition</p>
                     <p>Copyright 2022 Casino Alrights Reserved.</p>
-                </div>
+                </div> */}
 
                 {/* <!-- Section End --> */}
 
@@ -3395,7 +3393,7 @@ export default function AfterLogin() {
 
             {/* <!-- Modal --> */}
 
-            <footer className="footer">
+            <footer className="footer" style={{zIndex:5}}>
                 <div className="menu-wrapper">
                     <div className="footer-item flexCenter">
                         <img src="/assets/icons/home.svg" alt="login" />
