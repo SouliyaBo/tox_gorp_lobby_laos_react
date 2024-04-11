@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 import 'react-slideshow-image/dist/styles.css'
-import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
-import { DataLocalStorage, FillerCategory, OpenNewTabWithHTML } from "../../helper";
+import { DataLocalStorage, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
 import Constant from "../../constant";
-import { GamgeList } from "../../api/game";
+import _LoginController from "../../api/login";
 
 export default function AfterLogin() {
 
@@ -17,6 +18,7 @@ export default function AfterLogin() {
     const [tabName, setTabName] = useState("tab-deposit");
     const [slideIndex, setSlideIndex] = useState(1);
     const [reMessage, setReMessage] = useState("");
+	const { ChangePassword } = _LoginController();
 
 
 
@@ -120,6 +122,7 @@ export default function AfterLogin() {
     const [dataGameList, setdataGameList] = useState()
     const [categoryGame, setCategoryGame] = useState([])
     const [deviceType, setDeviceType] = useState(false);
+    const [dataGameType, setDataGameType] = useState("FAVORITE"); // FAVORITE || HOTHIT
 
 
     const [dataUser, setDataUser] = useState()
@@ -150,6 +153,7 @@ export default function AfterLogin() {
     }
 
     const _clickCategoryGame = async (value) => {
+        setDataGameType(value)
         setdataGameList([])
         if (value === "FAVORITE") {
             let _getData = await axios({
@@ -169,6 +173,7 @@ export default function AfterLogin() {
         }
     }
     const _clickFavarite = async (value) => {
+        setDataGameType("FAVORITE")
         setdataGameList([])
         let _getData = await axios({
             method: 'post',
@@ -194,11 +199,14 @@ export default function AfterLogin() {
             },
         });
         if (_getData?.data?.statusCode === 0) {
-            _getDataGame(value)
+            if (dataGameType === "FAVORITE" || dataGameType === "HOTHIT") {
+                _clickCategoryGame(dataGameType)
+            } else {
+                _getDataGame(value)
+            }
         }
     }
     const _getDataGame = async (value) => {
-        console.log("🚀 ~ const_getDataGame= ~ value:", value)
         if (value?.s_type === "CASINO" || value?.s_type === "SPORT") {
             _getDataGamePlayGame(value)
             return
@@ -268,9 +276,47 @@ export default function AfterLogin() {
 
         }
     }
+    //  =================> ChangePassword <=================
+    const [oldPassword, setOldPassword] = useState("")
+    const [NewPassword, setNewPassword] = useState("")
+    const [NewPasswordVery, setNewPasswordVery] = useState("")
+    const _ChangePassword = async () => {
+        try {
+            if (NewPassword !== NewPasswordVery) {
+                setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน")
+                return
+            }
+            const _data =await ChangePassword(NewPassword, oldPassword)
+            if (_data?.data) {
+                setReMessage(_data?.data?.statusDesc)
+                if(_data?.data.statusCode === 0){
+                    LogoutClearLocalStorage()
+                }
+            }
+        } catch (error) {
+            console.error("Error playing the game:", error);
+        }
+    }
+    const _copyLinkAffiliate = (link) => {
+        navigator.clipboard.writeText(link)
+    }
 
-
-    console.log("🚀 ~ AfterLogin ~ dataGameList:", dataGameList)
+    const [codeCupon, setCodeCupon] = useState("")
+    const _addCupon = async () => {
+        try {
+            const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
+                "s_agent_code": Constant?.AGEN_CODE,
+                "s_username": dataFromLogin?.username,
+                "s_code": codeCupon,
+                "actionBy": "ADM"
+            })
+            if (_data?.data) {
+                setReMessage(_data?.data?.statusDesc)
+            }
+        } catch (error) {
+            console.error("Error playing the game:", error);
+        }
+    }
 
     return (
         <div>
@@ -364,8 +410,18 @@ export default function AfterLogin() {
                                 key={game?.s_img}
                                 className="game-card"
                             >
-                                <div style={{ position: "absolute", top: "0", left: "0", zIndex: 1, backgroundColor: "red" }} onClick={() => _addFavorite(game)}>
-                                    AAAA
+                                <div style={{
+                                    position: "absolute",
+                                    top: "0", left: "0",
+                                    zIndex: 1,
+                                    backgroundColor: "#A4A4A4", //"#A4A4A4"
+                                    padding: 8,
+                                    borderRadius: "50%",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    display: "flex",
+                                }} onClick={() => _addFavorite(game)}>
+                                    <FontAwesomeIcon icon={faHeart} style={{ color: '#FFF', fontSize: 25 }} />
                                 </div>
                                 <img
                                     src={game?.s_img ?? "/assets/images/jilli_card.svg"}
@@ -378,149 +434,33 @@ export default function AfterLogin() {
                                 <div
                                     key={item?.s_img}
                                     className="game-card"
-                                    onClick={() => _getDataGame(item)}
                                 >
+                                    {dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? <div style={{
+                                        position: "absolute",
+                                        top: "0", left: "0",
+                                        zIndex: 1,
+                                        backgroundColor: "#FE2147", //"#A4A4A4"
+                                        padding: 8,
+                                        borderRadius: "50%",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        display: "flex",
+                                    }} onClick={() => _addFavorite(item)}>
+                                        <FontAwesomeIcon icon={faHeart} style={{ color: '#FFF', fontSize: 25 }} />
+                                    </div> : null}
                                     <img
                                         src={item?.s_img ?? item?.s_lobby_url}
                                         id="game-card"
                                         className="game-image"
                                         alt="game"
+                                        onClick={() => dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? _getDataGamePlayGame(item) : _getDataGame(item)}
                                     />
                                 </div>
                             ))}
 
                     </div>
                 </section>
-                <div className="partnership-container">
-                    {/* <div>
-                        <img alt="partnership" src="/assets/images/logo3-2-3 1 (1).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/jili 1.png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/slotxo 1.png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/funkygame 1.png" />
-                    </div>
-
-                    <div>
-                        <img alt="partnership" src="/assets/images/booongo 1.png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/evoplay 1.png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle.png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (1).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (2).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (3).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (4).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/logo-part.png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (6).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (7).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (8).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (9).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (11).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (12).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (13).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (14).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (15).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (16).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (17).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (18).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (19).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (20).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (21).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (22).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (23).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (24).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (25).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (26).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (27).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (28).png" />
-                    </div>
-                    <div>
-                        <img alt="partnership" src="/assets/images/Rectangle (29).png" />
-                    </div> */}
-                </div>
-
-                {/* <h3 style={{ margin: "20px auto", textAlign: "center", color: "white" }}>
-                    PAYMENT ACCEPTED
-                </h3> */}
-
-                {/* <div className="bank-container">
-                    <div className="draggable flexCenter">
-                    </div>
-                </div> */}
-
-                {/* <div id="created-website-by" className="flexCenter">
-                    <h3>Created Website By</h3>
-                </div> */}
-
-                {/* <div id="term-condition" className="flexCenter">
-                    <p>Term & Condition</p>
-                    <p>Copyright 2022 Casino Alrights Reserved.</p>
-                </div> */}
-
-                {/* <!-- Section End --> */}
-
-                {/* <!-- Side Bar --> */}
+                <div className="partnership-container"></div>
                 {sidebarVisible ? (
                     <div className="sidebar-container" ref={sidebarUseRef}>
                         <aside className="sidebar"
@@ -538,15 +478,15 @@ export default function AfterLogin() {
                             <img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
                             <div className="flexBetween font-14">
                                 <p>Username:</p>
-                                <p>ST1561651</p>
+                                <p>{dataFromLogin?.username}</p>
                             </div>
                             <div className="flexBetween font-14">
                                 <p>Phone :</p>
-                                <p>095-222-9999</p>
+                                <p>{dataFromLogin?.info?.s_phone}</p>
                             </div>
                             <div className="balance">
                                 <small>ยอดเงินคงเหลือ</small>
-                                <p>1,000.00</p>
+                                <p>{dataFromLogin?.balance?.amount}</p>
                             </div>
 
                             <div className="flexBetween" style={{ gap: 13 }}>
@@ -620,11 +560,12 @@ export default function AfterLogin() {
                                 type='button'
                                 className="gradient-border sidebar-button flexCenter"
                                 style={{ width: "100%", marginBottom: 16 }}
+                                onClick={() => LogoutClearLocalStorage()}
                             >
                                 ออกจากระบบ
                             </button>
 
-                            <div className="download-container">
+                            {/* <div className="download-container">
                                 <h3>ดาวน์โหลดแอปเลย !</h3>
                                 <div className="flexBetween" style={{ gap: 6 }}>
                                     <img
@@ -638,7 +579,7 @@ export default function AfterLogin() {
                                         style={{ height: 32, cursor: "pointer" }}
                                     />
                                 </div>
-                            </div>
+                            </div> */}
 
                             <h4>Power by</h4>
                             <img src="/assets/images/newicon/TTT-03.png" alt="powerby" />
@@ -709,91 +650,34 @@ export default function AfterLogin() {
                                 <div className="modal-body">
                                     <div className="change-profile-modal-content">
                                         <div className="detail-card-kbank">
-                                            <div className="card-kbank">
-                                                <div className="font-17">
-                                                    <p>ธนาคารกสิกรไทย</p>
-                                                    <div
-                                                        style={{ display: "flex", justifyContent: "space-between" }}
-                                                    >
-                                                        <div style={{ marginRight: 10 }}>KBank</div>
-                                                        <img
-                                                            src="/assets/icons/logo-kbank.svg"
-                                                            alt="logo"
-                                                            style={{ marginRop: -10 }}
-                                                        />
+                                            {dataFromLogin?.info?.bankList?.map((item, index) => (
+                                                <div className="card-kbank">
+                                                    <div className="font-17">
+                                                        <p>{item?.s_account_name}</p>
+                                                        <div
+                                                            style={{ display: "flex", justifyContent: "space-between" }}
+                                                        >
+                                                            <div style={{ marginRight: 10 }}>{item?.s_icon.split(".")[0]}</div>
+                                                            <img
+                                                                src={`/assets/images/bank/` + item?.s_icon}
+                                                                alt="logo"
+                                                                style={{ marginRop: -10 }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="font-17">
+                                                        <p>{item?.s_account_no}</p>
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-17">นาย xxxxx xxxxx</p>
-                                                    <p style={{ marginTop: 13, fontSize: 14 }}>
-                                                        ยอดคงเหลือในระบบ
-                                                    </p>
-                                                </div>
-                                                <div className="font-17">
-                                                    <p>026-999999-9</p>
-                                                    <p>1000.00 บาท</p>
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        marginBottom: 25,
-                                                        display:
-                                                            "flex",
-                                                        justifyContent:
-                                                            "end",
-                                                    }}
-                                                >
-                                                    <img src="/assets/icons/visa.svg" alt="visa" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="slide-image">
-                                            <div className="active" />
-                                            <div className="none-active" />
-                                        </div>
-                                        <div className="custom-btn">
-                                            <button type='button' className="setting">ตั้งเป็นบัญชีหลัก</button>
-                                            <button type='button' className="add-account">เพิ่มบัญชี</button>
-                                        </div>
-                                        <div className="change-password-hr">
-                                            <div className="hr" />
+                                            ))}
                                         </div>
                                         <div className="user">
                                             <p className="username">Username</p>
-                                            <p className="result">st1745562156</p>
+                                            <p className="result">{dataFromLogin?.info?.profile?.s_username}</p>
                                         </div>
                                         <div className="password">
                                             <p className="pass">Password</p>
                                             <p className="result">************</p>
-                                        </div>
-                                        <div className="change-password">
-                                            <div>
-                                                {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    width="51"
-                                                    height="51"
-                                                    viewBox="0 0 51 51"
-                                                    fill="none"
-                                                >
-                                                    <path
-                                                        d="M25.033 21.7165C24.4104 21.0943 23.4014 21.0945 22.779 21.7171C22.1568 22.3397 22.157 23.3487 22.7796 23.9711L24.309 25.4996L22.7794 27.0294C22.157 27.6518 22.157 28.6607 22.7794 29.2832C23.4018 29.9056 24.4108 29.9056 25.0332 29.2832L26.5634 27.7529L28.0921 29.281C28.7148 29.9032 29.7237 29.903 30.3461 29.2804C30.9683 28.658 30.9681 27.6488 30.3455 27.0266L28.8174 25.4992L30.3457 23.9707C30.9681 23.3482 30.9681 22.3393 30.3457 21.7169C29.7233 21.0944 28.7143 21.0944 28.0919 21.7169L26.563 23.2458L25.033 21.7165Z"
-                                                        fill="white"
-                                                    />
-                                                    <path
-                                                        d="M11.0915 21.7171C11.7138 21.0945 12.7229 21.0943 13.3454 21.7165L14.8754 23.2458L16.4043 21.7169C17.0267 21.0944 18.0358 21.0944 18.6582 21.7169C19.2806 22.3393 19.2806 23.3482 18.6582 23.9707L17.1298 25.4992L18.6579 27.0266C19.2805 27.6488 19.2807 28.658 18.6585 29.2804C18.0362 29.903 17.0271 29.9032 16.4046 29.281L14.8759 27.7529L13.3457 29.2832C12.7233 29.9056 11.7142 29.9056 11.0918 29.2832C10.4694 28.6607 10.4694 27.6518 11.0918 27.0294L12.6215 25.4996L11.0921 23.9711C10.4695 23.3487 10.4693 22.3397 11.0915 21.7171Z"
-                                                        fill="white"
-                                                    />
-                                                    <path
-                                                        d="M35.0625 28.6875C34.1823 28.6875 33.4688 29.4011 33.4688 30.2812C33.4688 31.1614 34.1823 31.875 35.0625 31.875H38.7812C39.6614 31.875 40.375 31.1614 40.375 30.2812C40.375 29.4011 39.6614 28.6875 38.7812 28.6875H35.0625Z"
-                                                        fill="white"
-                                                    />
-                                                    <path
-                                                        d="M11.1546 10.625C7.33975 10.625 4.25 13.7177 4.25 17.5312V33.4688C4.25 37.2829 7.34202 40.375 11.1562 40.375H39.8438C43.6579 40.375 46.75 37.2829 46.75 33.4688V17.5312C46.75 13.7177 43.6602 10.625 39.8454 10.625H11.1546ZM7.4375 17.5312C7.4375 15.4768 9.10144 13.8125 11.1546 13.8125H39.8454C41.8986 13.8125 43.5625 15.4768 43.5625 17.5312V33.4688C43.5625 35.5226 41.8976 37.1875 39.8438 37.1875H11.1562C9.10244 37.1875 7.4375 35.5226 7.4375 33.4688V17.5312Z"
-                                                        fill="white"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <p>เปลี่ยนรหัสผ่าน</p>
                                         </div>
                                     </div>
                                 </div>
@@ -821,7 +705,8 @@ export default function AfterLogin() {
                                             className="modal-icon-back"
                                             alt=""
                                             data-bs-toggle="modal"
-                                            data-bs-target="#bagModal"
+                                            data-bs-target="#cashbackDetail"
+                                            data-bs-dismiss="modal"
                                         />
                                         <p className="modal-title">Cashback</p>
                                         <img
@@ -923,7 +808,7 @@ export default function AfterLogin() {
                                             className="modal-icon-back"
                                             alt=""
                                             data-bs-toggle="modal"
-                                            data-bs-target="#cashback"
+                                            data-bs-target="#bagModal"
                                             data-bs-dismiss="modal"
                                         />
                                         <p className="modal-title">Cashback</p>
@@ -1501,7 +1386,7 @@ export default function AfterLogin() {
                                             </div>
                                             <div className="right flexCenter">
                                                 <div className="flexCenter bank">
-                                                    <h4>KBank</h4>
+                                                    <div>{item?.s_icon.split(".")[0]}</div>
                                                     <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
                                                         <img src={"/assets/images/bank/" + item?.s_icon} alt="kbank" />
                                                     </div>
@@ -2214,7 +2099,7 @@ export default function AfterLogin() {
                                         <div
                                             className="bag-modal-menu-item"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#cashback"
+                                            data-bs-target="#cashbackDetail"
                                             data-bs-dismiss="modal"
                                         >
                                             <div className="bag-menu-img-container">
@@ -2400,9 +2285,11 @@ export default function AfterLogin() {
                                         type="text"
                                         placeholder="กรุณากรอกโค้ด"
                                         className="input-box"
+                                        onChange={(e) => setCodeCupon(e.target.value)}
                                     />
+                                    <div style={{ color: 'red' , textAlign: 'center'}}>{reMessage}</div>
 
-                                    <button type="button" className="button-warning">ยืนยัน</button>
+                                    <button type="button" className="button-warning" onClick={() => _addCupon()}>ยืนยัน</button>
                                 </div>
                             </div>
                         </div>
@@ -2923,7 +2810,7 @@ export default function AfterLogin() {
                             </div>
                             <div className="modal-body">
                                 <div className="earn-modal-content">
-                                    <div className="earn-qr-container">
+                                    {/* <div className="earn-qr-container">
                                         <div className="border-input-gold">
                                             <div className="earn-qr-content">
                                                 <img
@@ -2933,7 +2820,7 @@ export default function AfterLogin() {
                                                 />
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
 
                                     <div className="border-input-gold">
                                         <div className="link-shared">
@@ -2941,20 +2828,19 @@ export default function AfterLogin() {
                                             <p className="link-shared-subtitle">
                                                 คุณจะได้รับรายได้ฟรีจากการแนะนำเพื่อน
                                             </p>
-                                            <input type="text" className="link-shared-input" />
+                                            <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl}/>
 
                                             <div className="link-shared-btn-group">
                                                 <div className="border-input-gold border-btn">
-                                                    <button type="button" className="btn-copy-link">
+                                                    <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}>
                                                         คัดลอกลิ้งค์
                                                     </button>
                                                 </div>
-                                                <button type="button" className="btn-share-link">แชร์</button>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="earn-menu-content">
+                                    {/* <div className="earn-menu-content">
                                         <div className="border-input-gold">
                                             <div
                                                 className="earn-menu-item"
@@ -3021,14 +2907,14 @@ export default function AfterLogin() {
                                                 <p className="earn-menu-item-subtitle">ดูรายละเอียด</p>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
 
-                                    <div className="read-earn-rule">
+                                    {/* <div className="read-earn-rule">
                                         หากมีข้อสงสัยเพิ่มเติม
                                         <a href="https://www.google.com/" target="_blank" rel="noreferrer"
                                         >อ่านกฏกติกา</a
                                         >
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -3363,6 +3249,7 @@ export default function AfterLogin() {
                                             type="text"
                                             placeholder="กรุณากรอกรหัสผ่านเดิม"
                                             className="input-for-border-gold"
+                                            onChange={(e) => setOldPassword(e.target.value)}
                                         />
                                     </div>
                                     <div className="change-password-hr">
@@ -3373,6 +3260,7 @@ export default function AfterLogin() {
                                             type="text"
                                             placeholder="กรุณากรอกรหัสผ่านใหม่"
                                             className="input-for-border-gold"
+                                            onChange={(e) => setNewPassword(e.target.value)}
                                         />
                                     </div>
                                     <div className="border-input-gold">
@@ -3380,10 +3268,11 @@ export default function AfterLogin() {
                                             type="text"
                                             placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง"
                                             className="input-for-border-gold"
+                                            onChange={(e) => setNewPasswordVery(e.target.value)}
                                         />
                                     </div>
-
-                                    <button type="button" className="button-warning">ยืนยัน</button>
+                                    <div style={{ textAlign: 'center',color: 'red' }}>{reMessage}</div>
+                                    <button type="button" className="button-warning" onClick={() => _ChangePassword()}>ยืนยัน</button>
                                 </div>
                             </div>
                         </div>
@@ -3393,7 +3282,7 @@ export default function AfterLogin() {
 
             {/* <!-- Modal --> */}
 
-            <footer className="footer" style={{zIndex:5}}>
+            <footer className="footer" style={{ zIndex: 5 }}>
                 <div className="menu-wrapper">
                     <div className="footer-item flexCenter">
                         <img src="/assets/icons/home.svg" alt="login" />
@@ -3425,9 +3314,13 @@ export default function AfterLogin() {
                         <p className="font-20">กระเป๋า</p>
                     </div>
                     <div className="footer-item flexCenter">
+						<img src="/assets/images/contact-admin.svg" alt="login" />
+						<p className="font-20">ติดต่อ</p>
+					</div>
+                    {/* <div className="footer-item flexCenter">
                         <img src="/assets/icons/gain-money.svg" alt="login" />
                         <p className="font-20">รับทรัพย์</p>
-                    </div>
+                    </div> */}
                 </div>
             </footer>
         </div>

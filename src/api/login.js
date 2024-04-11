@@ -2,6 +2,8 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import Constant from "../constant";
 import { EncriptBase64 } from "../helper";
+import { DataLocalStorage,TokenLocalStorage } from "../helper";
+
 
 
 
@@ -40,6 +42,7 @@ const LoginController = () => {
                             profile: data?.data?.info?.profile,
                             promotionList: data?.data?.info?.promotionList,
                             slide: data?.data?.info?.slide,
+                            shorturl: data?.data?.info?.shorturl,
                         }
                     }),
                 );
@@ -131,8 +134,28 @@ const LoginController = () => {
                 },
             });
             if (_res?.data.statusCode === 0) {
-                localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token)
-                localStorage.setItem(Constant.LOGIN_USER_DATA, JSON.stringify(_res?.data?.data))
+                localStorage.setItem(
+                    Constant.LOGIN_TOKEN_DATA,
+                    _res.data.token,
+                );
+                localStorage.setItem(
+                    Constant.LOGIN_USER_DATA,
+                    JSON.stringify({
+                        agent: _res?.data?.agent,
+                        username: _res?.data?.username,
+                        balance: _res?.data?.balance,
+                        info: {
+                            bankDeposit: _res?.data?.info?.bankDeposit,
+                            bankList: _res?.data?.info?.bankList,
+                            brandList: _res?.data?.info?.brandList,
+                            cashback: _res?.data?.info?.cashback,
+                            profile: _res?.data?.info?.profile,
+                            promotionList: _res?.data?.info?.promotionList,
+                            slide: _res?.data?.info?.slide,
+                            shorturl: _res?.data?.info?.shorturl,
+                        }
+                    }),
+                );
                 history.push(Constant.AFTER_LOGIN)
                 return null
             }
@@ -142,6 +165,29 @@ const LoginController = () => {
         }
     }
 
+    // ==================> ChangePassword <=================
+    const ChangePassword = async ( newPassword, firstPassword) => {
+
+        let _dataTokenLocal = await TokenLocalStorage();
+        let _dataLocal = await DataLocalStorage();
+        let _res = await axios({
+            method: 'post',
+            url: Constant.SERVER_URL + '/Authen/ResetPassword',
+            data: {
+                "token": _dataTokenLocal,
+                "agentCode": Constant.AGEN_CODE,
+                "username": _dataLocal?.username,
+                "password": newPassword,
+                "password_original": firstPassword,
+                "actionBy": "Member",
+            },
+        });
+
+        console.log("🚀 ~ ChangePassword ~ _res?.data:", _res?.data)
+        if (_res?.data) {
+        return _res
+        }
+    }
     // ==================> handleRegister <=================
     const loginWithToken = async (token) => {
         try {
@@ -160,9 +206,28 @@ const LoginController = () => {
                 },
             });
             if (_res?.data.statusCode === 0) {
-                console.log("_res?.data?.data: ", _res?.data?.data);
-                localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
-                localStorage.setItem(Constant.LOGIN_USER_DATA, JSON.stringify(_res?.data?.data));
+                localStorage.setItem(
+                    Constant.LOGIN_TOKEN_DATA,
+                    _res.data.token,
+                );
+                localStorage.setItem(
+                    Constant.LOGIN_USER_DATA,
+                    JSON.stringify({
+                        agent: _res?.data?.agent,
+                        username: _res?.data?.username,
+                        balance: _res?.data?.balance,
+                        info: {
+                            bankDeposit: _res?.data?.info?.bankDeposit,
+                            bankList: _res?.data?.info?.bankList,
+                            brandList: _res?.data?.info?.brandList,
+                            cashback: _res?.data?.info?.cashback,
+                            profile: _res?.data?.info?.profile,
+                            promotionList: _res?.data?.info?.promotionList,
+                            slide: _res?.data?.info?.slide,
+                            shorturl: _res?.data?.info?.shorturl,
+                        }
+                    }),
+                );
                 history.push(Constant.AFTER_LOGIN);
             }
         } catch (error) {
@@ -175,7 +240,8 @@ const LoginController = () => {
     return {
         handleLogin,
         handleRegister,
-        loginWithToken
+        loginWithToken,
+        ChangePassword
     }
 }
 export default LoginController;

@@ -4678,7 +4678,7 @@ export default function Home() {
 					</div>
 					<div className="footer-item flexCenter">
 						<img src="/assets/images/contact-admin.svg" alt="login" />
-						<p className="font-20">ติดต่อแอดมิน</p>
+						<p className="font-20">ติดต่อ</p>
 					</div>
 				</div>
 			</footer>
