@@ -301,7 +301,6 @@ export default function AfterLogin() {
     const _copyLinkAffiliate = (link) => {
         navigator.clipboard.writeText(link)
     }
-
     const [codeCupon, setCodeCupon] = useState("")
     const _addCupon = async () => {
         try {

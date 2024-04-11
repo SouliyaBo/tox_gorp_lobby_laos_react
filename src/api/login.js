@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { useHistory } from "react-router-dom";
 import Constant from "../constant";
 import { EncriptBase64 } from "../helper";
-import { DataLocalStorage,TokenLocalStorage } from "../helper";
+import { DataLocalStorage, TokenLocalStorage } from "../helper";
 
 
 
@@ -12,7 +12,7 @@ const LoginController = () => {
     const history = useHistory();
 
     // ==================> handleLogin <=================
-    const handleLogin = async (username, password) => {
+    const handleLogin = async (username, password, isMobile) => {
         try {
             const { data } = await axios.post(
                 `${Constant.SERVER_URL}/Authen/Login`,
@@ -24,11 +24,11 @@ const LoginController = () => {
                 },
             );
 
-			if (data.statusCode === 0) {
-				localStorage.setItem(Constant.LOGIN_TOKEN_DATA, data.data.token);
-				
-				localStorage.setItem(
-					Constant.LOGIN_USER_DATA,
+            if (data.statusCode === 0) {
+                localStorage.setItem(Constant.LOGIN_TOKEN_DATA, data.data.token);
+
+                localStorage.setItem(
+                    Constant.LOGIN_USER_DATA,
                     JSON.stringify({
                         agent: data?.data?.agent,
                         username: data?.data?.username,
@@ -45,7 +45,11 @@ const LoginController = () => {
                         // }
                     }),
                 );
-                history.push(Constant.AFTER_LOGIN,data?.data);
+                if (isMobile === "MOBILE") {
+                    history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
+                } else {
+                    history.push(Constant.AFTER_LOGIN, data?.data);
+                }
             }
             return data;
         } catch (error) {
@@ -164,7 +168,7 @@ const LoginController = () => {
     }
 
     // ==================> ChangePassword <=================
-    const ChangePassword = async ( newPassword, firstPassword) => {
+    const ChangePassword = async (newPassword, firstPassword) => {
 
         let _dataTokenLocal = await TokenLocalStorage();
         let _dataLocal = await DataLocalStorage();
@@ -183,7 +187,7 @@ const LoginController = () => {
 
         console.log("🚀 ~ ChangePassword ~ _res?.data:", _res?.data)
         if (_res?.data) {
-        return _res
+            return _res
         }
     }
     // ==================> handleRegister <=================
@@ -214,14 +218,14 @@ const LoginController = () => {
                         agent: _res?.data?.agent,
                         username: _res?.data?.username,
                         balance: _res?.data?.balance,
-						bankDeposit: _res?.data?.info?.bankDeposit,
-						bankList: _res?.data?.info?.bankList,
-						brandList: _res?.data?.info?.brandList,
-						cashback: _res?.data?.info?.cashback,
-						profile: _res?.data?.info?.profile,
-						promotionList: _res?.data?.info?.promotionList,
-						slide: _res?.data?.info?.slide,
-						shorturl: _res?.data?.info?.shorturl,
+                        bankDeposit: _res?.data?.info?.bankDeposit,
+                        bankList: _res?.data?.info?.bankList,
+                        brandList: _res?.data?.info?.brandList,
+                        cashback: _res?.data?.info?.cashback,
+                        profile: _res?.data?.info?.profile,
+                        promotionList: _res?.data?.info?.promotionList,
+                        slide: _res?.data?.info?.slide,
+                        shorturl: _res?.data?.info?.shorturl,
                     }),
                 );
                 history.push(Constant.AFTER_LOGIN);

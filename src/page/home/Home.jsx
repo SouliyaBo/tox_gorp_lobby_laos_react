@@ -94,7 +94,7 @@ export default function Home() {
 
 	// ===== LoginController =====>
 	const _Login = async () => {
-		const _res = await handleLogin(userNameInput, passwordInput);
+		const _res = await handleLogin(userNameInput, passwordInput,"PC");
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 	// ===== CreateUser =====>

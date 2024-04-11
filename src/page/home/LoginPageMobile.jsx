@@ -11,7 +11,7 @@ export default function LoginPageMobile() {
 
     // ===== LoginController =====>
     const _Login = async () => {
-        const _res = await handleLogin(userNameInput, passwordInput);
+        const _res = await handleLogin(userNameInput, passwordInput,"MOBILE");
         if (_res) setMessageCreate(_res?.statusDesc);
     };
 
