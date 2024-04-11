@@ -23,11 +23,11 @@ const LoginController = () => {
 
             if (data?.statusCode === 0) {
                 localStorage.setItem(
-                    Constant.TOX_LOBBY_TOKEN,
+                    Constant.LOGIN_TOKEN_DATA,
                     data.data.token,
                 );
                 localStorage.setItem(
-                    Constant.TOX_LOBBY_DATA,
+                    Constant.LOGIN_USER_DATA,
                     JSON.stringify({
                         agent: data?.data?.agent,
                         username: data?.data?.username,
@@ -48,7 +48,7 @@ const LoginController = () => {
 
             return data;
         } catch (error) {
-            throw error;
+            console.log("🚀 ~ handleLogin ~ error:", error)
         }
     };
     // ==================> handleRegister <=================
