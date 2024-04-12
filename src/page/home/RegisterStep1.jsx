@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useCallback } from 'react'
 import { useHistory } from "react-router-dom";
 import queryString from "query-string";
 
@@ -8,20 +9,47 @@ export default function RegisterStep1() {
     const parsed = queryString.parse(history?.location?.search);
 
 
-    const [inputPhonenumber, setInputPhonenumber] = useState()
-    const [inputPassword, setInputPassword] = useState()
-    const [inputFirstname, setInputFirstname] = useState()
-    const [inputLastname, setInputLastname] = useState()
+    const [inputPhonenumber, setInputPhonenumber] = useState("")
+    const [inputPassword, setInputPassword] = useState("")
+    const [inputFirstname, setInputFirstname] = useState("")
+    const [inputLastname, setInputLastname] = useState("")
     const [inputRef, setInputRef] = useState(parsed?.ref)
+    const [warningPhone, setWarningPhone] = useState("")
+    const [warningPassword, setWarningPassword] = useState("")
+    const [warningFirstName, setWarningFirstName] = useState("")
+    const [warningLastName, setWarningLastName] = useState("")
+
     const _clickNextStep = () => {
-        history.push(Constant.PAGE_REGISTER_STEP2, {
-            inputPhonenumber,
-            inputPassword,
-            inputFirstname,
-            inputLastname,
-            inputRef
-        })
+        if (inputPhonenumber === "") {
+            setWarningPhone("กรุณากรอกเบอร์โทร");
+            console.log("กรุณากรอกเบอร์โทร")
+        } else if (inputPassword === "") {
+            setWarningPassword("กรุณาป้อนรหัสผ่าน");
+            console.log("กรุณาป้อนรหัสผ่าน")
+        } else if (inputFirstname === "") {
+            setWarningFirstName("กรุณาป้อนชื่อ")
+            console.log("กรุณาป้อนชื่อ")
+        } else if (inputLastname === "") {
+            setWarningLastName("กรุณาป้อนนามสกุล")
+            console.log("กรุณาป้อนนามสกุล")
+        } else {
+            history.push(Constant.PAGE_REGISTER_STEP2, {
+                inputPhonenumber,
+                inputPassword,
+                inputFirstname,
+                inputLastname,
+                inputRef
+            })
+        }
+
     }
+
+    const handleChangePhone = useCallback((event) => {
+        const re = /^[0-9\b]+$/;
+        if (event.target.value === '' || re.test(event.target.value)) {
+            setInputPhonenumber(event?.target?.value)
+        }
+    });
     return (
         <div>
             <main className="register-page flexCenter">
@@ -53,14 +81,16 @@ export default function RegisterStep1() {
                         <img src="/assets/icons/phone.svg" alt="phone icon" />
                         <label for="phone" />
                         <input
+                            type="text"
                             name="phone"
                             id="phone"
-                            type="text"
-                            maxlength="13"
+                            maxlength={10}
+                            value={inputPhonenumber}
                             placeholder="เบอร์โทรศัพท์"
-                            onChange={(e) => setInputPhonenumber(e?.target?.value)}
+                            onChange={(event) => handleChangePhone(event)}
                         />
                     </div>
+                    <span style={{ color: "red" }}>{inputPhonenumber !== "" ? "" : warningPhone}</span>
                 </div>
                 <div className="phone-input">
                     <div className="input-container flexCenter">
@@ -75,6 +105,7 @@ export default function RegisterStep1() {
                         />
                     </div>
                 </div>
+                <span style={{ color: "red" }}>{inputPassword !== "" ? "" : warningPassword}</span>
                 <div className="phone-input">
                     <div className="input-container flexCenter">
                         <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
@@ -87,6 +118,7 @@ export default function RegisterStep1() {
                             onChange={(e) => setInputFirstname(e?.target?.value)}
                         />
                     </div>
+                    <span style={{ color: "red" }}>{inputFirstname !== "" ? "" : warningFirstName}</span>
                 </div>
                 <div className="phone-input">
                     <div className="input-container flexCenter">
@@ -100,6 +132,7 @@ export default function RegisterStep1() {
                             onChange={(e) => setInputLastname(e?.target?.value)}
                         />
                     </div>
+                    <span style={{ color: "red" }}>{inputLastname !== "" ? "" : warningLastName}</span>
                 </div>
                 <button type='button' onClick={() => _clickNextStep()} className="next-step-button">ถัดไป</button>
                 <p style={{ marginTop: 8 }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 
 import { useHistory } from "react-router-dom";
 
@@ -11,7 +11,7 @@ export default function RegisterStep2() {
 
     const { handleRegister } = _LoginController();
 
-    const [inputBank, setInputBank] = useState();
+    const [inputBank, setInputBank] = useState('');
     const [bankCode, setBankCode] = useState(0);
     const [messageCreate, setMessageCreate] = useState();
 
@@ -28,6 +28,12 @@ export default function RegisterStep2() {
         if (_res) setMessageCreate(_res?.statusDesc);
     };
 
+    const handleChangeBank = useCallback((event) => {
+        const re = /^[0-9\b]+$/;
+        if (event.target.value === "" || re.test(event.target.value)) {
+            setInputBank(event?.target?.value);
+        }
+    });
     return (
         <div>
             <main className="register-page flexCenter">
@@ -262,10 +268,11 @@ export default function RegisterStep2() {
                             style={{ paddingLeft: 8 }}
                             name="bank"
                             id="bank"
-                            type="number"
-                            maxlength="9"
+                            type="text"
+                            maxlength={10}
+                            value={inputBank}
                             placeholder="เลขบัญชีธนาคาร"
-                            onChange={(e) => setInputBank(e?.target?.value)}
+                            onChange={(e) => handleChangeBank(e)}
                         />
                     </div>
                 </div>
