@@ -31,6 +31,7 @@ export default function Home() {
 	const [passwordInput, setPasswordInput] = useState();
 	const [messageCreate, setMessageCreate] = useState();
 	const [dataGameList, setDataGameList] = useState(dataCradGame?.SLOT)
+	console.log("dataGameList: ", dataGameList)
 	const [warningPhone, setWarningPhone] = useState("")
 	const [warningPassword, setWarningPassword] = useState("")
 	const [warningFirstName, setWarningFirstName] = useState("")
@@ -107,7 +108,7 @@ export default function Home() {
 
 	// ===== LoginController =====>
 	const _Login = async () => {
-		const _res = await handleLogin(userNameInput, passwordInput,"PC");
+		const _res = await handleLogin(userNameInput, passwordInput, "PC");
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 	// ===== CreateUser =====>
@@ -349,10 +350,13 @@ export default function Home() {
 
 				<section className="card-container">
 					<div className="card-wrapper" onClick={handleLoginClick} onKeyDown={() => ''}>
-						{dataGameList.length > 0 && dataGameList?.map((item, index) => (
+						{dataGameList.length > 0 && dataGameList?.map((item) => (
 							<div key={item?.s_status} className="game-card">
-								<img src={item?.s_lobby_url ?? item?.s_img} alt="card" />
-								{/* {"/assets/images/jilli_card.svg" } */}
+								{item?.s_lobby_url !== undefined ? (
+									<img src={item?.s_lobby_url} alt="card" />
+								) : (
+									<img src={item?.s_img} alt="card" />
+								)}
 							</div>
 						))}
 					</div>
@@ -363,8 +367,11 @@ export default function Home() {
 						<div className="top">
 							{dataGameList.length > 0 && dataGameList?.map((item, index) => (
 								<div key={item?.s_status} className="card">
-									<img src={item?.s_lobby_url ?? item?.s_img} alt="card" />
-									{/* {"/assets/images/jilli_card.svg" } */}
+									{item?.s_lobby_url !== undefined ? (
+										<img src={item?.s_lobby_url} alt="card" className="img-lobby" />
+									) : (
+										<img src={item?.s_img} alt="card" className="img-link" />
+									)}
 								</div>
 							))}
 						</div>
