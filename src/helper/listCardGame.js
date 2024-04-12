@@ -111,7 +111,7 @@ export let dataCradGame = {
       "s_status": "A",
       "s_status_agent": "A",
       "s_lobby_flg": "Y",
-      "s_lobby_url": "",
+      "s_lobby_url": "/assets/images/cradCategoryGame/FC.png",
       "s_endpoint_access": "/FC/LoginRequest"
     },
     {
@@ -132,8 +132,8 @@ export let dataCradGame = {
       "s_brand_name": "Ygg",
       "s_status": "A",
       "s_status_agent": "C",
-      "s_lobby_flg": "Y",
-      "s_lobby_url": "",
+      "s_lobby_flg": "",
+      "s_lobby_url": "/assets/images/cradCategoryGame/YGG.png",
       "s_endpoint_access": "/DCS/LoginRequest"
     },
     {
@@ -144,7 +144,7 @@ export let dataCradGame = {
       "s_status": "A",
       "s_status_agent": "C",
       "s_lobby_flg": "Y",
-      "s_lobby_url": "",
+      "s_lobby_url": "/assets/images/cradCategoryGame/PLayn.png",
       "s_endpoint_access": "/DCS/LoginRequest"
     }
 
