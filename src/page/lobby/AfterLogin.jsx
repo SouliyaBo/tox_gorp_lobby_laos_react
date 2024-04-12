@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faChevronCircleLeft, faChevronCircleRight, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router-dom";
+import { Modal } from 'react-bootstrap';
 
 import "react-slideshow-image/dist/styles.css";
 import "react-slideshow-image/dist/styles.css";
@@ -218,6 +220,7 @@ export default function AfterLogin() {
             data: {
                 s_agent_code: Constant.AGEN_CODE,
                 s_brand_code: value?.s_brand_code,
+                s_username: dataFromLogin?.username,
             },
         });
         if (_res?.data?.statusCode === 0) {
@@ -293,11 +296,11 @@ export default function AfterLogin() {
                 setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน");
                 return;
             }
-            const _data = await ChangePassword(NewPassword, oldPassword);
+            const _data = await ChangePassword(NewPassword, oldPassword)
             if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc);
+                setReMessage(_data?.data?.statusDesc)
                 if (_data?.data.statusCode === 0) {
-                    LogoutClearLocalStorage();
+                    LogoutClearLocalStorage()
                 }
             }
         } catch (error) {
@@ -323,6 +326,66 @@ export default function AfterLogin() {
             console.error("Error playing the game:", error);
         }
     };
+
+
+    const [nextSliderPage, setNextSliderPage] = useState(0)
+    let _dataSalider = history?.location?.state?.info?.promotionList;
+    const _newSl = (value) => {
+        if (value === "ADD") {
+            if (nextSliderPage === _dataSalider.length - 1) {
+                setNextSliderPage(_dataSalider.length - 1)
+            } else {
+                setNextSliderPage(nextSliderPage + 1)
+            }
+        } else {
+            if (nextSliderPage === 0) {
+                setNextSliderPage(0)
+            } else {
+                setNextSliderPage(nextSliderPage - 1)
+            }
+        }
+    }
+    const apoverPromotion = async (value) => {
+        console.log("🚀 ~ apoverPromotion ~ value:", value)
+        try {
+            let _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
+                "s_agent_code": Constant?.AGEN_CODE,
+                "s_username": dataFromLogin?.username,
+                "s_type": "SMS",
+                "s_prm_code": value?.s_code,
+                "i_ip": "1.2.3.4",
+                "actionBy": "ADM"
+            })
+            console.log("🚀 ~ apoverPromotion ~ _resAppover?.data:", _resAppover)
+            if (_resAppover?.data?.statusCode === 0) {
+                Swal.fire({
+                    icon: 'success',
+                    title: "รายการสำเร็จ",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#242424', // Change to the color you want
+                    color: '#fff',
+                });
+                setTimeout(() => {
+                    handleShow()
+                }, 2000);
+                return
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: "รายการไม่สำเร็จ",
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#242424', // Change to the color you want
+                color: '#fff',
+            });
+        }
+
+    }
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     return (
         <div>
@@ -461,36 +524,24 @@ export default function AfterLogin() {
 
                 <section className="card-container">
                     <div className="card-wrapper">
-                        {dataGameList?.length
-                            ? dataGameList?.map((game) => (
-                                <div key={game?.s_img} className="game-card">
-                                    <div
-                                        style={{
-                                            position: "absolute",
-                                            top: "0",
-                                            left: "0",
-                                            zIndex: 1,
-                                            backgroundColor: "#A4A4A4", //"#A4A4A4"
-                                            padding: 8,
-                                            borderRadius: "50%",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            display: "flex",
-                                        }}
-                                        onClick={() => _addFavorite(game)}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faHeart}
-                                            style={{ color: "#FFF", fontSize: 25 }}
-                                        />
-                                    </div>
-                                    <img
-                                        src={game?.s_img ?? "/assets/images/jilli_card.svg"}
-                                        id="game-card"
-                                        className="game-image"
-                                        alt="game"
-                                        onClick={() => _getDataGamePlayGame(game)}
-                                    />
+                        {dataGameList?.length ? dataGameList?.map((game) =>
+                            <div
+                                key={game?.s_img}
+                                className="game-card"
+                            >
+                                <div style={{
+                                    position: "absolute",
+                                    top: "0", left: "0",
+                                    zIndex: 1,
+                                    backgroundColor: game?.s_flg_favorite === "Y" ? "#FE2147" : "#A4A4A4",
+                                    padding: 8,
+                                    borderRadius: "50%",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    display: "flex",
+                                }} onClick={() => _addFavorite(game)}>
+                                    <FontAwesomeIcon icon={faHeart} style={{ color: "white", fontSize: 25 }} />
+                                </div>
                                 </div>
                             ))
                             : categoryGame?.map((item) => (
@@ -1188,17 +1239,9 @@ export default function AfterLogin() {
                                                         <img src="/assets/images/scb 1.png" alt="scb" />
                                                     </div>
                                                 </div>
-
-                                                {/* <div className="visa">
-                                                    <img src="/assets/icons/visa.svg" alt="visa" />
-                                                </div> */}
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <div className="slide-image" style={{ marginTop: 12 }}>
-                                        <div className="active" />
-                                        <div className="none-active" />
-                                    </div> */}
                                     <div>
                                         <div className="button-validationt">
                                             <div style={{ color: "white" }}>
@@ -2353,73 +2396,54 @@ export default function AfterLogin() {
                         <div className="modal-content">
                             <div className="modal-header-container">
                                 <div className="modal-header">
-                                    <img
-                                        src="/assets/icons/icon-back-modal.svg"
-                                        className="modal-icon-back"
-                                        alt=""
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#bagModal"
-                                        data-bs-dismiss="modal"
-                                    />
                                     <p className="modal-title">โปรโมชั่น</p>
-                                    <img
-                                        src="/assets/icons/icon-close-modal.svg"
-                                        className="modal-icon-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                        alt=""
-                                    />
                                 </div>
                             </div>
+                            {/* _dataSalider */}
                             <div className="modal-body">
                                 <div className="promotion-modal-content">
                                     <div className="promotion-modal-body">
-                                        <div className="promotion-modal-image-container">
-                                            <img
-                                                src="/assets/images/image-promotion-modal.svg"
-                                                className="promotion-modal-image"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <p className="promotion-content-title">สมาชิกใหม่หมุนกงล้อฟรี</p>
-                                        <p className="promotion-content-text">วันเกิด หมุนกงล้อฟรี !!</p>
-                                        <p className="promotion-content-text">
-                                            (สอบถามข้อมูลเพิ่มเติมได้ที่แอดมิน)
-                                        </p>
-                                    </div>
-                                    <div className="promotion-modal-footer">
-                                        <div className="promotion-modal-footer-content">
-                                            <p className="promotion-modal-footer-title">
-                                                สถานะโปรโมชั่น
-                                            </p>
-                                            <div className="promotion-checkbox-group">
-                                                <input
-                                                    type="radio"
-                                                    className="promotion-default-radio"
-                                                    name="promotion-status"
-                                                    id="get-promotion"
-                                                />
-                                                <label
-                                                    className="promotion-checkbox-title"
-                                                    for="get-promotion"
-                                                >
-                                                    <div className="promotion-custom-radio" />
-                                                    รับโบนัส
-                                                </label>
-                                                <input
-                                                    type="radio"
-                                                    className="promotion-default-radio"
-                                                    name="promotion-status"
-                                                    id="not-get-promotion"
-                                                />
-                                                <label
-                                                    className="promotion-checkbox-title"
-                                                    for="not-get-promotion"
-                                                >
-                                                    <div className="promotion-custom-radio" />
-                                                    ไม่รับโบนัส
-                                                </label>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                            <div onClick={() => _newSl("DELETE")} style={{ color: "red" }}>
+                                                <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: '#FFF', fontSize: 25 }} />
                                             </div>
+                                            <div style={{ padding: 20 }}>
+                                                <img
+                                                    src={`data:image/jpeg;base64,${_dataSalider[nextSliderPage]?.s_source_img}`}
+                                                    className="promotion-modal-image"
+                                                    alt=""
+                                                    style={{ width: "100%" }}
+
+                                                />
+                                            </div>
+                                            <div onClick={() => _newSl("ADD")} style={{ color: "green" }}>
+                                                <FontAwesomeIcon icon={faChevronCircleRight} style={{ color: '#FFF', fontSize: 25 }} />
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div>
+                                            <div style={{ color: "#4CAF4F" }}>ฝาก {_dataSalider[nextSliderPage]?.f_max_amount} รับ {_dataSalider[nextSliderPage]?.f_percen}</div>
+                                            <div>จำกัด {_dataSalider[nextSliderPage]?.i_per_day} ครั้ง/วัน</div>
+                                            <div style={{ color: "yellow" }}>รายละเอียด</div>
+                                            <div>
+                                                {_dataSalider[nextSliderPage]?.s_detail}
+                                            </div>
+                                        </div>
+                                        <div style={{ height: 10 }}></div>
+                                        <div>
+                                            <button
+                                                className="modal-icon-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                                alt=""
+                                                style={{
+                                                    padding: 10,
+                                                    backgroundColor: "#5E9904",
+                                                    borderRadius: 6,
+                                                    width: 100,
+                                                }}
+                                                onClick={() => apoverPromotion(_dataSalider[nextSliderPage])}
+                                            >รับโบนัส</button>
                                         </div>
                                     </div>
                                 </div>
@@ -2469,9 +2493,7 @@ export default function AfterLogin() {
                                         className="input-box"
                                         onChange={(e) => setCodeCupon(e.target.value)}
                                     />
-                                    <div style={{ color: "red", textAlign: "center" }}>
-                                        {reMessage}
-                                    </div>
+                                    <div style={{ color: 'red', textAlign: 'center' }}>{reMessage}</div
 
                                     <button
                                         type="button"
@@ -3032,11 +3054,7 @@ export default function AfterLogin() {
                                             <p className="link-shared-subtitle">
                                                 คุณจะได้รับรายได้ฟรีจากการแนะนำเพื่อน
                                             </p>
-                                            <input
-                                                type="text"
-                                                className="link-shared-input"
-                                                value={dataFromLogin?.info?.shorturl}
-                                            />
+                                            <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} />
 
                                             <div className="link-shared-btn-group">
                                                 <div className="border-input-gold border-btn">
@@ -3575,6 +3593,65 @@ export default function AfterLogin() {
                     </div> */}
                 </div>
             </footer>
+            <Modal show={show} onHide={handleClose}>
+                <div>
+                    <div className="modal-border">
+                        <div className="modal-content">
+                            <div className="modal-header-container">
+                                <div className="modal-header">
+                                    <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
+                                </div>
+                            </div>
+                            <div className="modal-body">
+                                <div className="detail-card-scb1">
+                                    <div className="card-scb1">
+                                        <div className="left">
+                                            <p>{dataFromLogin?.info?.bankDeposit[0]?.s_fname_th}</p>
+                                            <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_name}</p>
+                                            <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_no}</p>
+                                        </div>
+                                        <div className="right">
+                                            <div className="bank">
+                                                <h3>SCB</h3>
+                                                <div style={{ borderRadius: '100%' }}>
+                                                    <img src="/assets/images/scb 1.png" alt="scb" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="button-validationt">
+                                        <div style={{ color: "white" }}>
+                                            กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}
+                                >
+                                    <div>
+                                        พบปัญหา
+                                        <span
+                                        >ติดต่อฝ่ายบริการลูกค้า</span
+                                        >
+                                    </div>
+                                </div>
+                                <div className="button-line">
+                                    <div>
+                                        <img
+                                            src="/assets/icons/icon-line.svg"
+                                            style={{ width: 28, height: 28 }}
+                                            alt="line"
+                                        />
+                                        ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

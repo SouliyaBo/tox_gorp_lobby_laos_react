@@ -43,7 +43,7 @@ export default function Home() {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (UseParams?.token) {
-			loginWithToken(UseParams?.token)
+			loginWithToken(UseParams?.token,"PC")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [UseParams]);

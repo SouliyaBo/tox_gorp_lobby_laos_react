@@ -18,7 +18,9 @@
   --gradient-gold: linear-gradient(90deg, #f9df7b 0%, #b57e10 20%, #b78113 26%, #be8c1f 32%, #cb9d32 38%, #dcb64e 44%, #f2d570 49%, #f9df7b 51%, #fff3a6 52%, #f9df7b 59%, #b57e10 84%, #e5c25b 95%, #f9df7b 100%);
 }
 
-
+.custom-title-class {
+  color: "#fff";
+}
 .test {
   border-width: 4px;
   border-style: solid;

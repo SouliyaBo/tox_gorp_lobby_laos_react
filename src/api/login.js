@@ -191,7 +191,7 @@ const LoginController = () => {
         }
     }
     // ==================> handleRegister <=================
-    const loginWithToken = async (token) => {
+    const loginWithToken = async (token,isMobile) => {
         try {
             const _resDecrypt = EncriptBase64(token);
             if (!_resDecrypt?.agentCode && !_resDecrypt?.username && !_resDecrypt?.password) {
@@ -208,6 +208,7 @@ const LoginController = () => {
                 },
             });
             if (_res?.data.statusCode === 0) {
+                console.log("🚀 ~ loginWithToken ~ _res?.data:", _res?.data)
                 localStorage.setItem(
                     Constant.LOGIN_TOKEN_DATA,
                     _res.data.token,
@@ -218,17 +219,14 @@ const LoginController = () => {
                         agent: _res?.data?.agent,
                         username: _res?.data?.username,
                         balance: _res?.data?.balance,
-                        bankDeposit: _res?.data?.info?.bankDeposit,
-                        bankList: _res?.data?.info?.bankList,
-                        brandList: _res?.data?.info?.brandList,
-                        cashback: _res?.data?.info?.cashback,
-                        profile: _res?.data?.info?.profile,
-                        promotionList: _res?.data?.info?.promotionList,
-                        slide: _res?.data?.info?.slide,
-                        shorturl: _res?.data?.info?.shorturl,
                     }),
                 );
-                history.push(Constant.AFTER_LOGIN);
+                if (isMobile === "MOBILE") {
+                    history.push(Constant.AFTER_LOGIN_MOBILE, _res?.data?.data);
+                } else {
+                    history.push(Constant.AFTER_LOGIN, _res?.data?.data);
+                }
+                // history.push(Constant.AFTER_LOGIN,_res?.data);
             }
         } catch (error) {
             console.log("🚀 ~ const_login= ~ error:", error);
