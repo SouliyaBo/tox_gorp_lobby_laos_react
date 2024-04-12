@@ -1,17 +1,35 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { _clickTabDeposit, FillerCategory } from "../../helper"
-import Constant from "../../constant";
+import { _clickTabDeposit, FillerCategory, OpenNewTabWithHTML, DataLoginInRout } from "../../helper"
+import Constant, { AGENT_CODE } from "../../constant";
+import { useHistory } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
+
+
 export default function AfterLoginMobile() {
+    const history = useHistory();
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
-    const [dataFromLogin, setdataFromLogin] = useState({});
+    const [dataFromLogin, setDataFromLogin] = useState({});
     const [dataGameType, setDataGameType] = useState("FAVORITE");
     const [dataGameList, setDataGameList] = useState();
     const [categoryGame, setCategoryGame] = useState([]);
+    const [deviceType, setDeviceType] = useState(false);
+    const [dataUser, setDataUser] = useState();
+    const [typeGame, setTypeGame] = useState("SLOT");
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
+        const _data = DataLoginInRout(history?.location?.state);
+        if (_data) {
+            setDataFromLogin(_data);
+        }
+    }, []);
+
     useEffect(() => {
         const pageClickEvent = (e) => {
             // If the active element exists and is clicked outside of
@@ -35,10 +53,24 @@ export default function AfterLoginMobile() {
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         _clickCategoryGame("FAVORITE");
-        // _getData();
+        _getData();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataFromLogin]);
 
+    const _getData = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Member/Balance`,
+            data: {
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataUser(_res?.data?.data);
+        }
+    };
     const toggleSidebar = (event) => {
         event.stopPropagation();
         setSidebarVisible(true);
@@ -55,6 +87,7 @@ export default function AfterLoginMobile() {
     const _clickCategoryGame = async (value) => {
         setDataGameType(value)
         setDataGameList([])
+        setTypeGame(value)
         if (value === "FAVORITE") {
             const _getData = await axios({
                 method: 'post',
@@ -74,20 +107,94 @@ export default function AfterLoginMobile() {
     }
 
     const _clickFavorite = async (value) => {
+        console.log("A")
         setDataGameType("FAVORITE")
         setDataGameList([])
+        console.log("B")
+
         const _getData = await axios({
             method: 'post',
             url: `${Constant.SERVER_URL}/Game/Brand/List`,
             data: {
-                s_agent_code: dataFromLogin?.agent,
+                s_agent_code: AGENT_CODE,
                 s_username: dataFromLogin?.username,
             },
         });
+        console.log("C", _getData)
+
         if (_getData?.data?.statusCode === 0) {
             setCategoryGame(_getData?.data?.data?.FAVORITE)
         }
     }
+
+    const _getDataGame = async (value) => {
+        if (value?.s_type === "CASINO" || value?.s_type === "SPORT") {
+            _getDataGamePlayGame(value);
+            return;
+        }
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Game/ListGame`,
+            data: {
+                s_agent_code: Constant.AGEN_CODE,
+                s_brand_code: value?.s_brand_code,
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataGameList(_res?.data?.data);
+        }
+    };
+    const _addFavorite = async (value) => {
+        const _getData = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Favorite/Select`,
+            data: {
+                s_agent_code: AGENT_CODE,
+                s_username: dataFromLogin?.username,
+                id_favorite: value?.id_favorite,
+                actionBy: "ADM",
+            },
+        });
+        if (_getData?.data?.statusCode === 0) {
+            if (dataGameType === "FAVORITE" || dataGameType === "HOTHIT") {
+                _clickCategoryGame(dataGameType);
+            } else {
+                _getDataGame(value);
+            }
+        }
+    };
+    const _getDataGamePlayGame = async (value) => {
+        try {
+            const _data = {
+                s_game_code:
+                    value?.s_type === "CASINO"
+                        ? "B001"
+                        : value?.s_type === "SPORT"
+                            ? "B001"
+                            : value?.s_game_code,
+                s_brand_code: value?.s_brand_code,
+                s_username: dataFromLogin?.username,
+                s_agent_code: Constant?.AGEN_CODE,
+                isMobile: deviceType === "Mobile" ? "true" : "false",
+                ip_client: "184.22.14.167",
+                s_lang: "th",
+            };
+            // Send the data to the server to get the game URL
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Game/Access`,
+                data: _data,
+            });
+            if (_res?.data?.url) {
+                window.open(_res?.data?.url, "_blank");
+            }
+            if (_res?.data) {
+                OpenNewTabWithHTML(_res?.data?.res_html);
+            }
+        } catch (error) {
+            console.error("Error playing the game:", error);
+        }
+    };
 
     return (
         <div>
@@ -149,93 +256,142 @@ export default function AfterLoginMobile() {
 
                 <section className="featured-game-wrapper" id="mobile-after-login">
                     <div className="featured-game flexBetween" onClick={() => _clickFavorite()} onKeyDown={() => ''}>
-                        <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+                        <img src="/assets/images/newicon/favorite.png" alt="game icon" />
                         <p>เกมโปรด</p>
                     </div>
                     <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
-                        <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+                        <img src="/assets/images/newicon/hothit.png" alt="game icon" />
                         <p>เป็นที่นิยม</p>
                     </div>
-                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
                         <p>สล็อต</p>
                     </div>
-                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("CASINO")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
                         <p>คาสิโน</p>
                     </div>
-                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("FISHING")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
                         <p>ยิงปลา</p>
                     </div>
-                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SPORT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
                         <p>กีฬา</p>
                     </div>
                 </section>
 
-                <div className="payment-button-container">
-                    <button type='button' className="flexBetween" data-bs-toggle="modal" data-bs-target="#depositWithdraw">
-                        <div style={{ backgroundColor: '#1f9900' }}>
-                            <img src="../assets/icons/saving-money 1.svg" alt="icon" />
-                        </div>
-                        แจ้งฝาก
-                    </button>
-                    <button type='button' className="flexBetween" style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#withdraw"
-                        data-bs-dismiss="modal">
-                        <div style={{ backgroundColor: "#d70000" }}>
-                            <img src="../assets/icons/saving-money 2.svg" alt="icon" />
-                        </div>
-                        แจ้งถอน
-                    </button>
-                </div>
-
                 <section className="all-mobile-games" style={{ marginTop: 15, padding: 10 }}>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/card-game-mobile/2.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/3.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/4.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/5.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/6.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/7.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/8.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/9.png" alt="game logo" />
-                        </button>
-                    </a>
-                    <a href="/game-list-mobile" className="game-name" rel="noopener noreferrer">
-                        <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/10.png" alt="game logo" />
-                        </button>
-                    </a>
+                    <div className="container-image">
+                        {dataGameList?.length ?
+                            dataGameList?.map((game) =>
+                            (<div key={game?.s_img} className="content-image" style={{ position: "relative" }}>
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        top: "0",
+                                        left: "0",
+                                        zIndex: 1,
+                                        backgroundColor: "#A4A4A4", //"#A4A4A4"
+                                        padding: 8,
+                                        borderRadius: "50%",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        display: "flex",
+                                    }}
+                                    onKeyDown={() => ""}
+                                    onClick={() => _addFavorite(game)}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faHeart}
+                                        style={{ color: "#FFF", fontSize: 25 }}
+                                    />
+                                </div>
+                                <img
+                                    src={game?.s_img ?? "/assets/images/jilli_card.svg"}
+                                    id="game-card"
+                                    style={{ width: 118, height: 153, }}
+                                    className="game-image"
+                                    alt="game"
+                                    onKeyDown={() => ""}
+                                    onClick={() => _getDataGamePlayGame(game)}
+                                />
+                            </div>
+                            )) : categoryGame?.map((item) => (
+                                <div key={item?.s_img} className="content-image" style={{ position: "relative" }}>
+                                    {dataGameType === "FAVORITE" ||
+                                        dataGameType === "HOTHIT" ? (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "0",
+                                                left: "0",
+                                                zIndex: 1,
+                                                backgroundColor: "#FE2147", //"#A4A4A4"
+                                                padding: 8,
+                                                borderRadius: "50%",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                display: "flex",
+                                            }}
+                                            onClick={() => _addFavorite(item)}
+                                            onKeyDown={() => ""}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faHeart}
+                                                style={{ color: "#FFF", fontSize: 15 }}
+                                            />
+                                        </div>
+                                    ) : null}
+                                    {item?.s_img !== undefined ? (
+                                        <img
+                                            src={item?.s_img}
+                                            style={{ width: 118, height: 153, }}
+                                            id="game-card"
+                                            className="game-image"
+                                            alt="game"
+                                            onKeyDown={() =>
+                                                ""
+                                            }
+                                            onClick={() =>
+                                                dataGameType ===
+                                                    "FAVORITE" ||
+                                                    dataGameType ===
+                                                    "HOTHIT"
+                                                    ? _getDataGamePlayGame(
+                                                        item,
+                                                    )
+                                                    : _getDataGame(
+                                                        item,
+                                                    )
+                                            }
+                                        />
+                                    ) : (
+                                        <img
+                                            src={item?.s_lobby_url}
+                                            id="game-card"
+                                            className="url"
+                                            alt="game"
+                                            onKeyDown={() =>
+                                                ""
+                                            }
+                                            onClick={() =>
+                                                dataGameType ===
+                                                    "FAVORITE" ||
+                                                    dataGameType ===
+                                                    "HOTHIT"
+                                                    ? _getDataGamePlayGame(
+                                                        item,
+                                                    )
+                                                    : _getDataGame(
+                                                        item,
+                                                    )
+                                            }
+                                        />
+                                    )}
+                                </div>
+                            ))};
+                    </div>
 
                 </section>
                 <div style={{ height: 20 }} />
