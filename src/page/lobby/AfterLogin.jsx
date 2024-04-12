@@ -6,14 +6,18 @@ import { faChevronCircleLeft, faChevronCircleRight, faHeart } from "@fortawesome
 import { useHistory } from "react-router-dom";
 import { Modal } from 'react-bootstrap';
 
-import 'react-slideshow-image/dist/styles.css'
-import 'react-slideshow-image/dist/styles.css'
-import { DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
+import "react-slideshow-image/dist/styles.css";
+import "react-slideshow-image/dist/styles.css";
+import {
+    DataLoginInRout,
+    FillerCategory,
+    LogoutClearLocalStorage,
+    OpenNewTabWithHTML,
+} from "../../helper";
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 
 export default function AfterLogin() {
-
     const history = useHistory();
 
     const sidebarUseRef = useRef(null);
@@ -24,10 +28,6 @@ export default function AfterLogin() {
     const [slideIndex, setSlideIndex] = useState(1);
     const [reMessage, setReMessage] = useState("");
     const { ChangePassword } = _LoginController();
-
-
-
-
 
     useEffect(() => {
         let hasTouchScreen = false;
@@ -108,7 +108,7 @@ export default function AfterLogin() {
 
     const plusSlides = (n) => {
         showSlides(slideIndex + n);
-    }
+    };
 
     function currentSlide(n) {
         showSlides(n);
@@ -120,99 +120,99 @@ export default function AfterLogin() {
         if (n > slides.length) {
             // setSlideIndex(1);
         }
-    }
+    };
 
     // =============> connect data <================
-    const [dataFromLogin, setdataFromLogin] = useState({})
-    const [dataGameList, setdataGameList] = useState()
-    const [categoryGame, setCategoryGame] = useState([])
+    const [dataFromLogin, setdataFromLogin] = useState({});
+    const [dataGameList, setdataGameList] = useState();
+    const [categoryGame, setCategoryGame] = useState([]);
     const [deviceType, setDeviceType] = useState(false);
     const [dataGameType, setDataGameType] = useState("FAVORITE"); // FAVORITE || HOTHIT
-    const [dataUser, setDataUser] = useState()
+    const [dataUser, setDataUser] = useState();
 
     useEffect(() => {
-        let _data = DataLoginInRout(history?.location?.state)
+        const _data = DataLoginInRout(history?.location?.state);
         if (_data) {
-            setdataFromLogin(_data)
+            setdataFromLogin(_data);
         }
-    }, [])
+    }, []);
     useEffect(() => {
-        _clickCategoryGame("FAVORITE")
-        _getData()
-    }, [dataFromLogin])
+        _clickCategoryGame("FAVORITE");
+        _getData();
+    }, [dataFromLogin]);
 
     const _getData = async () => {
-        let _res = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Member/Balance',
+        const _res = await axios({
+            method: "post",
+            url: Constant.SERVER_URL + "/Member/Balance",
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
             },
         });
         if (_res?.data?.statusCode === 0) {
-            setDataUser(_res?.data?.data)
+            setDataUser(_res?.data?.data);
         }
-    }
+    };
 
     const _clickCategoryGame = async (value) => {
-        setDataGameType(value)
-        setdataGameList([])
+        setDataGameType(value);
+        setdataGameList([]);
         if (value === "FAVORITE") {
-            let _getData = await axios({
-                method: 'post',
-                url: Constant.SERVER_URL + '/Game/Brand/List',
+            const _getData = await axios({
+                method: "post",
+                url: Constant.SERVER_URL + "/Game/Brand/List",
                 data: {
-                    "s_agent_code": dataFromLogin?.agent,
-                    "s_username": dataFromLogin?.username,
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
                 },
             });
             if (_getData?.data?.statusCode === 0) {
-                setCategoryGame(_getData?.data?.data?.FAVORITE)
+                setCategoryGame(_getData?.data?.data?.FAVORITE);
             }
         } else {
-            setdataGameList()
-            FillerCategory(value, setCategoryGame)
+            setdataGameList();
+            FillerCategory(value, setCategoryGame);
         }
-    }
+    };
     const _clickFavarite = async (value) => {
-        setDataGameType("FAVORITE")
-        setdataGameList([])
-        let _getData = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Game/Brand/List',
+        setDataGameType("FAVORITE");
+        setdataGameList([]);
+        const _getData = await axios({
+            method: "post",
+            url: Constant.SERVER_URL + "/Game/Brand/List",
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
             },
         });
         if (_getData?.data?.statusCode === 0) {
-            setCategoryGame(_getData?.data?.data?.FAVORITE)
+            setCategoryGame(_getData?.data?.data?.FAVORITE);
         }
-    }
+    };
     const _addFavorite = async (value) => {
-        let _getData = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Favorite/Select',
+        const _getData = await axios({
+            method: "post",
+            url: Constant.SERVER_URL + "/Favorite/Select",
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
-                "id_favorite": value?.id_favorite,
-                "actionBy": "ADM"
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
+                id_favorite: value?.id_favorite,
+                actionBy: "ADM",
             },
         });
         if (_getData?.data?.statusCode === 0) {
             if (dataGameType === "FAVORITE" || dataGameType === "HOTHIT") {
-                _clickCategoryGame(dataGameType)
+                _clickCategoryGame(dataGameType);
             } else {
-                _getDataGame(value)
+                _getDataGame(value);
             }
         }
-    }
+    };
     const _getDataGame = async (value) => {
         if (value?.s_type === "CASINO" || value?.s_type === "SPORT") {
-            _getDataGamePlayGame(value)
-            return
+            _getDataGamePlayGame(value);
+            return;
         }
         const _res = await axios({
             method: "post",
@@ -224,13 +224,18 @@ export default function AfterLogin() {
             },
         });
         if (_res?.data?.statusCode === 0) {
-            setdataGameList(_res?.data?.data)
+            setdataGameList(_res?.data?.data);
         }
-    }
+    };
     const _getDataGamePlayGame = async (value) => {
         try {
             const _data = {
-                s_game_code: value?.s_type === "CASINO" ? "B001" : value?.s_type === "SPORT" ? "B001" : value?.s_game_code,
+                s_game_code:
+                    value?.s_type === "CASINO"
+                        ? "B001"
+                        : value?.s_type === "SPORT"
+                            ? "B001"
+                            : value?.s_game_code,
                 s_brand_code: value?.s_brand_code,
                 s_username: dataFromLogin?.username,
                 s_agent_code: Constant?.AGEN_CODE,
@@ -245,7 +250,7 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.url) {
-                window.open(_res?.data?.url, '_blank');
+                window.open(_res?.data?.url, "_blank");
             }
             if (_res?.data) {
                 OpenNewTabWithHTML(_res?.data?.res_html);
@@ -253,18 +258,21 @@ export default function AfterLogin() {
         } catch (error) {
             console.error("Error playing the game:", error);
         }
-    }
+    };
     const _withdrawMoney = async () => {
         try {
             const _data = {
-                "s_agent_code": Constant?.AGEN_CODE,
-                "s_username": dataFromLogin?.username,
-                "f_amount": dataUser?.amount,
-                "i_bank": dataFromLogin?.info?.bankList[0]?.id,
-                "i_ip": "1.2.3.4",
-                "actionBy": "adm"
+                s_agent_code: Constant?.AGEN_CODE,
+                s_username: dataFromLogin?.username,
+                f_amount: dataUser?.amount,
+                i_bank: dataFromLogin?.info?.bankList[0]?.id,
+                i_ip: "1.2.3.4",
+                actionBy: "adm",
             };
-            console.log("🚀 ~ const_withdrawMoney= ~ Constant?.AGEN_CODE:", Constant?.AGEN_CODE)
+            console.log(
+                "🚀 ~ const_withdrawMoney= ~ Constant?.AGEN_CODE:",
+                Constant?.AGEN_CODE,
+            );
             // Send the data to the server to get the game URL
             const _res = await axios({
                 method: "post",
@@ -272,23 +280,21 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.statusCode === 0) {
-                _getData()
+                _getData();
             } else {
-                setReMessage(_res?.data?.statusDesc)
+                setReMessage(_res?.data?.statusDesc);
             }
-        } catch (error) {
-
-        }
-    }
+        } catch (error) { }
+    };
     //  =================> ChangePassword <=================
-    const [oldPassword, setOldPassword] = useState("")
-    const [NewPassword, setNewPassword] = useState("")
-    const [NewPasswordVery, setNewPasswordVery] = useState("")
+    const [oldPassword, setOldPassword] = useState("");
+    const [NewPassword, setNewPassword] = useState("");
+    const [NewPasswordVery, setNewPasswordVery] = useState("");
     const _ChangePassword = async () => {
         try {
             if (NewPassword !== NewPasswordVery) {
-                setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน")
-                return
+                setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน");
+                return;
             }
             const _data = await ChangePassword(NewPassword, oldPassword)
             if (_data?.data) {
@@ -300,26 +306,26 @@ export default function AfterLogin() {
         } catch (error) {
             console.error("Error playing the game:", error);
         }
-    }
+    };
     const _copyLinkAffiliate = (link) => {
-        navigator.clipboard.writeText(link)
-    }
-    const [codeCupon, setCodeCupon] = useState("")
+        navigator.clipboard.writeText(link);
+    };
+    const [codeCupon, setCodeCupon] = useState("");
     const _addCupon = async () => {
         try {
             const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
-                "s_agent_code": Constant?.AGEN_CODE,
-                "s_username": dataFromLogin?.username,
-                "s_code": codeCupon,
-                "actionBy": "ADM"
-            })
+                s_agent_code: Constant?.AGEN_CODE,
+                s_username: dataFromLogin?.username,
+                s_code: codeCupon,
+                actionBy: "ADM",
+            });
             if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc)
+                setReMessage(_data?.data?.statusDesc);
             }
         } catch (error) {
             console.error("Error playing the game:", error);
         }
-    }
+    };
 
 
     const [nextSliderPage, setNextSliderPage] = useState(0)
@@ -419,48 +425,98 @@ export default function AfterLogin() {
                 <div className="brand">
                     <div className="slideshow-container">
                         <div className="mySlides fade-slide">
-                            <img src="/assets/images/Cardgame/image 70.png" style={{ width: "100%" }} alt="brand" />
+                            <img
+                                src="/assets/images/Cardgame/image 70.png"
+                                style={{ width: "100%" }}
+                                alt="brand"
+                            />
                         </div>
-                        <a className="prev" onClick={plusSlides(-1)}>❮</a>
-                        <a className="next" onClick={plusSlides(1)}>❯</a>
+                        <a className="prev" onClick={plusSlides(-1)}>
+                            ❮
+                        </a>
+                        <a className="next" onClick={plusSlides(1)}>
+                            ❯
+                        </a>
                     </div>
 
                     <div style={{ textAlign: "center" }}>
-                        <span className="dot" onClick={() => currentSlide(1)} onKeyDown={() => ''} />
-                        <span className="dot" onClick={() => currentSlide(2)} onKeyDown={() => ''} />
-                        <span className="dot" onClick={() => currentSlide(3)} onKeyDown={() => ''} />
+                        <span
+                            className="dot"
+                            onClick={() => currentSlide(1)}
+                            onKeyDown={() => ""}
+                        />
+                        <span
+                            className="dot"
+                            onClick={() => currentSlide(2)}
+                            onKeyDown={() => ""}
+                        />
+                        <span
+                            className="dot"
+                            onClick={() => currentSlide(3)}
+                            onKeyDown={() => ""}
+                        />
                     </div>
                 </div>
                 <div className="marquee-custome">
                     <marquee className="description">
-                        เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
-                        100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
+                        เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ 100 ล้าน สล็อต
+                        บาคาร่า หวย กีฬา มีครบจบที่เดียว
                     </marquee>
                 </div>
                 <section className="featured-game-wrapper">
                     <div className="container flexBetween">
-                        <div className="featured-game flexBetween" onClick={() => _clickFavarite()}>
+                        <div
+                            className="featured-game flexBetween"
+                            onClick={() => _clickFavarite()}
+                        >
                             <img src="/assets/images/newicon/favorite.png" alt="game icon" />
                             <p>เกมโปรด</p>
                         </div>
-                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")}>
+                        <div
+                            className="featured-game flexBetween"
+                            onClick={() => _clickCategoryGame("HOTHIT")}
+                        >
                             <img src="/assets/images/newicon/hothit.png" alt="game icon" />
                             <p style={{ fontSize: 20 }}>เป็นที่นิยม</p>
                         </div>
-                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")}>
-                            <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+                        <div
+                            className="featured-game flexBetween"
+                            onClick={() => _clickCategoryGame("SLOT")}
+                        >
+                            <img
+                                src="/assets/images/newicon/iconnew-01.png"
+                                alt="game icon"
+                            />
                             <p>สล็อต</p>
                         </div>
-                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("CASINO")}>
-                            <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
+                        <div
+                            className="featured-game flexBetween"
+                            onClick={() => _clickCategoryGame("CASINO")}
+                        >
+                            <img
+                                src="/assets/images/newicon/iconnew-02.png"
+                                alt="game icon"
+                            />
                             <p>คาสิโน</p>
                         </div>
-                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("FISHING")}>
-                            <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
+                        <div
+                            className="featured-game flexBetween"
+                            onClick={() => _clickCategoryGame("FISHING")}
+                        >
+                            <img
+                                src="/assets/images/newicon/iconnew-03.png"
+                                alt="game icon"
+                            />
                             <p>ยิงปลา</p>
                         </div>
-                        <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SPORT")}>
-                            <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
+                        <div
+                            className="featured-game flexBetween"
+                            onClick={() => _clickCategoryGame("SPORT")}
+                        >
+                            <img
+                                src="/assets/images/newicon/iconnew-05.png"
+                                alt="game icon"
+                            />
                             <p>กีฬา</p>
                         </div>
                     </div>
@@ -486,51 +542,58 @@ export default function AfterLogin() {
                                 }} onClick={() => _addFavorite(game)}>
                                     <FontAwesomeIcon icon={faHeart} style={{ color: "white", fontSize: 25 }} />
                                 </div>
-                                <img
-                                    src={game?.s_img ?? "/assets/images/jilli_card.svg"}
-                                    id="game-card"
-                                    className="game-image"
-                                    alt="game"
-                                    onClick={() => _getDataGamePlayGame(game)}
-                                />
-                            </div>) : categoryGame?.map((item) => (
-                                <div
-                                    key={item?.s_img}
-                                    className="game-card"
-                                >
-                                    {dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? <div style={{
-                                        position: "absolute",
-                                        top: "0", left: "0",
-                                        zIndex: 1,
-                                        backgroundColor: "#FE2147", //"#A4A4A4"
-                                        padding: 8,
-                                        borderRadius: "50%",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        display: "flex",
-                                    }} onClick={() => _addFavorite(item)}>
-                                        <FontAwesomeIcon icon={faHeart} style={{ color: '#FFF', fontSize: 25 }} />
-                                    </div> : null}
+                                </div>
+                            ))
+                            : categoryGame?.map((item) => (
+                                <div key={item?.s_img} className="game-card">
+                                    {dataGameType === "FAVORITE" ||
+                                        dataGameType === "HOTHIT" ? (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "0",
+                                                left: "0",
+                                                zIndex: 1,
+                                                backgroundColor: "#FE2147", //"#A4A4A4"
+                                                padding: 8,
+                                                borderRadius: "50%",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                display: "flex",
+                                            }}
+                                            onClick={() => _addFavorite(item)}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faHeart}
+                                                style={{ color: "#FFF", fontSize: 25 }}
+                                            />
+                                        </div>
+                                    ) : null}
                                     <img
                                         src={item?.s_img ?? item?.s_lobby_url}
                                         id="game-card"
                                         className="game-image"
                                         alt="game"
-                                        onClick={() => dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? _getDataGamePlayGame(item) : _getDataGame(item)}
+                                        onClick={() =>
+                                            dataGameType === "FAVORITE" || dataGameType === "HOTHIT"
+                                                ? _getDataGamePlayGame(item)
+                                                : _getDataGame(item)
+                                        }
                                     />
                                 </div>
                             ))}
-
                     </div>
                 </section>
                 <div className="partnership-container"></div>
                 {sidebarVisible ? (
                     <div className="sidebar-container" ref={sidebarUseRef}>
-                        <aside className="sidebar"
+                        <aside
+                            className="sidebar"
                             style={{
                                 animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
                                     } 0.5s ease-in-out`,
-                            }}>
+                            }}
+                        >
                             <div
                                 className="icon-turn-back"
                                 onClick={() => closeSidebar()}
@@ -554,16 +617,16 @@ export default function AfterLogin() {
 
                             <div className="flexBetween" style={{ gap: 13 }}>
                                 <button
-                                    type='button'
+                                    type="button"
                                     className="gradient-border sidebar-button flexCenter"
-                                    style={{ width: '50%' }}
+                                    style={{ width: "50%" }}
                                     data-bs-toggle="modal"
                                     data-bs-target="#profile"
                                 >
                                     โปรไฟล์
                                 </button>
                                 <button
-                                    type='button'
+                                    type="button"
                                     className="gradient-border sidebar-button flexCenter"
                                     data-bs-toggle="modal"
                                     data-bs-target="#depositWithdraw"
@@ -574,7 +637,7 @@ export default function AfterLogin() {
                             </div>
                             <div className="flexBetween" style={{ gap: 13 }}>
                                 <button
-                                    type='button'
+                                    type="button"
                                     className="gradient-border sidebar-button flexCenter"
                                     style={{ width: "50%" }}
                                     id="bag-modal-btn"
@@ -584,7 +647,7 @@ export default function AfterLogin() {
                                     กระเป๋า
                                 </button>
                                 <button
-                                    type='button'
+                                    type="button"
                                     className="gradient-border sidebar-button flexCenter"
                                     style={{ width: "50%" }}
                                     id="history-btn"
@@ -596,14 +659,14 @@ export default function AfterLogin() {
                             </div>
                             <div className="flexBetween" style={{ gap: 13 }}>
                                 <button
-                                    type='button'
+                                    type="button"
                                     className="gradient-border sidebar-button flexCenter"
                                     style={{ width: "50%" }}
                                 >
                                     ไลน์บอท
                                 </button>
                                 <button
-                                    type='button'
+                                    type="button"
                                     className="gradient-border sidebar-button flexCenter"
                                     style={{ fontSize: 17, width: "50%" }}
                                 >
@@ -611,7 +674,7 @@ export default function AfterLogin() {
                                 </button>
                             </div>
                             <button
-                                type='button'
+                                type="button"
                                 className="gradient-border sidebar-button flexCenter"
                                 style={{ width: "100%", marginBottom: 16 }}
                                 data-bs-toggle="modal"
@@ -620,7 +683,7 @@ export default function AfterLogin() {
                                 เปลี่ยนรหัสผ่าน
                             </button>
                             <button
-                                type='button'
+                                type="button"
                                 className="gradient-border sidebar-button flexCenter"
                                 style={{ width: "100%", marginBottom: 16 }}
                                 onClick={() => LogoutClearLocalStorage()}
@@ -673,8 +736,10 @@ export default function AfterLogin() {
                         </div>
 
                         <div className="button-container">
-                            <button type='button' id="login-btn">เข้าสู่ระบบ</button>
-                            <button type='button'>สมัครสมาชิก</button>
+                            <button type="button" id="login-btn">
+                                เข้าสู่ระบบ
+                            </button>
+                            <button type="button">สมัครสมาชิก</button>
                         </div>
                     </div>
                     <div className="background" id="login-modal-background" />
@@ -689,7 +754,8 @@ export default function AfterLogin() {
                     tabindex="-1"
                     aria-labelledby="profile"
                     aria-hidden="true"
-                ><div className="modal-dialog">
+                >
+                    <div className="modal-dialog">
                         <div className="modal-border">
                             <div className="modal-content">
                                 <div className="modal-header-container">
@@ -718,9 +784,14 @@ export default function AfterLogin() {
                                                     <div className="font-17">
                                                         <p>{item?.s_account_name}</p>
                                                         <div
-                                                            style={{ display: "flex", justifyContent: "space-between" }}
+                                                            style={{
+                                                                display: "flex",
+                                                                justifyContent: "space-between",
+                                                            }}
                                                         >
-                                                            <div style={{ marginRight: 10 }}>{item?.s_icon.split(".")[0]}</div>
+                                                            <div style={{ marginRight: 10 }}>
+                                                                {item?.s_icon.split(".")[0]}
+                                                            </div>
                                                             <img
                                                                 src={`/assets/images/bank/` + item?.s_icon}
                                                                 alt="logo"
@@ -736,7 +807,9 @@ export default function AfterLogin() {
                                         </div>
                                         <div className="user">
                                             <p className="username">Username</p>
-                                            <p className="result">{dataFromLogin?.info?.profile?.s_username}</p>
+                                            <p className="result">
+                                                {dataFromLogin?.info?.profile?.s_username}
+                                            </p>
                                         </div>
                                         <div className="password">
                                             <p className="pass">Password</p>
@@ -902,8 +975,12 @@ export default function AfterLogin() {
                                             <div className="loss">0</div>
                                             <div className="updated">อัพเดทล่าสุด 09-09-65 12.00 น.</div>
                                             <div className="btn">
-                                                <button type='button' className="receive-credit">รับเข้าเครดิต</button>
-                                                <button type='button' className="withdraw-to-accont">ถอนเข้าบัญชี</button>
+                                                <button type="button" className="receive-credit">
+                                                    รับเข้าเครดิต
+                                                </button>
+                                                <button type="button" className="withdraw-to-accont">
+                                                    ถอนเข้าบัญชี
+                                                </button>
                                             </div>
                                             <div className="description">
                                                 <p className="text-left">ขั้นต่ำ 1 สูงสุด 10000</p>
@@ -938,7 +1015,9 @@ export default function AfterLogin() {
                                             data-bs-dismiss="modal"
                                             aria-label="Close"
                                         />
-                                        <p className="modal-title" id="depositWithdraw">ฝาก - ถอน</p>
+                                        <p className="modal-title" id="depositWithdraw">
+                                            ฝาก - ถอน
+                                        </p>
                                         <img
                                             src="/assets/icons/icon-close-modal.svg"
                                             className="modal-icon-close"
@@ -993,15 +1072,15 @@ export default function AfterLogin() {
                                     <div
                                         style={{
                                             marginTop: 20,
-                                            display: 'grid',
-                                            color: 'white',
-                                            gridTemplateColumns: 'repeat(3, 110px)',
+                                            display: "grid",
+                                            color: "white",
+                                            gridTemplateColumns: "repeat(3, 110px)",
                                             gap: 16,
-                                            justifyContent: 'center',
+                                            justifyContent: "center",
                                         }}
                                     >
                                         <div
-                                            style={{ cursor: 'pointer' }}
+                                            style={{ cursor: "pointer" }}
                                             data-bs-toggle="modal"
                                             data-bs-target="#autoDeposit"
                                             data-bs-dismiss="modal"
@@ -1037,7 +1116,10 @@ export default function AfterLogin() {
                                         >
                                             <div className="type-of-withdrawal">
                                                 <div className="withdrawal">
-                                                    <img src="/assets/images/Withdraw-money.svg" alt="kkk" />
+                                                    <img
+                                                        src="/assets/images/Withdraw-money.svg"
+                                                        alt="kkk"
+                                                    />
                                                     <div>ถอนเงิน</div>
                                                 </div>
                                             </div>
@@ -1073,19 +1155,20 @@ export default function AfterLogin() {
                                     </div>
 
                                     <div
-                                        style={{ textAlign: 'center', marginTop: 10, fontSize: 12 }}
+                                        style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}
                                     >
                                         <div>
                                             พบปัญหา
                                             <span
                                                 style={{
-                                                    color: 'red',
-                                                    textDecoration: 'underline',
+                                                    color: "red",
+                                                    textDecoration: "underline",
                                                     marginLeft: 5,
                                                     // cursor: 'pointer',
                                                 }}
-                                            >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
+                                                ติดต่อฝ่ายบริการลูกค้า
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="button-line">
@@ -1125,7 +1208,9 @@ export default function AfterLogin() {
                                             data-bs-toggle="modal"
                                             data-bs-target="#depositWithdraw"
                                         />
-                                        <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
+                                        <p className="modal-title" id="autoDeposit">
+                                            ฝากออโต้
+                                        </p>
                                         <img
                                             src="/assets/icons/icon-close-modal.svg"
                                             className="modal-icon-close"
@@ -1140,13 +1225,17 @@ export default function AfterLogin() {
                                         <div className="card-scb1">
                                             <div className="left">
                                                 <p>{dataFromLogin?.info?.bankDeposit[0]?.s_fname_th}</p>
-                                                <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_name}</p>
-                                                <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_no}</p>
+                                                <p>
+                                                    {dataFromLogin?.info?.bankDeposit[0]?.s_account_name}
+                                                </p>
+                                                <p>
+                                                    {dataFromLogin?.info?.bankDeposit[0]?.s_account_no}
+                                                </p>
                                             </div>
                                             <div className="right">
                                                 <div className="bank">
                                                     <h3>SCB</h3>
-                                                    <div style={{ borderRadius: '100%' }}>
+                                                    <div style={{ borderRadius: "100%" }}>
                                                         <img src="/assets/images/scb 1.png" alt="scb" />
                                                     </div>
                                                 </div>
@@ -1166,8 +1255,14 @@ export default function AfterLogin() {
                                         <div>
                                             พบปัญหา
                                             <span
-                                            >ติดต่อฝ่ายบริการลูกค้า</span
+                                            // style={{
+                                            //     color: ' rgba(0, 252, 252, 1)',
+                                            //     textDecoration: 'underline',
+                                            //     cursor: 'pointer',
+                                            // }}
                                             >
+                                                ติดต่อฝ่ายบริการลูกค้า
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="button-line">
@@ -1208,7 +1303,9 @@ export default function AfterLogin() {
                                             data-bs-target="#depositWithdraw"
                                             data-bs-dismiss="modal"
                                         />
-                                        <p className="modal-title" id="leaveAdecimal">ฝากทศนิยม</p>
+                                        <p className="modal-title" id="leaveAdecimal">
+                                            ฝากทศนิยม
+                                        </p>
                                         <img
                                             src="/assets/icons/icon-close-modal.svg"
                                             className="modal-icon-close"
@@ -1230,12 +1327,14 @@ export default function AfterLogin() {
                                             className="text-amount-money"
                                             placeholder="กรอกจำนวนเงินที่ต้องการฝาก"
                                         />
-                                        <p style={{ color: "#ff0000", fontSize: 14 }}>กรุณากรอกข้อมูล</p>
+                                        <p style={{ color: "#ff0000", fontSize: 14 }}>
+                                            กรุณากรอกข้อมูล
+                                        </p>
                                     </div>
                                     <div>
                                         <div
                                             className="confirm-the-amount"
-                                            style={{ cursor: 'pointer' }}
+                                            style={{ cursor: "pointer" }}
                                             data-bs-toggle="modal"
                                             data-bs-target="#leaveAdecimal1"
                                             data-bs-dismiss="modal"
@@ -1244,7 +1343,7 @@ export default function AfterLogin() {
                                         </div>
                                     </div>
                                     <div
-                                        style={{ textAlign: 'center', marginTop: 10, fontSize: 12 }}
+                                        style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}
                                     >
                                         <div>
                                             พบปัญหา
@@ -1254,11 +1353,15 @@ export default function AfterLogin() {
                                             //     textDecoration: 'underline',
                                             //     cursor: 'pointer',
                                             // }}
-                                            >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
+                                                ติดต่อฝ่ายบริการลูกค้า
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="button-line" style={{ cursor: "pointer", fontSize: 13 }}>
+                                    <div
+                                        className="button-line"
+                                        style={{ cursor: "pointer", fontSize: 13 }}
+                                    >
                                         <div>
                                             <img
                                                 src="/assets/icons/icon-line.svg"
@@ -1297,7 +1400,9 @@ export default function AfterLogin() {
                                             data-bs-target="#leaveAdecimal"
                                             data-bs-dismiss="modal"
                                         />
-                                        <p className="modal-title" id="leaveAdecimal1">ฝากทศนิยม</p>
+                                        <p className="modal-title" id="leaveAdecimal1">
+                                            ฝากทศนิยม
+                                        </p>
                                         <img
                                             src="/assets/icons/icon-close-modal.svg"
                                             className="modal-icon-close"
@@ -1310,27 +1415,26 @@ export default function AfterLogin() {
                                 <div className="modal-body">
                                     <div
                                         style={{
-                                            padding: '20px 20px 0 20px',
-                                            textAlign: 'center',
+                                            padding: "20px 20px 0 20px",
+                                            textAlign: "center",
                                             fontSize: 14,
                                             fontWeight: 500,
                                         }}
                                     >
                                         ยอดเงินที่ต้องโอน
-
                                         <div
                                             style={{
                                                 fontSize: 40,
                                                 fontWeight: 600,
                                                 marginTop: 5,
-                                                color: '#f9df7b'
+                                                color: "#f9df7b",
                                             }}
                                         >
                                             111.11
                                         </div>
                                         <div style={{ fontSize: 14 }}>
                                             กรุณาโอนเงินภายใน
-                                            <span style={{ color: ' #ff0000' }}>00.00</span> นาที
+                                            <span style={{ color: " #ff0000" }}>00.00</span> นาที
                                         </div>
                                     </div>
                                     <div className="detail-card-scb1">
@@ -1371,8 +1475,9 @@ export default function AfterLogin() {
                                             //     textDecoration: 'underline',
                                             //     cursor: 'pointer',
                                             // }}
-                                            >ติดต่อฝ่ายบริการลูกค้า</span
                                             >
+                                                ติดต่อฝ่ายบริการลูกค้า
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="button-line">
@@ -1416,7 +1521,9 @@ export default function AfterLogin() {
                                         data-bs-target="#depositWithdraw"
                                         data-bs-dismiss="modal"
                                     />
-                                    <p className="modal-title" id="withdraw">ถอนเงิน</p>
+                                    <p className="modal-title" id="withdraw">
+                                        ถอนเงิน
+                                    </p>
                                     <img
                                         src="/assets/icons/icon-close-modal.svg"
                                         className="modal-icon-close"
@@ -1437,8 +1544,16 @@ export default function AfterLogin() {
                                             <div className="right flexCenter">
                                                 <div className="flexCenter bank">
                                                     <div>{item?.s_icon.split(".")[0]}</div>
-                                                    <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
-                                                        <img src={"/assets/images/bank/" + item?.s_icon} alt="kbank" />
+                                                    <div
+                                                        style={{
+                                                            backgroundColor: "#fff",
+                                                            borderRadius: "100%",
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={"/assets/images/bank/" + item?.s_icon}
+                                                            alt="kbank"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -1446,18 +1561,30 @@ export default function AfterLogin() {
                                     ))}
                                     <div className="money-input flexBetween">
                                         <p>จำนวนเงินที่ถอนได้</p>
-                                        <input type="text" value={dataUser?.amount} disabled={true} />
+                                        <input
+                                            type="text"
+                                            value={dataUser?.amount}
+                                            disabled={true}
+                                        />
                                     </div>
 
                                     <div style={{ color: "red" }}>{reMessage}</div>
 
-                                    <div className="button-warning" onClick={() => _withdrawMoney()}>ถอนเงิน</div>
+                                    <div
+                                        className="button-warning"
+                                        onClick={() => _withdrawMoney()}
+                                    >
+                                        ถอนเงิน
+                                    </div>
 
-                                    <p style={{ display: "flex" }}>พบปัญหา
-                                        <div style={{ marginLeft: "5px", color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</div>
+                                    <p style={{ display: "flex" }}>
+                                        พบปัญหา
+                                        <div style={{ marginLeft: "5px", color: "red" }}>
+                                            ติดต่อฝ่ายบริการลูกค้า
+                                        </div>
                                     </p>
 
-                                    <button type='button' className="line-button flexCenter">
+                                    <button type="button" className="line-button flexCenter">
                                         <img src="/assets/icons/icon-line.svg" alt="line icon" />
                                         <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
                                     </button>
@@ -1491,7 +1618,9 @@ export default function AfterLogin() {
                                         data-bs-target="#depositWithdraw"
                                         data-bs-dismiss="modal"
                                     />
-                                    <p className="modal-title" id="qrplay">QR PAY</p>
+                                    <p className="modal-title" id="qrplay">
+                                        QR PAY
+                                    </p>
                                     <img
                                         src="/assets/icons/icon-close-modal.svg"
                                         className="modal-icon-close"
@@ -1511,11 +1640,9 @@ export default function AfterLogin() {
                                     <div
                                         style={{
                                             fontSize: 12,
-                                            marginBottom:
-                                                -10,
+                                            marginBottom: -10,
                                             marginLeft: 5,
-                                            color:
-                                                "red",
+                                            color: "red",
                                         }}
                                     >
                                         เลือกธนาคาร
@@ -1534,7 +1661,10 @@ export default function AfterLogin() {
                                         </select>
 
                                         <div className="lang-select">
-                                            <button type='button' className="btn-select" value="">.</button><img
+                                            <button type="button" className="btn-select" value="">
+                                                .
+                                            </button>
+                                            <img
                                                 src="/assets/icons/icon-drow.svg"
                                                 alt=""
                                                 style={{ margin: "5px 0 0 -27px" }}
@@ -1573,12 +1703,13 @@ export default function AfterLogin() {
                                             <a
                                                 // href="/"
                                                 style={{
-                                                    color: 'red',
-                                                    textDecoration: 'underline',
-                                                    cursor: 'pointer',
+                                                    color: "red",
+                                                    textDecoration: "underline",
+                                                    cursor: "pointer",
                                                 }}
-                                            >ติดต่อฝ่ายบริการลูกค้า</a
                                             >
+                                                ติดต่อฝ่ายบริการลูกค้า
+                                            </a>
                                         </p>
                                     </div>
                                     <div className="button-line">
@@ -1620,7 +1751,9 @@ export default function AfterLogin() {
                                         data-bs-target="#qrplay"
                                         data-bs-dismiss="modal"
                                     />
-                                    <p className="modal-title" id="showQR">QR PAY</p>
+                                    <p className="modal-title" id="showQR">
+                                        QR PAY
+                                    </p>
                                     <img
                                         src="/assets/icons/icon-close-modal.svg"
                                         className="modal-icon-close"
@@ -1639,10 +1772,10 @@ export default function AfterLogin() {
                                             <img src="/assets/images/qrpay.png" alt="qr" />
                                         </div>
                                         <div className="div4">
-                                            <button type='button' className="save">
+                                            <button type="button" className="save">
                                                 <img src="/assets/icons/farm.svg" alt="save" /> บันทึก
                                             </button>
-                                            <button type='button' className="refresh">
+                                            <button type="button" className="refresh">
                                                 <img src="/assets/icons/reload.svg" alt="save" /> รีเฟรช
                                             </button>
                                         </div>
@@ -1654,23 +1787,26 @@ export default function AfterLogin() {
                                                 ต้องใช้บัญชีที่ผูกกับระบบทำรายการเข้ามาเท่านั้น
                                             </p>
                                             <p>3.กดเลือกสแกนจ่ายที่แอปธนาคารนั้น ๆ</p>
-                                            <p>
-                                                4.เลือกรูปภาพ QR Code ที่บันทึกหรือแคป เพื่อทำรายการจ่าย
-                                            </p>
+                                            <p>4.เลือกรูปภาพ QR Code ที่บันทึกหรือแคป เพื่อทำรายการจ่าย</p>
                                         </div>
                                         <div
-                                            style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}
+                                            style={{
+                                                textAlign: "center",
+                                                marginTop: 10,
+                                                fontSize: 12,
+                                            }}
                                         >
                                             <div>
                                                 พบปัญหา
                                                 <span
                                                     style={{
-                                                        color: 'red',
-                                                        textDecoration: 'underline',
-                                                        cursor: 'pointer',
+                                                        color: "red",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
                                                     }}
-                                                >ติดต่อฝ่ายบริการลูกค้า</span
                                                 >
+                                                    ติดต่อฝ่ายบริการลูกค้า
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -1722,7 +1858,7 @@ export default function AfterLogin() {
                                     <div className="bank-selector">
                                         <label for="name">เลือกธนาคารบัญชีฝาก</label>
                                         <div className="flexCenter" style={{ gap: 8 }}>
-                                            <div className="flexCenter" style={{ width: '20%' }}>
+                                            <div className="flexCenter" style={{ width: "20%" }}>
                                                 <img
                                                     src="/assets/icons/icon-bank-default/Ellipse 10.svg"
                                                     alt="bank icon"
@@ -1744,7 +1880,7 @@ export default function AfterLogin() {
                                                 </svg>
                                             </div>
                                             <input
-                                                style={{ width: '80%' }}
+                                                style={{ width: "80%" }}
                                                 type="text"
                                                 name="name"
                                                 id="name"
@@ -1768,8 +1904,12 @@ export default function AfterLogin() {
                                         <small>วันที่ทำรายการฝาก</small>
                                     </div>
 
-                                    <button type='button' className="button-warning">ยืนยันยอดฝาก</button>
-                                    <p>พบปัญหา <a style={{ color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</a></p>
+                                    <button type="button" className="button-warning">
+                                        ยืนยันยอดฝาก
+                                    </button>
+                                    <p>
+                                        พบปัญหา <a style={{ color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -1822,7 +1962,10 @@ export default function AfterLogin() {
                                                 <p>True Wallet</p>
 
                                                 <div>
-                                                    <img src="/assets/images/true-money-wallet.svg" alt="" />
+                                                    <img
+                                                        src="/assets/images/true-money-wallet.svg"
+                                                        alt=""
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="visa">
@@ -1835,11 +1978,9 @@ export default function AfterLogin() {
                                         กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
                                     </div>
 
-                                    <p className="suggest-text">
-                                        พบปัญหา ติดต่อฝ่ายบริการลูกค้า
-                                    </p>
+                                    <p className="suggest-text">พบปัญหา ติดต่อฝ่ายบริการลูกค้า</p>
 
-                                    <button type='button' className="line-button">
+                                    <button type="button" className="line-button">
                                         <img
                                             src="/assets/icons/icon-line.svg"
                                             style={{ width: 30, height: 30 }}
@@ -1881,30 +2022,50 @@ export default function AfterLogin() {
                             <div className="modal-body">
                                 <div className="history-modal-content">
                                     <div className="history-tab">
-                                        <div className={
-                                            tabName === "tab-deposit"
-                                                ? "history-tab-item active"
-                                                : "history-tab-item"
-                                        }
+                                        <div
+                                            className={
+                                                tabName === "tab-deposit"
+                                                    ? "history-tab-item active"
+                                                    : "history-tab-item"
+                                            }
                                             onClick={() => _clickTabDeposit("tab-deposit")}
-                                            onKeyDown={() => ""} id="tab-deposit">ฝาก</div>
-                                        <div className={
-                                            tabName === "tab-withdraw"
-                                                ? "history-tab-item active"
-                                                : "history-tab-item"
-                                        }
+                                            onKeyDown={() => ""}
+                                            id="tab-deposit"
+                                        >
+                                            ฝาก
+                                        </div>
+                                        <div
+                                            className={
+                                                tabName === "tab-withdraw"
+                                                    ? "history-tab-item active"
+                                                    : "history-tab-item"
+                                            }
                                             onClick={() => _clickTabDeposit("tab-withdraw")}
-                                            onKeyDown={() => ""} id="tab-withdraw">ถอน</div>
-                                        <div className={
-                                            tabName === "tab-bonus"
-                                                ? "history-tab-item active"
-                                                : "history-tab-item"
-                                        }
+                                            onKeyDown={() => ""}
+                                            id="tab-withdraw"
+                                        >
+                                            ถอน
+                                        </div>
+                                        <div
+                                            className={
+                                                tabName === "tab-bonus"
+                                                    ? "history-tab-item active"
+                                                    : "history-tab-item"
+                                            }
                                             onClick={() => _clickTabDeposit("tab-bonus")}
-                                            onKeyDown={() => ""} id="tab-bonus">โบนัส</div>
+                                            onKeyDown={() => ""}
+                                            id="tab-bonus"
+                                        >
+                                            โบนัส
+                                        </div>
                                     </div>
                                     {/* <!-- ฝาก --> */}
-                                    <div className="history-deposit" style={{ display: tabName === "tab-deposit" ? "block" : "none" }}>
+                                    <div
+                                        className="history-deposit"
+                                        style={{
+                                            display: tabName === "tab-deposit" ? "block" : "none",
+                                        }}
+                                    >
                                         <div className="history-list">
                                             <div className="history-list-left">
                                                 <label className="history-list-label">รายการฝาก</label>
@@ -1941,7 +2102,12 @@ export default function AfterLogin() {
                                     </div>
 
                                     {/* <!-- ถอน --> */}
-                                    <div className="history-withdraw" style={{ display: tabName === "tab-withdraw" ? "block" : "none" }}>
+                                    <div
+                                        className="history-withdraw"
+                                        style={{
+                                            display: tabName === "tab-withdraw" ? "block" : "none",
+                                        }}
+                                    >
                                         <div className="history-list">
                                             <div className="history-list-left">
                                                 <label className="history-list-label">รายการถอน</label>
@@ -1978,7 +2144,12 @@ export default function AfterLogin() {
                                     </div>
 
                                     {/* <!-- โบนัส --> */}
-                                    <div className="history-bonus" style={{ display: tabName === "tab-bonus" ? "block" : "none" }}>
+                                    <div
+                                        className="history-bonus"
+                                        style={{
+                                            display: tabName === "tab-bonus" ? "block" : "none",
+                                        }}
+                                    >
                                         <div className="history-list">
                                             <div className="history-list-left">
                                                 <label className="history-list-label">รายการโบนัส</label>
@@ -2242,6 +2413,7 @@ export default function AfterLogin() {
                                                     className="promotion-modal-image"
                                                     alt=""
                                                     style={{ width: "100%" }}
+
                                                 />
                                             </div>
                                             <div onClick={() => _newSl("ADD")} style={{ color: "green" }}>
@@ -2279,7 +2451,6 @@ export default function AfterLogin() {
                         </div>
                     </div>
                 </div>
-
             </div>
             {/* <!-- promotion modal end --> */}
 
@@ -2322,9 +2493,15 @@ export default function AfterLogin() {
                                         className="input-box"
                                         onChange={(e) => setCodeCupon(e.target.value)}
                                     />
-                                    <div style={{ color: 'red', textAlign: 'center' }}>{reMessage}</div>
+                                    <div style={{ color: 'red', textAlign: 'center' }}>{reMessage}</div
 
-                                    <button type="button" className="button-warning" onClick={() => _addCupon()}>ยืนยัน</button>
+                                    <button
+                                        type="button"
+                                        className="button-warning"
+                                        onClick={() => _addCupon()}
+                                    >
+                                        ยืนยัน
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -2387,8 +2564,12 @@ export default function AfterLogin() {
                                                     <p className="credit-point-text">+100</p>
                                                 </div>
                                                 <div className="credit-button-content">
-                                                    <p className="credit-button-title">สามารถรับเครดิตฟรีได้</p>
-                                                    <button type='button' className="btn-credit-confirm">ยินยัน</button>
+                                                    <p className="credit-button-title">
+                                                        สามารถรับเครดิตฟรีได้
+                                                    </p>
+                                                    <button type="button" className="btn-credit-confirm">
+                                                        ยินยัน
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -2455,8 +2636,12 @@ export default function AfterLogin() {
                                                     <p className="credit-point-text">+100</p>
                                                 </div>
                                                 <div className="credit-button-content">
-                                                    <p className="credit-button-title">สามารถรับเพชรฟรีได้</p>
-                                                    <button type='button' className="btn-credit-confirm">ยินยัน</button>
+                                                    <p className="credit-button-title">
+                                                        สามารถรับเพชรฟรีได้
+                                                    </p>
+                                                    <button type="button" className="btn-credit-confirm">
+                                                        ยินยัน
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -2527,9 +2712,7 @@ export default function AfterLogin() {
                                                 id="top-rank-select"
                                             >
                                                 <option value="top-play">ยอดเล่นสูงสุด 30 อันดับ</option>
-                                                <option value="top-recharge">
-                                                    ยอดเติมสูงสุด 30 อันดับ
-                                                </option>
+                                                <option value="top-recharge">ยอดเติมสูงสุด 30 อันดับ</option>
                                                 <option value="top-lose">ยอดเสียสูงสุด 30 อันดับ</option>
                                             </select>
                                         </div>
@@ -2778,16 +2961,24 @@ export default function AfterLogin() {
                             <div className="modal-body">
                                 <div className="spinner-modal-content">
                                     <p className="spinner-modal-title">แต้มทั้งหมด : 0.00</p>
-                                    <p className="spinner-modal-subtitle">10 แต้ม หมุนกงล้อได้ 1 ครั้ง</p>
+                                    <p className="spinner-modal-subtitle">
+                                        10 แต้ม หมุนกงล้อได้ 1 ครั้ง
+                                    </p>
                                     <div className="spinner-modal-body">
                                         <img
                                             className="spinner-modal-img"
                                             src="/assets/images/image-spinner.svg"
                                             alt=""
                                         />
-                                        <button type="button" className="btn-spinner">หมุนกงล้อ</button>
+                                        <button type="button" className="btn-spinner">
+                                            หมุนกงล้อ
+                                        </button>
                                         <p className="spinner-modal-subtitle2">เครดิตกงล้อ : 0.00</p>
-                                        <input type="text" placeholder="จำนวนเงิน" className="input-box" />
+                                        <input
+                                            type="text"
+                                            placeholder="จำนวนเงิน"
+                                            className="input-box"
+                                        />
                                         <p className="spinner-modal-text-danger">
                                             แลกเงินเข้าเครดิต ขั้นต่ำ 100.00
                                         </p>
@@ -2867,7 +3058,13 @@ export default function AfterLogin() {
 
                                             <div className="link-shared-btn-group">
                                                 <div className="border-input-gold border-btn">
-                                                    <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}>
+                                                    <button
+                                                        type="button"
+                                                        className="btn-copy-link"
+                                                        onClick={() =>
+                                                            _copyLinkAffiliate(dataFromLogin?.info?.shorturl)
+                                                        }
+                                                    >
                                                         คัดลอกลิ้งค์
                                                     </button>
                                                 </div>
@@ -2992,7 +3189,10 @@ export default function AfterLogin() {
                                     <div className="earn-tab-container">
                                         <div className="border-input-gold">
                                             <div className="earn-tab">
-                                                <div id="earn-tab-overview" className="earn-tab-item active">
+                                                <div
+                                                    id="earn-tab-overview"
+                                                    className="earn-tab-item active"
+                                                >
                                                     ภาพรวม
                                                 </div>
                                                 <div className="border-input-gold earn-tab-item-2">
@@ -3000,7 +3200,10 @@ export default function AfterLogin() {
                                                         รายได้
                                                     </div>
                                                 </div>
-                                                <div id="earn-tab-withdraw-income" className="earn-tab-item">
+                                                <div
+                                                    id="earn-tab-withdraw-income"
+                                                    className="earn-tab-item"
+                                                >
                                                     ถอนรายได้
                                                 </div>
                                             </div>
@@ -3010,7 +3213,12 @@ export default function AfterLogin() {
                                     <div className="earn-detail-data" id="earn-detail-overview">
                                         <div className="filter-date">
                                             <p className="filter-label">ภาพรวมวันที่</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
+                                            <input
+                                                className="filter-date-input"
+                                                type="date"
+                                                name=""
+                                                id=""
+                                            />
                                         </div>
 
                                         <div className="border-input-gold">
@@ -3145,7 +3353,12 @@ export default function AfterLogin() {
                                     <div className="earn-detail-data" id="earn-detail-income">
                                         <div className="filter-date">
                                             <p className="filter-label">ประวัติรายได้</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
+                                            <input
+                                                className="filter-date-input"
+                                                type="date"
+                                                name=""
+                                                id=""
+                                            />
                                             <select className="filter-date-input">
                                                 <option value="">b</option>
                                             </select>
@@ -3169,17 +3382,22 @@ export default function AfterLogin() {
                                         </div>
                                     </div>
 
-                                    <div className="earn-detail-data" id="earn-detail-withdraw-income">
+                                    <div
+                                        className="earn-detail-data"
+                                        id="earn-detail-withdraw-income"
+                                    >
                                         <div className="border-input-gold">
                                             <div className="form-withdraw-income">
                                                 <div className="form-withdraw-group">
-                                                    <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
+                                                    <label className="form-withdraw-label">
+                                                        รายได้ปัจจุบัน
+                                                    </label>
                                                     <input type="text" className="form-withdraw-input" />
                                                 </div>
                                                 <div className="form-withdraw-group">
-                                                    <label className="form-withdraw-label"
-                                                    >จำนวนเงินที่ต้องการถอน</label
-                                                    >
+                                                    <label className="form-withdraw-label">
+                                                        จำนวนเงินที่ต้องการถอน
+                                                    </label>
                                                     <input
                                                         type="text"
                                                         placeholder="ถอนไม่มีขั้นต่ำ"
@@ -3194,7 +3412,12 @@ export default function AfterLogin() {
                                         </div>
                                         <div className="filter-date">
                                             <p className="filter-label">ประวัติรายได้</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
+                                            <input
+                                                className="filter-date-input"
+                                                type="date"
+                                                name=""
+                                                id=""
+                                            />
                                         </div>
 
                                         <div className="border-input-gold">
@@ -3234,9 +3457,13 @@ export default function AfterLogin() {
 
                                     <div className="read-earn-rule">
                                         หากมีข้อสงสัยเพิ่มเติม
-                                        <a href="https://www.google.com/" target="_blank" rel="noreferrer"
-                                        >อ่านกฏกติกา</a
+                                        <a
+                                            href="https://www.google.com/"
+                                            target="_blank"
+                                            rel="noreferrer"
                                         >
+                                            อ่านกฏกติกา
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -3306,8 +3533,16 @@ export default function AfterLogin() {
                                             onChange={(e) => setNewPasswordVery(e.target.value)}
                                         />
                                     </div>
-                                    <div style={{ textAlign: 'center', color: 'red' }}>{reMessage}</div>
-                                    <button type="button" className="button-warning" onClick={() => _ChangePassword()}>ยืนยัน</button>
+                                    <div style={{ textAlign: "center", color: "red" }}>
+                                        {reMessage}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="button-warning"
+                                        onClick={() => _ChangePassword()}
+                                    >
+                                        ยืนยัน
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -3418,8 +3653,5 @@ export default function AfterLogin() {
                 </div>
             </Modal>
         </div>
-    )
+    );
 }
-
-
-

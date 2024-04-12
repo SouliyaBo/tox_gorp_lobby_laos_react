@@ -31,6 +31,7 @@ export default function Home() {
 	const [passwordInput, setPasswordInput] = useState();
 	const [messageCreate, setMessageCreate] = useState();
 	const [dataGameList, setDataGameList] = useState(dataCradGame?.SLOT)
+	console.log("dataGameList: ", dataGameList)
 	const [warningPhone, setWarningPhone] = useState("")
 	const [warningPassword, setWarningPassword] = useState("")
 	const [warningFirstName, setWarningFirstName] = useState("")
@@ -107,7 +108,7 @@ export default function Home() {
 
 	// ===== LoginController =====>
 	const _Login = async () => {
-		const _res = await handleLogin(userNameInput, passwordInput,"PC");
+		const _res = await handleLogin(userNameInput, passwordInput, "PC");
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 	// ===== CreateUser =====>
@@ -349,10 +350,13 @@ export default function Home() {
 
 				<section className="card-container">
 					<div className="card-wrapper" onClick={handleLoginClick} onKeyDown={() => ''}>
-						{dataGameList.length > 0 && dataGameList?.map((item, index) => (
+						{dataGameList.length > 0 && dataGameList?.map((item) => (
 							<div key={item?.s_status} className="game-card">
-								<img src={item?.s_lobby_url ?? item?.s_img} alt="card" />
-								{/* {"/assets/images/jilli_card.svg" } */}
+								{item?.s_lobby_url !== undefined ? (
+									<img src={item?.s_lobby_url} alt="card" />
+								) : (
+									<img src={item?.s_img} alt="card" />
+								)}
 							</div>
 						))}
 					</div>
@@ -363,8 +367,11 @@ export default function Home() {
 						<div className="top">
 							{dataGameList.length > 0 && dataGameList?.map((item, index) => (
 								<div key={item?.s_status} className="card">
-									<img src={item?.s_lobby_url ?? item?.s_img} alt="card" />
-									{/* {"/assets/images/jilli_card.svg" } */}
+									{item?.s_lobby_url !== undefined ? (
+										<img src={item?.s_lobby_url} alt="card" className="img-lobby" />
+									) : (
+										<img src={item?.s_img} alt="card" className="img-link" />
+									)}
 								</div>
 							))}
 						</div>
@@ -372,19 +379,19 @@ export default function Home() {
 
 				</section>
 				<section className="info-wrapper" id="desktop">
-					<p>TT Casino Club</p>
+					<p>Shun808</p>
 					<p style={{ marginBottom: 10 }}>
-						สล็อตเว็บตรง ของ TT Casino Club เว็บพนันออนไลน์ เว็บตรง เป็น เว็บตรงสล็อต
+						สล็อตเว็บตรง ของ Shun808 เว็บพนันออนไลน์ เว็บตรง เป็น เว็บตรงสล็อต
 						ที่มีบริการ เกมสล็อต มากมายกว่า 800 เกม ให้คุณได้เลือกเล่นอย่าง จุใจ กับ ค่าย
 						สล็อตเว็บตรงชั้นนำ อย่าง pgslot joker และ jili มาพร้อม กับ สูตรสล็อต ที่พาให้
 						ผู้เล่น พิชิตสล็อตเว็บตรง ทำกำไร พิชิตโบนัส และ แจ็คพอต อีกมากมายกับ สูตรสล็อต
 						ทุกค่าย สมัครง่าย เปิดยูสไม่มีขั้นต่ำ พร้อมให้บริการค่ายของสล็อตเว็บตรง เล่นง่ายๆ เบท
 						วิน กันง่าย พร้อมแจกอัตราการแตก ของ สล็อตออนไลน์ ทุกวัน
 					</p>
-					<p>TT Casino Club มีอะไรดีที่เพื่อนๆ ต้องไม่พลาดสมัครสมาชิก</p>
+					<p>Shun808 มีอะไรดีที่เพื่อนๆ ต้องไม่พลาดสมัครสมาชิก</p>
 					<ol>
 						<li>
-							TT Casino Club สล็อตเว็บตรงมาแรงในตอนนี้ ด้วยการเดินพันขั้นต่ำเพียงแค่ 0.5 บาท
+							Shun808 สล็อตเว็บตรงมาแรงในตอนนี้ ด้วยการเดินพันขั้นต่ำเพียงแค่ 0.5 บาท
 							เว็บสล็อต ที่ดีที่สุด สมัครเล่น สล็อตเว็บตรง ผ่าน ระบบอัตโมมัติ ฝาก-ถอน ภายใน 1
 							นาที พร้อมสิทธิประโยชน์เรื่องผลตอบแทน เกมสล็อต ออนไลน์ ของเว็บเรา
 							เข้าเล่นเกมสล็อต ยิ่งเล่นเยอะ ยิ่งมีสิทธิ์ได้รับรางวัลโบนัสจากเกมเยอะเช่นกัน เกมสล็อต
@@ -410,7 +417,7 @@ export default function Home() {
 						</li>
 					</ol>
 					<p>
-						TT Casino Club หนึ่งในผู้ให้บริการพนันออนไลน์ที่ดีที่สุด เป็นผู้ที่ให้บริการผ่านทางเว็บตรง
+						Shun808 หนึ่งในผู้ให้บริการพนันออนไลน์ที่ดีที่สุด เป็นผู้ที่ให้บริการผ่านทางเว็บตรง
 						ไม่ผ่านเอเย่นต์ ให้บริการด้วยระบบความปลอดภัยที่สูง และเชื่อถือได้
 						ซึ่งปัจจุบันเรามีทีมงานคุณภาพระดับมืออาชีพที่ให้บริการดูแลนักเดิมพันเป็นอย่างดี
 						และเว็บแทงบอลออนไลน์ของเรา การันตีความมั่นคงด้านทางการเงิน และบริการต่างๆ
@@ -4611,7 +4618,7 @@ export default function Home() {
 					</a>
 					<div className="footer-item flexCenter">
 						<img src="/assets/images/contact-admin.svg" alt="login" />
-						<p className="font-20">ติดต่อแอดมิน</p>
+						<p className="font-20">ติดต่อเรา</p>
 					</div>
 				</div>
 			</footer>

@@ -111,6 +111,20 @@ p {
           opacity: 1;
       }
     }
+     @keyframes rotatingcrown {
+        0% {
+          transform: scale(.8) translate(0) rotate(0);
+        }
+        50% {
+          transform: scale(.9) translateY(-3%) rotate(5deg);
+        }
+        75% {
+          transform: scale(.9) translateY(-3%) rotate(-5deg);
+        }
+        100% {
+          transform: scale(.8) translate(0) rotate(0);
+        }
+      }
     .header .right .desktop-button {
       height: 35px;
       width: 114px;
@@ -257,7 +271,9 @@ p {
       border-radius: 1em;
       border: 3px solid #f9df7b;
       background: linear-gradient(0deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #000 81.25%, #242424 100%);
-      box-shadow: 0px 5px 4px 0px #000; }
+      box-shadow: 0px 5px 4px 0px #000;
+
+    }
       .featured-game-wrapper .container .featured-game:hover {
         transform: scale(1.05);
         transition: all 0.5s ease-in-out;
@@ -265,27 +281,15 @@ p {
         background: linear-gradient(#b57e10, #b78113, #be8c1f, #cb9d32, #dcb64e, #f2d570, #cfb85e);
       }
         .featured-game-wrapper .container .featured-game:hover p {
-          color: #000; }
+          color: #000;
+        }
       .featured-game-wrapper .container .featured-game p {
         color: #fff;
         font-size: 22px;
         font-style: normal;
         font-weight: 600;
         line-height: normal; }
-        @keyframes rotatingcrown {
-        0% {
-          transform: scale(.8) translate(0) rotate(0);
-        }
-        50% {
-          transform: scale(.9) translateY(-3%) rotate(5deg);
-        }
-        75% {
-          transform: scale(.9) translateY(-3%) rotate(-5deg);
-        }
-        100% {
-          transform: scale(.8) translate(0) rotate(0);
-        }
-      }
+
       .featured-game-wrapper .container .featured-game img {
         width: 75px;
         height: 75px;
@@ -1116,15 +1120,25 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       align-items: center;
       justify-content: space-around;
       padding: 6px 16px;
-      color: white; }
+      color: white;
+      gap: 8px;
+      /* border: 1px solid red; */
+    }
       .home .featured-game-wrapper > * {
         display: flex;
         flex-direction: column;
         align-items: center;
-        cursor: pointer; }
+        cursor: pointer;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #ffc757;
+      }
         .home .featured-game-wrapper > * img {
           width: 28px;
-          height: 28px; }
+          height: 28px;
+          animation: rotatingcrown 1s ease-in-out infinite;
+        transition: all .2s ease;
+        }
         .home .featured-game-wrapper > * p {
           font-size: 12px;
           font-weight: 600; }
@@ -1152,9 +1166,14 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
           border: 0;
           }
           .home .mobile-suggest-game-container-landing-page .top .card img {
+            width: 130px;
+            height: 150px;
+            background-size:contain;
+          }
+          .home .mobile-suggest-game-container-landing-page .top .card .img-link {
             width: 100px;
             height: 120px;
-            background-size:contain;
+            object-fit: fill;
           }
     /* ------- end landing page ------ */
 
@@ -1369,7 +1388,7 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       height: 50px;
       border-radius: 5px;
       background: #433d3d;
-      margin-top: 20px; }
+      margin-bottom: 20px; }
       .register-page .phone-input .input-container img,
       .login-page .phone-input .input-container img {
         width: 20px;
@@ -1407,7 +1426,6 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       flex-shrink: 0;
       outline: none;
       border: none;
-      margin-top: 20px;
       margin-bottom: 10px;
       cursor: pointer; }
 
@@ -1611,21 +1629,28 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       width: 100%;
       height: 61px;
       background: #0d0d0d;
-      box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-      margin: 9px 0;
+      box-shadow: 0px 0px 8px 6px rgba(230, 220, 220, 0.25);
+      margin: 0px 9px 20px 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 6px 17px;
+      gap: 8px;
+      border-radius: 30px;
       color: white; }
       .after-login-mobile-page .featured-game-wrapper#mobile-after-login > * {
         display: flex;
         flex-direction: column;
         align-items: center;
-        cursor: pointer; }
+        cursor: pointer;
+        width: 100%;
+      }
         .after-login-mobile-page .featured-game-wrapper#mobile-after-login > * img {
-          width: 28px;
-          height: 28px; }
+          width: 38px;
+          height: 38px;
+          animation: rotatingcrown 1s ease-in-out infinite;
+        transition: all .2s ease;
+        }
         .after-login-mobile-page .featured-game-wrapper#mobile-after-login > * p {
           font-size: 12px;
           font-weight: 600; }
@@ -1660,7 +1685,35 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       padding-left: 20px;
       padding-right: 20px;
       flex-direction: column;
-      gap: 20px; }
+       }
+    .after-login-mobile-page .all-mobile-games .flex-colum {
+      display: flex;
+      padding-left: 20px;
+      padding-right: 20px;
+      flex-direction: column;
+       }
+    .after-login-mobile-page .all-mobile-games.flex-row {
+      display: grid;
+      flex-direction: row;
+      grid-template-rows: repeat(3, 1fr);
+       }
+
+    .after-login-mobile-page .all-mobile-games .container-image {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+       }
+       .after-login-mobile-page .all-mobile-games .container-image .content-image{
+        width: 120px;
+        height: 160px;
+        object-fit: fill;
+        background-size: cover;
+       }
+       .after-login-mobile-page .all-mobile-games .container-image .content-image .url{
+        width: 120px;
+        height: 160px;
+        object-fit: fill;
+        background-size: cover;
+       }
       .after-login-mobile-page .all-mobile-games button {
         background: none;
         outline: none;
@@ -1694,6 +1747,13 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
           height: 100%; }
         .after-login-mobile-page .all-mobile-games .playing-mobile:hover .game-name {
           display: block; }
+        .after-login-mobile-page .all-mobile-games .playing-mobile:hover .game-name {
+          display: block;
+        }
+        .after-login-mobile-page .all-mobile-games .horizontal {
+          display: grid;
+          flex-direction: column;
+        }
     .after-login-mobile-page .specific-all-games {
       display: grid;
       grid: auto-flow/repeat(3, 110px);

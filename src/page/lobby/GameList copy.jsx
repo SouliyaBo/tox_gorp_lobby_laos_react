@@ -4254,7 +4254,7 @@ export default function GameList() {
           </div>
           <div className="footer-item flexCenter">
             <img src="/assets/icons/contact-admin.svg" alt="login" />
-            <p className="font-20">ติดต่อแอดมิน</p>
+            <p className="font-20">ติดต่อเรา</p>
           </div>
         </div>
       </footer>
@@ -4277,7 +4277,7 @@ export default function GameList() {
           </a>
           <div className="footer-item flexCenter">
             <img src="/assets/icons/contact-admin.svg" alt="login" />
-            <p className="font-20">ติดต่อแอดมิน</p>
+            <p className="font-20">ติดต่อเรา</p>
           </div>
         </div>
       </footer>
