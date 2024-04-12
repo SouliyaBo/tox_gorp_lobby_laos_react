@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronCircleLeft, faChevronCircleRight, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router-dom";
@@ -8,9 +7,10 @@ import { Modal } from 'react-bootstrap';
 
 import 'react-slideshow-image/dist/styles.css'
 import 'react-slideshow-image/dist/styles.css'
-import { DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
+import { CheckLevelCashBack, DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
+import { errorAdd, successAdd } from "../../helper/sweetalert";
 
 export default function AfterLogin() {
 
@@ -23,6 +23,11 @@ export default function AfterLogin() {
     const [tabName, setTabName] = useState("tab-deposit");
     const [slideIndex, setSlideIndex] = useState(1);
     const [reMessage, setReMessage] = useState("");
+    const [maxLevel, setmaxLevel] = useState()
+    const [showHistoryCashBack, setShowHistoryCashBack] = useState(false)
+    const [historyCashBack, setHistoryCashBack] = useState([])
+
+
     const { ChangePassword } = _LoginController();
 
 
@@ -138,7 +143,9 @@ export default function AfterLogin() {
     }, [])
     useEffect(() => {
         _clickCategoryGame("FAVORITE")
-        _getData()
+        if (dataFromLogin) {
+            _getData()
+        }
     }, [dataFromLogin])
 
     const _getData = async () => {
@@ -152,6 +159,19 @@ export default function AfterLogin() {
         });
         if (_res?.data?.statusCode === 0) {
             setDataUser(_res?.data?.data)
+        }
+        let _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback)
+        if (_level) setmaxLevel(_level)
+        let _resHistoryCashBack = await axios({
+            method: 'post',
+            url: Constant.SERVER_URL + '/Cashback/History',
+            data: {
+                "s_agent_code": dataFromLogin?.agent,
+                "s_username": dataFromLogin?.username,
+            },
+        });
+        if (_resHistoryCashBack?.data?.statusCode === 0) {
+            setHistoryCashBack(_resHistoryCashBack?.data?.data)
         }
     }
 
@@ -264,7 +284,6 @@ export default function AfterLogin() {
                 "i_ip": "1.2.3.4",
                 "actionBy": "adm"
             };
-            console.log("🚀 ~ const_withdrawMoney= ~ Constant?.AGEN_CODE:", Constant?.AGEN_CODE)
             // Send the data to the server to get the game URL
             const _res = await axios({
                 method: "post",
@@ -340,47 +359,52 @@ export default function AfterLogin() {
         }
     }
     const apoverPromotion = async (value) => {
-        console.log("🚀 ~ apoverPromotion ~ value:", value)
         try {
             let _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
                 "s_agent_code": Constant?.AGEN_CODE,
                 "s_username": dataFromLogin?.username,
-                "s_type": "SMS",
+                "s_type": "AUTO",
                 "s_prm_code": value?.s_code,
                 "i_ip": "1.2.3.4",
                 "actionBy": "ADM"
             })
-            console.log("🚀 ~ apoverPromotion ~ _resAppover?.data:", _resAppover)
             if (_resAppover?.data?.statusCode === 0) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "รายการสำเร็จ",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    background: '#242424', // Change to the color you want
-                    color: '#fff',
-                });
+                successAdd("รายการสำเร็จ")
                 setTimeout(() => {
                     handleShow()
                 }, 2000);
                 return
             }
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: "รายการไม่สำเร็จ",
-                showConfirmButton: false,
-                timer: 2000,
-                background: '#242424', // Change to the color you want
-                color: '#fff',
-            });
+            errorAdd("รายการไม่สำเร็จ")
         }
 
     }
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
+    const _resiveCashBack = async () => {
+        try {
+            let _res = await axios({
+                method: 'post',
+                url: Constant.SERVER_URL + '/Affiliate/Receive',
+                data: {
+                    "s_agent_code": dataFromLogin?.agent,
+                    "s_username": dataFromLogin?.username,
+                    "f_amount": dataFromLogin?.balance?.cashback,
+                    "actionBy": "ADM"
+                },
+            });
+            if (_res?.data) {
+                setReMessage(_res?.data?.statusDesc)
+            }
+            if (_res?.data?.statusCode === 0) {
+                _getData()
+            }
+        } catch (error) {
+            console.log("🚀 ~ const_login= ~ error:", error)
+        }
+    }
     return (
         <div>
             <header className="login-page-header">
@@ -887,28 +911,18 @@ export default function AfterLogin() {
                                 <div className="modal-body">
                                     <div className="change-cashback-detail-modal-content">
                                         <div className="detail">
-                                            <div className="title">ยอดเสียเกมส์ สล็อต</div>
-                                            <div className="accumulated-lot-amount">
-                                                <div className="text-amount">
-                                                    <div className="text-left">ยอดเสียสะสม 0</div>
-                                                    <div className="text-right">Cashback 5.00 %</div>
-                                                </div>
-                                                <div className="text-amount">
-                                                    <div className="text-left">ยอดเสียสะสม 0</div>
-                                                    <div className="text-right">Cashback 5.00 %</div>
-                                                </div>
-                                            </div>
-                                            <div className="your-loss">ยอดเสียของคุณ</div>
-                                            <div className="loss">0</div>
-                                            <div className="updated">อัพเดทล่าสุด 09-09-65 12.00 น.</div>
+                                            <div className="your-loss">ยอดเสียสะสมของคุณ (คืนยอดเสีย  {maxLevel} %)</div>
+                                            <button
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                                type='button'
+                                                className="withdraw-to-accont" style={{ backgroundColor: "green", color: "white", padding: 10, borderRadius: 8 }} onClick={() => setShowHistoryCashBack(showHistoryCashBack ? false : true)}>ประวัติการรับ</button>
+                                            <div className="loss">{dataFromLogin?.balance?.cashback}</div>
+                                            <div style={{ textAlign: "center", fontSize: 14 }} >อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
                                             <div className="btn">
-                                                <button type='button' className="receive-credit">รับเข้าเครดิต</button>
-                                                <button type='button' className="withdraw-to-accont">ถอนเข้าบัญชี</button>
+                                                <button type='button' className="receive-credit" onClick={() => _resiveCashBack()}>รับเข้าเครดิต</button>
                                             </div>
-                                            <div className="description">
-                                                <p className="text-left">ขั้นต่ำ 1 สูงสุด 10000</p>
-                                                <p className="text-right">ปิดใช้งานก่อนเข้าบัญชี</p>
-                                            </div>
+                                            <div style={{ textAlign: "center", color: "red" }}>{reMessage}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -3352,10 +3366,6 @@ export default function AfterLogin() {
                         <img src="/assets/images/contact-admin.svg" alt="login" />
                         <p className="font-20">ติดต่อ</p>
                     </div>
-                    {/* <div className="footer-item flexCenter">
-                        <img src="/assets/icons/gain-money.svg" alt="login" />
-                        <p className="font-20">รับทรัพย์</p>
-                    </div> */}
                 </div>
             </footer>
             <Modal show={show} onHide={handleClose}>
@@ -3412,6 +3422,44 @@ export default function AfterLogin() {
                                         ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+            <Modal show={showHistoryCashBack} onHide={() => setShowHistoryCashBack(false)}>
+                <div>
+                    <div className="modal-border">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <div style={{
+                                    color: "white",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    padding: "20px",
+                                    width: "100%"
+
+                                }}>
+                                    <div>วันเวลา</div>
+                                    <div>จำนวนเงิน</div>
+                                </div>
+                                <b />
+                                {historyCashBack?.map((item, index) => (
+                                    <div style={{
+                                        color: "white",
+                                        display: "flex",
+                                        width: "90%",
+                                        justifyContent: "space-between",
+                                    }}>
+                                        <div>
+                                            {item?.d_create}
+                                        </div>
+                                        <div>
+                                            {item?.f_amount}
+                                        </div>
+                                    </div>
+                                ))}
+
                             </div>
                         </div>
                     </div>

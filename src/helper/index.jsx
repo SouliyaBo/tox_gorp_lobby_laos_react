@@ -81,3 +81,19 @@ export const OpenNewTabWithHTML=(htmlContent)=> {
 		URL.revokeObjectURL(dataUrl);
 	});
 }
+
+export const CheckLevelCashBack = async (dataUserDataCash) => {
+  let _data = dataUserDataCash?.level
+  let _level = ""
+  if (_data === 1) _level = dataUserDataCash?.f_level_1
+  if (_data === 2) _level = dataUserDataCash?.f_level_2
+  if (_data === 3) _level = dataUserDataCash?.f_level_3
+  if (_data === 4) _level = dataUserDataCash?.f_level_4
+  if (_data === 5) _level = dataUserDataCash?.f_level_5
+  if (_data === 6) _level = dataUserDataCash?.f_level_6
+  if (_data === 7) _level = dataUserDataCash?.f_level_7
+  if (_data === 8) _level = dataUserDataCash?.f_level_8
+  if (_data === 9) _level = dataUserDataCash?.f_level_9
+  if (_data === 10) _level = dataUserDataCash?.f_level_10
+  return _level
+}
