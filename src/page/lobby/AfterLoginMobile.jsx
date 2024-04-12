@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
-import { _clickTabDeposit } from "../../helper"
-
+import axios from "axios";
+import { _clickTabDeposit, FillerCategory } from "../../helper"
+import Constant from "../../constant";
 export default function AfterLoginMobile() {
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
-
+    const [dataFromLogin, setdataFromLogin] = useState({});
+    const [dataGameType, setDataGameType] = useState("FAVORITE");
+    const [dataGameList, setDataGameList] = useState();
+    const [categoryGame, setCategoryGame] = useState([]);
     useEffect(() => {
         const pageClickEvent = (e) => {
             // If the active element exists and is clicked outside of
@@ -28,6 +32,13 @@ export default function AfterLoginMobile() {
         };
     }, [sidebarVisible]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
+        _clickCategoryGame("FAVORITE");
+        // _getData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataFromLogin]);
+
     const toggleSidebar = (event) => {
         event.stopPropagation();
         setSidebarVisible(true);
@@ -40,6 +51,43 @@ export default function AfterLoginMobile() {
             setSidebarVisible(false);
         }, 500);
     };
+
+    const _clickCategoryGame = async (value) => {
+        setDataGameType(value)
+        setDataGameList([])
+        if (value === "FAVORITE") {
+            const _getData = await axios({
+                method: 'post',
+                url: `${Constant.SERVER_URL}/Game/Brand/List`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                },
+            });
+            if (_getData?.data?.statusCode === 0) {
+                setCategoryGame(_getData?.data?.data?.FAVORITE)
+            }
+        } else {
+            setDataGameList()
+            FillerCategory(value, setCategoryGame)
+        }
+    }
+
+    const _clickFavorite = async (value) => {
+        setDataGameType("FAVORITE")
+        setDataGameList([])
+        const _getData = await axios({
+            method: 'post',
+            url: `${Constant.SERVER_URL}/Game/Brand/List`,
+            data: {
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
+            },
+        });
+        if (_getData?.data?.statusCode === 0) {
+            setCategoryGame(_getData?.data?.data?.FAVORITE)
+        }
+    }
 
     return (
         <div>
@@ -100,29 +148,29 @@ export default function AfterLoginMobile() {
                 </div>
 
                 <section className="featured-game-wrapper" id="mobile-after-login">
-                    <div className="featured-game flexBetween">
+                    <div className="featured-game flexBetween" onClick={() => _clickFavorite()} onKeyDown={() => ''}>
+                        <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+                        <p>เกมโปรด</p>
+                    </div>
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
+                        <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+                        <p>เป็นที่นิยม</p>
+                    </div>
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
                         <p>สล็อต</p>
                     </div>
-                    <div className="featured-game flexBetween">
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
                         <p>คาสิโน</p>
                     </div>
-                    <div className="featured-game flexBetween">
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
                         <p>ยิงปลา</p>
                     </div>
-                    <div className="featured-game flexBetween">
-                        <img src="/assets/images/newicon/iconnew-04.png" alt="game icon" />
-                        <p>ป็อกเด้ง</p>
-                    </div>
-                    <div className="featured-game flexBetween">
+                    <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
                         <p>กีฬา</p>
-                    </div>
-                    <div className="featured-game flexBetween">
-                        <img src="/assets/images/newicon/iconnew-06.png" alt="game icon" />
-                        <p>เกมกราฟ</p>
                     </div>
                 </section>
 
@@ -145,7 +193,7 @@ export default function AfterLoginMobile() {
                 <section className="all-mobile-games" style={{ marginTop: 15, padding: 10 }}>
                     <a href="/game-list-mobile" rel="noopener noreferrer">
                         <button type='button' className="playing-mobile">
-                            <img src="/assets/images/Cardgame/2.png" alt="game logo" />
+                            <img src="/assets/images/card-game-mobile/2.png" alt="game logo" />
                         </button>
                     </a>
                     <a href="/game-list-mobile" rel="noopener noreferrer">
