@@ -1,19 +1,29 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronCircleLeft, faChevronCircleRight, faHeart } from "@fortawesome/free-solid-svg-icons";
+import {
+    faChevronCircleLeft,
+    faChevronCircleRight,
+    faHeart,
+} from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router-dom";
-import { Modal } from 'react-bootstrap';
+import { Modal } from "react-bootstrap";
 
-import 'react-slideshow-image/dist/styles.css'
-import 'react-slideshow-image/dist/styles.css'
-import { CheckLevelCashBack, DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML } from "../../helper";
+import "react-slideshow-image/dist/styles.css";
+import "react-slideshow-image/dist/styles.css";
+import {
+    CheckLevelCashBack,
+    DataLoginInRout,
+    FillerCategory,
+    LogoutClearLocalStorage,
+    OpenNewTabWithHTML,
+} from "../../helper";
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 import { errorAdd, successAdd } from "../../helper/sweetalert";
 
 export default function AfterLogin() {
-
     const history = useHistory();
 
     const sidebarUseRef = useRef(null);
@@ -23,16 +33,12 @@ export default function AfterLogin() {
     const [tabName, setTabName] = useState("tab-deposit");
     const [slideIndex, setSlideIndex] = useState(1);
     const [reMessage, setReMessage] = useState("");
-    const [maxLevel, setmaxLevel] = useState()
-    const [showHistoryCashBack, setShowHistoryCashBack] = useState(false)
-    const [historyCashBack, setHistoryCashBack] = useState([])
-
+    const [maxLevel, setmaxLevel] = useState();
+    const [showHistoryCashBack, setShowHistoryCashBack] = useState(false);
+    const [historyCashBack, setHistoryCashBack] = useState([]);
+    const [dataSlide, setDataSlide] = useState([]);
 
     const { ChangePassword } = _LoginController();
-
-
-
-
 
     useEffect(() => {
         let hasTouchScreen = false;
@@ -113,7 +119,7 @@ export default function AfterLogin() {
 
     const plusSlides = (n) => {
         showSlides(slideIndex + n);
-    }
+    };
 
     function currentSlide(n) {
         showSlides(n);
@@ -122,130 +128,135 @@ export default function AfterLogin() {
     const showSlides = (n) => {
         const slides = document.getElementsByClassName("mySlides");
         const dots = document.getElementsByClassName("dot");
-        if (n > slides.length) {
+        if (n > slides?.length) {
             // setSlideIndex(1);
         }
-    }
+    };
 
     // =============> connect data <================
-    const [dataFromLogin, setdataFromLogin] = useState({})
-    const [dataGameList, setdataGameList] = useState()
-    const [categoryGame, setCategoryGame] = useState([])
+    const [dataFromLogin, setdataFromLogin] = useState({});
+    const [dataGameList, setdataGameList] = useState();
+    const [categoryGame, setCategoryGame] = useState([]);
     const [deviceType, setDeviceType] = useState(false);
     const [dataGameType, setDataGameType] = useState("FAVORITE"); // FAVORITE || HOTHIT
-    const [dataUser, setDataUser] = useState()
-    const [dataMoneyHistory, setDataMoneyHistory] = useState()
+    const [dataUser, setDataUser] = useState();
+    const [dataMoneyHistory, setDataMoneyHistory] = useState();
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
-        let _data = DataLoginInRout(history?.location?.state)
+        const _data = DataLoginInRout(history?.location?.state);
         if (_data) {
-            setdataFromLogin(_data)
+            setdataFromLogin(_data);
         }
-    }, [])
+        setDataSlide(history?.location?.state?.info?.promotionList);
+    }, []);
     useEffect(() => {
-        _clickCategoryGame("FAVORITE")
+        _clickCategoryGame("FAVORITE");
         if (dataFromLogin) {
-            _getData()
+            _getData();
         }
-    }, [dataFromLogin])
+    }, [dataFromLogin]);
 
     const _getData = async () => {
-        let _res = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Member/Balance',
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Member/Balance`,
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
             },
         });
         if (_res?.data?.statusCode === 0) {
-            setDataUser(_res?.data?.data)
+            setDataUser(_res?.data?.data);
         }
-        let _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback)
-        if (_level) setmaxLevel(_level)
-        let _resHistoryCashBack = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Cashback/History',
+        const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
+        if (_level) setmaxLevel(_level);
+        const _resHistoryCashBack = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Cashback/History`,
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
             },
         });
         if (_resHistoryCashBack?.data?.statusCode === 0) {
-            setHistoryCashBack(_resHistoryCashBack?.data?.data)
+            setHistoryCashBack(_resHistoryCashBack?.data?.data);
         }
-        let _resHistoryMoney = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Member/History/Finance',
-            data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
-            },
-        });
-        console.log("🚀 ~ const_getData= ~ _resHistoryMoney?.data:", _resHistoryMoney?.data)
-        if (_resHistoryMoney?.data?.statusCode === 0) {
-            setDataMoneyHistory(_resHistoryMoney?.data?.data)
-        }
-    }
+        // const _resHistoryMoney = await axios({
+        //     method: "post",
+        //     url: `${Constant.SERVER_URL}/Member/History/Finance`,
+        //     data: {
+        //         s_agent_code: dataFromLogin?.agent,
+        //         s_username: dataFromLogin?.username,
+        //     },
+        // });
+        // console.log(
+        //     "🚀 ~ const_getData= ~ _resHistoryMoney?.data:",
+        //     _resHistoryMoney?.data,
+        // );
+        // if (_resHistoryMoney?.data?.statusCode === 0) {
+        //     setDataMoneyHistory(_resHistoryMoney?.data?.data);
+        // }
+    };
 
     const _clickCategoryGame = async (value) => {
-        setDataGameType(value)
-        setdataGameList([])
+        setDataGameType(value);
+        setdataGameList([]);
         if (value === "FAVORITE") {
-            let _getData = await axios({
-                method: 'post',
-                url: Constant.SERVER_URL + '/Game/Brand/List',
+            const _getData = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Game/Brand/List`,
                 data: {
-                    "s_agent_code": dataFromLogin?.agent,
-                    "s_username": dataFromLogin?.username,
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
                 },
             });
             if (_getData?.data?.statusCode === 0) {
-                setCategoryGame(_getData?.data?.data?.FAVORITE)
+                setCategoryGame(_getData?.data?.data?.FAVORITE);
             }
         } else {
-            setdataGameList()
-            FillerCategory(value, setCategoryGame)
+            setdataGameList();
+            FillerCategory(value, setCategoryGame);
         }
-    }
+    };
     const _clickFavarite = async (value) => {
-        setDataGameType("FAVORITE")
-        setdataGameList([])
-        let _getData = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Game/Brand/List',
+        setDataGameType("FAVORITE");
+        setdataGameList([]);
+        const _getData = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Game/Brand/List`,
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
             },
         });
         if (_getData?.data?.statusCode === 0) {
-            setCategoryGame(_getData?.data?.data?.FAVORITE)
+            setCategoryGame(_getData?.data?.data?.FAVORITE);
         }
-    }
+    };
     const _addFavorite = async (value) => {
-        let _getData = await axios({
-            method: 'post',
-            url: Constant.SERVER_URL + '/Favorite/Select',
+        const _getData = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Favorite/Select`,
             data: {
-                "s_agent_code": dataFromLogin?.agent,
-                "s_username": dataFromLogin?.username,
-                "id_favorite": value?.id_favorite,
-                "actionBy": "ADM"
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
+                id_favorite: value?.id_favorite,
+                actionBy: "ADM",
             },
         });
         if (_getData?.data?.statusCode === 0) {
             if (dataGameType === "FAVORITE" || dataGameType === "HOTHIT") {
-                _clickCategoryGame(dataGameType)
+                _clickCategoryGame(dataGameType);
             } else {
-                _getDataGame(value)
+                _getDataGame(value);
             }
         }
-    }
+    };
     const _getDataGame = async (value) => {
         if (value?.s_type === "CASINO" || value?.s_type === "SPORT") {
-            _getDataGamePlayGame(value)
-            return
+            _getDataGamePlayGame(value);
+            return;
         }
         const _res = await axios({
             method: "post",
@@ -257,13 +268,18 @@ export default function AfterLogin() {
             },
         });
         if (_res?.data?.statusCode === 0) {
-            setdataGameList(_res?.data?.data)
+            setdataGameList(_res?.data?.data);
         }
-    }
+    };
     const _getDataGamePlayGame = async (value) => {
         try {
             const _data = {
-                s_game_code: value?.s_type === "CASINO" ? "B001" : value?.s_type === "SPORT" ? "B001" : value?.s_game_code,
+                s_game_code:
+                    value?.s_type === "CASINO"
+                        ? "B001"
+                        : value?.s_type === "SPORT"
+                            ? "B001"
+                            : value?.s_game_code,
                 s_brand_code: value?.s_brand_code,
                 s_username: dataFromLogin?.username,
                 s_agent_code: Constant?.AGEN_CODE,
@@ -278,7 +294,7 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.url) {
-                window.open(_res?.data?.url, '_blank');
+                window.open(_res?.data?.url, "_blank");
             }
             if (_res?.data) {
                 OpenNewTabWithHTML(_res?.data?.res_html);
@@ -286,16 +302,16 @@ export default function AfterLogin() {
         } catch (error) {
             console.error("Error playing the game:", error);
         }
-    }
+    };
     const _withdrawMoney = async () => {
         try {
             const _data = {
-                "s_agent_code": Constant?.AGEN_CODE,
-                "s_username": dataFromLogin?.username,
-                "f_amount": dataUser?.amount,
-                "i_bank": dataFromLogin?.info?.bankList[0]?.id,
-                "i_ip": "1.2.3.4",
-                "actionBy": "adm"
+                s_agent_code: Constant?.AGEN_CODE,
+                s_username: dataFromLogin?.username,
+                f_amount: dataUser?.amount,
+                i_bank: dataFromLogin?.info?.bankList[0]?.id,
+                i_ip: "1.2.3.4",
+                actionBy: "adm",
             };
             // Send the data to the server to get the game URL
             const _res = await axios({
@@ -304,124 +320,125 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.statusCode === 0) {
-                _getData()
+                _getData();
             } else {
-                setReMessage(_res?.data?.statusDesc)
+                setReMessage(_res?.data?.statusDesc);
             }
-        } catch (error) {
-
-        }
-    }
+        } catch (error) { }
+    };
     //  =================> ChangePassword <=================
-    const [oldPassword, setOldPassword] = useState("")
-    const [NewPassword, setNewPassword] = useState("")
-    const [NewPasswordVery, setNewPasswordVery] = useState("")
+    const [oldPassword, setOldPassword] = useState("");
+    const [NewPassword, setNewPassword] = useState("");
+    const [NewPasswordVery, setNewPasswordVery] = useState("");
     const _ChangePassword = async () => {
         try {
             if (NewPassword !== NewPasswordVery) {
-                setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน")
-                return
+                setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน");
+                return;
             }
-            const _data = await ChangePassword(NewPassword, oldPassword)
+            const _data = await ChangePassword(NewPassword, oldPassword);
             if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc)
+                setReMessage(_data?.data?.statusDesc);
                 if (_data?.data.statusCode === 0) {
-                    LogoutClearLocalStorage()
+                    LogoutClearLocalStorage();
                 }
             }
         } catch (error) {
             console.error("Error playing the game:", error);
         }
-    }
+    };
     const _copyLinkAffiliate = (link) => {
-        navigator.clipboard.writeText(link)
-    }
-    const [codeCupon, setCodeCupon] = useState("")
+        navigator.clipboard.writeText(link);
+    };
+    const [codeCupon, setCodeCupon] = useState("");
     const _addCupon = async () => {
         try {
             const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
-                "s_agent_code": Constant?.AGEN_CODE,
-                "s_username": dataFromLogin?.username,
-                "s_code": codeCupon,
-                "actionBy": "ADM"
-            })
+                s_agent_code: Constant?.AGEN_CODE,
+                s_username: dataFromLogin?.username,
+                s_code: codeCupon,
+                actionBy: "ADM",
+            });
             if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc)
+                setReMessage(_data?.data?.statusDesc);
             }
         } catch (error) {
             console.error("Error playing the game:", error);
         }
-    }
+    };
 
+    const [nextSliderPage, setNextSliderPage] = useState(0);
 
-    const [nextSliderPage, setNextSliderPage] = useState(0)
-    let _dataSalider = history?.location?.state?.info?.promotionList;
     const _newSl = (value) => {
-        if (value === "ADD") {
-            if (nextSliderPage === _dataSalider.length - 1) {
-                setNextSliderPage(_dataSalider.length - 1)
+        if (dataSlide?.length > 0) {
+            if (value === "ADD") {
+                if (nextSliderPage === dataSlide?.length - 1) {
+                    setNextSliderPage(dataSlide?.length - 1);
+                } else {
+                    setNextSliderPage(nextSliderPage + 1);
+                }
             } else {
-                setNextSliderPage(nextSliderPage + 1)
-            }
-        } else {
-            if (nextSliderPage === 0) {
-                setNextSliderPage(0)
-            } else {
-                setNextSliderPage(nextSliderPage - 1)
+                if (nextSliderPage === 0) {
+                    setNextSliderPage(0);
+                } else {
+                    setNextSliderPage(nextSliderPage - 1);
+                }
             }
         }
-    }
+    };
+
     const apoverPromotion = async (value) => {
         try {
-            let _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
-                "s_agent_code": Constant?.AGEN_CODE,
-                "s_username": dataFromLogin?.username,
-                "s_type": "AUTO",
-                "s_prm_code": value?.s_code,
-                "i_ip": "1.2.3.4",
-                "actionBy": "ADM"
-            })
+            const _resAppover = await axios.post(
+                `${Constant.SERVER_URL}/Deposit/Promotion/Select`,
+                {
+                    s_agent_code: Constant?.AGEN_CODE,
+                    s_username: dataFromLogin?.username,
+                    s_type: "AUTO",
+                    s_prm_code: value?.s_code,
+                    i_ip: "1.2.3.4",
+                    actionBy: "ADM",
+                },
+            );
             if (_resAppover?.data?.statusCode === 0) {
-                successAdd("รายการสำเร็จ")
+                successAdd("รายการสำเร็จ");
                 setTimeout(() => {
-                    handleShow()
+                    handleShow();
                 }, 2000);
-                return
-            }else{
-                errorAdd(_resAppover?.data?.statusDesc)
+                return;
             }
+            errorAdd(_resAppover?.data?.statusDesc);
         } catch (error) {
-            errorAdd("รายการไม่สำเร็จ")
+            errorAdd("รายการไม่สำเร็จ");
         }
-
-    }
+    };
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const _resiveCashBack = async () => {
         try {
-            let _res = await axios({
-                method: 'post',
-                url: Constant.SERVER_URL + '/Affiliate/Receive',
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Affiliate/Receive`,
                 data: {
-                    "s_agent_code": dataFromLogin?.agent,
-                    "s_username": dataFromLogin?.username,
-                    "f_amount": dataFromLogin?.balance?.cashback,
-                    "actionBy": "ADM"
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                    f_amount: dataFromLogin?.balance?.cashback,
+                    actionBy: "ADM",
                 },
             });
             if (_res?.data) {
-                setReMessage(_res?.data?.statusDesc)
+                setReMessage(_res?.data?.statusDesc);
             }
             if (_res?.data?.statusCode === 0) {
-                _getData()
+                _getData();
             }
         } catch (error) {
-            console.log("🚀 ~ const_login= ~ error:", error)
+            console.log("🚀 ~ const_login= ~ error:", error);
         }
-    }
+    };
 
-    console.log("🚀 ~ AfterLogin ~ dataMoneyHistory:", dataMoneyHistory)
+    console.log("🚀 ~ AfterLogin ~ dataMoneyHistory:", dataMoneyHistory);
 
     return (
         <div>
@@ -463,8 +480,8 @@ export default function AfterLogin() {
                         <div className="mySlides fade-slide">
                             <img src="/assets/images/Cardgame/image 70.png" style={{ width: "100%" }} alt="brand" />
                         </div>
-                        <a className="prev" onClick={plusSlides(-1)}>❮</a>
-                        <a className="next" onClick={plusSlides(1)}>❯</a>
+                        <a className="prev" onClick={() => plusSlides(-1)} onKeyDown={() => ''}>❮</a>
+                        <a className="next" onClick={() => plusSlides(1)} onKeyDown={() => ''}>❯</a>
                     </div>
 
                     <div style={{ textAlign: "center" }}>
@@ -474,6 +491,7 @@ export default function AfterLogin() {
                     </div>
                 </div>
                 <div className="marquee-custome">
+                    {/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
                     <marquee className="description">
                         เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
                         100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
@@ -535,7 +553,7 @@ export default function AfterLogin() {
                                     alt="game"
                                     onClick={() => _getDataGamePlayGame(game)}
                                 />
-                            </div>) : categoryGame?.map((item) => (
+                            </div>) : categoryGame?.length > 0 && categoryGame?.map((item) => (
                                 <div
                                     key={item?.s_img}
                                     className="game-card"
@@ -755,7 +773,7 @@ export default function AfterLogin() {
                                 <div className="modal-body">
                                     <div className="change-profile-modal-content">
                                         <div className="detail-card-kbank">
-                                            {dataFromLogin?.info?.bankList?.map((item, index) => (
+                                            {dataFromLogin?.length > 0 && dataFromLogin?.info?.bankList?.map((item, index) => (
                                                 <div className="card-kbank">
                                                     <div className="font-17">
                                                         <p>{item?.s_account_name}</p>
@@ -1460,7 +1478,7 @@ export default function AfterLogin() {
                             </div>
                             <div className="modal-body">
                                 <div className="withdraw-modal-content flexCenter">
-                                    {dataFromLogin?.info?.bankList?.map((item, index) => (
+                                    {dataFromLogin?.length > 0 && dataFromLogin?.info?.bankList?.map((item, index) => (
                                         <div className="card flexBetween">
                                             <div className="left flexCenter">
                                                 <p>{item?.s_account_name}</p>
@@ -2260,7 +2278,7 @@ export default function AfterLogin() {
                                     <p className="modal-title">โปรโมชั่น</p>
                                 </div>
                             </div>
-                            {/* _dataSalider */}
+                            {/* dataSlide */}
                             <div className="modal-body">
                                 <div className="promotion-modal-content">
                                     <div className="promotion-modal-body">
@@ -2269,12 +2287,14 @@ export default function AfterLogin() {
                                                 <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: '#FFF', fontSize: 25 }} />
                                             </div>
                                             <div style={{ padding: 20 }}>
-                                                <img
-                                                    src={`data:image/jpeg;base64,${_dataSalider[nextSliderPage]?.s_source_img}`}
-                                                    className="promotion-modal-image"
-                                                    alt=""
-                                                    style={{ width: "100%" }}
-                                                />
+                                                {dataSlide?.length > 0 && (
+                                                    <img
+                                                        src={`data:image/jpeg;base64,${dataSlide[nextSliderPage]?.s_source_img}`}
+                                                        className="promotion-modal-image"
+                                                        alt=""
+                                                        style={{ width: "100%" }}
+                                                    />
+                                                )}
                                             </div>
                                             <div onClick={() => _newSl("ADD")} style={{ color: "green" }}>
                                                 <FontAwesomeIcon icon={faChevronCircleRight} style={{ color: '#FFF', fontSize: 25 }} />
@@ -2282,11 +2302,11 @@ export default function AfterLogin() {
                                         </div>
                                         <hr />
                                         <div>
-                                            <div style={{ color: "#4CAF4F" }}>ฝาก {_dataSalider[nextSliderPage]?.f_max_amount} รับ {_dataSalider[nextSliderPage]?.f_percen}</div>
-                                            <div>จำกัด {_dataSalider[nextSliderPage]?.i_per_day} ครั้ง/วัน</div>
+                                            <div style={{ color: "#4CAF4F" }}>ฝาก {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.f_max_amount} รับ {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.f_percen}</div>
+                                            <div>จำกัด {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.i_per_day} ครั้ง/วัน</div>
                                             <div style={{ color: "yellow" }}>รายละเอียด</div>
                                             <div>
-                                                {_dataSalider[nextSliderPage]?.s_detail}
+                                                {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.s_detail}
                                             </div>
                                         </div>
                                         <div style={{ height: 10 }}></div>
@@ -2302,7 +2322,7 @@ export default function AfterLogin() {
                                                     borderRadius: 6,
                                                     width: 100,
                                                 }}
-                                                onClick={() => apoverPromotion(_dataSalider[nextSliderPage])}
+                                                onClick={() => apoverPromotion(dataSlide[nextSliderPage])}
                                             >รับโบนัส</button>
                                         </div>
                                     </div>
@@ -3462,7 +3482,7 @@ export default function AfterLogin() {
                                     <div>จำนวนเงิน</div>
                                 </div>
                                 <b />
-                                {historyCashBack?.map((item, index) => (
+                                {historyCashBack?.length > 0 && historyCashBack?.map((item, index) => (
                                     <div style={{
                                         color: "white",
                                         display: "flex",
@@ -3486,6 +3506,3 @@ export default function AfterLogin() {
         </div>
     )
 }
-
-
-
