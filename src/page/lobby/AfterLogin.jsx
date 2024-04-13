@@ -134,6 +134,7 @@ export default function AfterLogin() {
     const [deviceType, setDeviceType] = useState(false);
     const [dataGameType, setDataGameType] = useState("FAVORITE"); // FAVORITE || HOTHIT
     const [dataUser, setDataUser] = useState()
+    const [dataMoneyHistory, setDataMoneyHistory] = useState()
 
     useEffect(() => {
         let _data = DataLoginInRout(history?.location?.state)
@@ -172,6 +173,18 @@ export default function AfterLogin() {
         });
         if (_resHistoryCashBack?.data?.statusCode === 0) {
             setHistoryCashBack(_resHistoryCashBack?.data?.data)
+        }
+        let _resHistoryMoney = await axios({
+            method: 'post',
+            url: Constant.SERVER_URL + '/Member/History/Finance',
+            data: {
+                "s_agent_code": dataFromLogin?.agent,
+                "s_username": dataFromLogin?.username,
+            },
+        });
+        console.log("🚀 ~ const_getData= ~ _resHistoryMoney?.data:", _resHistoryMoney?.data)
+        if (_resHistoryMoney?.data?.statusCode === 0) {
+            setDataMoneyHistory(_resHistoryMoney?.data?.data)
         }
     }
 
@@ -374,6 +387,8 @@ export default function AfterLogin() {
                     handleShow()
                 }, 2000);
                 return
+            }else{
+                errorAdd(_resAppover?.data?.statusDesc)
             }
         } catch (error) {
             errorAdd("รายการไม่สำเร็จ")
@@ -405,6 +420,9 @@ export default function AfterLogin() {
             console.log("🚀 ~ const_login= ~ error:", error)
         }
     }
+
+    console.log("🚀 ~ AfterLogin ~ dataMoneyHistory:", dataMoneyHistory)
+
     return (
         <div>
             <header className="login-page-header">
