@@ -5,8 +5,9 @@ import { _clickTabDeposit, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, 
 import Constant, { AGENT_CODE } from "../../constant";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import _LoginController from "../../api/login";
+import Swal from 'sweetalert2'
 
 export default function AfterLoginMobile() {
     const history = useHistory();
@@ -27,6 +28,12 @@ export default function AfterLoginMobile() {
     const [NewPassword, setNewPassword] = useState("")
     const [NewPasswordVery, setNewPasswordVery] = useState("")
     const { ChangePassword } = _LoginController();
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const [nextSliderPage, setNextSliderPage] = useState(0)
+    const [dataSlider, setDataSlider] = useState(0)
+
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -35,6 +42,10 @@ export default function AfterLoginMobile() {
             setDataFromLogin(_data);
         }
         setDeviceType(false)
+        setDataSlider(history?.location?.state?.info?.promotionList);
+        console.log("dataSlider: ", history)
+
+
     }, []);
 
     useEffect(() => {
@@ -238,6 +249,63 @@ export default function AfterLoginMobile() {
             console.error("Error playing the game:", error);
         }
     }
+    const approverPromotion = async (value) => {
+        console.log("🚀 ~ approverPromotion ~ value:", value)
+        try {
+            const _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
+                s_agent_code: Constant?.AGEN_CODE,
+                s_username: dataFromLogin?.username,
+                s_type: "SMS",
+                s_prm_code: value?.s_code,
+                i_ip: "1.2.3.4",
+                actionBy: "ADM"
+            })
+            console.log("🚀 ~ approverPromotion ~ _resAppover?.data:", _resAppover)
+            if (_resAppover?.data?.statusCode === 0) {
+                Swal.fire({
+                    icon: 'success',
+                    title: "รายการสำเร็จ",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#242424', // Change to the color you want
+                    color: '#fff',
+                });
+                setTimeout(() => {
+                    handleShow()
+                }, 2000);
+                return
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: "รายการไม่สำเร็จ",
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#242424', // Change to the color you want
+                color: '#fff',
+            });
+        }
+
+    }
+
+    const _newSl = (value) => {
+        if (dataSlider?.length > 0) {
+            if (value === "ADD") {
+                if (nextSliderPage === dataSlider.length - 1) {
+                    setNextSliderPage(dataSlider.length - 1)
+                } else {
+                    setNextSliderPage(nextSliderPage + 1)
+                }
+            } else {
+                if (nextSliderPage === 0) {
+                    setNextSliderPage(0)
+                } else {
+                    setNextSliderPage(nextSliderPage - 1)
+                }
+            }
+        }
+    }
+
     return (
         <div>
             <main className="after-login-mobile-page">
@@ -359,7 +427,7 @@ export default function AfterLoginMobile() {
                                     onClick={() => _getDataGamePlayGame(game)}
                                 />
                             </div>
-                            )) : categoryGame?.map((item) => (
+                            )) : categoryGame.length > 0 && categoryGame?.map((item) => (
                                 <div key={item?.s_img} className="content-image" style={{ position: "relative" }}>
                                     {dataGameType === "FAVORITE" ||
                                         dataGameType === "HOTHIT" ? (
@@ -1518,33 +1586,40 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="promotion-modal-content">
-                                        <div className="promotion-modal-body">
-                                            <div className="promotion-modal-image-container">
-                                                <img src="/assets/images/image-promotion-modal.svg" className="promotion-modal-image" alt="" />
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                            <div onClick={() => _newSl("DELETE")} style={{ color: "red" }} onKeyDown={() => ""}>
+                                                <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: '#FFF', fontSize: 25 }} />
                                             </div>
-                                            <p className="promotion-content-title">สมาชิกใหม่หมุนกงล้อฟรี</p>
-                                            <p className="promotion-content-text">วันเกิด หมุนกงล้อฟรี !!</p>
-                                            <p className="promotion-content-text">
-                                                (สอบถามข้อมูลเพิ่มเติมได้ที่แอดมิน)
-                                            </p>
+                                            <div style={{ padding: 20 }}>
+                                                {dataSlider?.length > 0 && (
+                                                    <img
+                                                        src={`data:image/jpeg;base64,${dataSlider[nextSliderPage]?.s_source_img}`}
+                                                        className="promotion-modal-image"
+                                                        alt=""
+                                                        style={{ width: "100%", }}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div onClick={() => _newSl("ADD")} style={{ color: "green" }} onKeyDown={() => ""}>
+                                                <FontAwesomeIcon icon={faChevronCircleRight} style={{ color: '#FFF', fontSize: 25 }} />
+                                            </div>
                                         </div>
                                         <div className="promotion-modal-footer">
-                                            <div className="promotion-modal-footer-content">
-                                                <p className="promotion-modal-footer-title">สถานะโปรโมชั่น</p>
-                                                <div className="promotion-checkbox-group">
-                                                    <input type="radio" className="promotion-default-radio" name="promotion-status" id="get-promotion" />
-                                                    <label className="promotion-checkbox-title" for="get-promotion">
-                                                        <div className="promotion-custom-radio" />
-                                                        รับโบนัส
-                                                    </label>
-                                                    <input type="radio" className="promotion-default-radio" name="promotion-status"
-                                                        id="not-get-promotion" />
-                                                    <label className="promotion-checkbox-title" for="not-get-promotion">
-                                                        <div className="promotion-custom-radio" />
-                                                        ไม่รับโบนัส
-                                                    </label>
-                                                </div>
-                                            </div>
+                                            <button
+                                                type="button"
+                                                className="modal-icon-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                                alt=""
+                                                style={{
+                                                    padding: 10,
+                                                    backgroundColor: "#5E9904",
+                                                    borderRadius: 6,
+                                                    width: 100,
+                                                }}
+                                                onKeyDown={() => ""}
+                                                onClick={() => approverPromotion(dataSlider[nextSliderPage])}
+                                            >รับโบนัส</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1607,17 +1682,14 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="bag-modal-content">
-                                        <div className="bag-modal-slide-container">
-                                            <img src="/assets/images/bag-background.png" alt="" />
-                                        </div>
 
-                                        <div className="bag-modal-menu">
+                                        <div className="bag-modal-menu" style={{ marginTop: 30 }}>
                                             <div className="bag-modal-menu-item" id="promotion-modal-btn" data-bs-toggle="modal"
                                                 data-bs-target="#promotionModal" data-bs-dismiss="modal">
                                                 <div className="bag-menu-img-container">
                                                     <img className="bag-menu-icon" src="/assets/icons/icon-promotion.svg" alt="" />
                                                 </div>
-                                                <p className="bag-modal-menu-title">โปรโมชั่น</p>
+                                                <p className="bag-modal-menu-title"> โปรโมชั่น</p>
                                             </div>
                                             <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#depositWithdraw"
                                                 data-bs-dismiss="modal">
@@ -1640,46 +1712,14 @@ export default function AfterLoginMobile() {
                                                 </div>
                                                 <p className="bag-modal-menu-title">กรอกโค้ด</p>
                                             </div>
-                                            <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#spinnerModal"
-                                                data-bs-dismiss="modal">
-                                                <div className="bag-menu-img-container">
-                                                    <img className="bag-menu-icon" src="/assets/icons/icon-spinner.svg" alt="" />
-                                                </div>
-                                                <p className="bag-modal-menu-title">กงล้อ</p>
-                                            </div>
-                                            <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#creditModal"
-                                                data-bs-dismiss="modal">
-                                                <div className="bag-menu-img-container">
-                                                    <img className="bag-menu-icon" src="/assets/icons/icon-teasure.svg" alt="" />
-                                                </div>
-                                                <p className="bag-modal-menu-title">เครดิตฟรี</p>
-                                            </div>
+
+
                                             <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#cashback"
                                                 data-bs-dismiss="modal">
                                                 <div className="bag-menu-img-container">
                                                     <img className="bag-menu-icon" src="/assets/icons/icon-back-cash.svg" alt="" />
                                                 </div>
                                                 <p className="bag-modal-menu-title">คืนยอดเสีย</p>
-                                            </div>
-                                            <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#diamondModal"
-                                                data-bs-dismiss="modal">
-                                                <div className="bag-menu-img-container">
-                                                    <img className="bag-menu-icon" src="/assets/icons/icon-diamond.svg" alt="" />
-                                                </div>
-                                                <p className="bag-modal-menu-title">แลกเพรช</p>
-                                            </div>
-                                            <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#tournamentModal"
-                                                data-bs-dismiss="modal">
-                                                <div className="bag-menu-img-container">
-                                                    <img className="bag-menu-icon" src="/assets/icons/icon-trophy.svg" alt="" />
-                                                </div>
-                                                <p className="bag-modal-menu-title">ทัวร์นาเมนต์</p>
-                                            </div>
-                                            <div className="bag-modal-menu-item">
-                                                <div className="bag-menu-img-container">
-                                                    <img className="bag-menu-icon" src="/assets/icons/icon-road-map.svg" alt="" />
-                                                </div>
-                                                <p className="bag-modal-menu-title">Road Map</p>
                                             </div>
                                         </div>
                                     </div>

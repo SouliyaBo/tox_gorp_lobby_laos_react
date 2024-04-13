@@ -22,16 +22,12 @@ export default function RegisterStep1() {
     const _clickNextStep = () => {
         if (inputPhonenumber === "") {
             setWarningPhone("กรุณากรอกเบอร์โทร");
-            console.log("กรุณากรอกเบอร์โทร")
         } else if (inputPassword === "") {
             setWarningPassword("กรุณาป้อนรหัสผ่าน");
-            console.log("กรุณาป้อนรหัสผ่าน")
         } else if (inputFirstname === "") {
             setWarningFirstName("กรุณาป้อนชื่อ")
-            console.log("กรุณาป้อนชื่อ")
         } else if (inputLastname === "") {
             setWarningLastName("กรุณาป้อนนามสกุล")
-            console.log("กรุณาป้อนนามสกุล")
         } else {
             history.push(Constant.PAGE_REGISTER_STEP2, {
                 inputPhonenumber,
@@ -84,7 +80,7 @@ export default function RegisterStep1() {
                             type="text"
                             name="phone"
                             id="phone"
-                            maxlength={10}
+                            maxlength={20}
                             value={inputPhonenumber}
                             placeholder="เบอร์โทรศัพท์"
                             onChange={(event) => handleChangePhone(event)}
