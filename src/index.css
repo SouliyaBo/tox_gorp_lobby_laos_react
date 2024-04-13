@@ -3702,7 +3702,23 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
     .withdraw-modal-content .slider-wrapper .slider {
       background: #d9d9d9; }
   .withdraw-modal-content .money-input {
-    border-bottom: 1px solid #545353; }
+    border-bottom: 1px solid #545353;
+    margin-top: 14px;
+    margin-left: 16px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .withdraw-modal-content .button-warning{
+    border-bottom: 1px solid #545353;
+    width: 89%;
+    margin-top: 14px;
+    margin-left: 15px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
     .withdraw-modal-content .money-input p {
       color: #b5b5b5;
       width: 50%;
