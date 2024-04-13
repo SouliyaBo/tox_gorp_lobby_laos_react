@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { _clickTabDeposit, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
+import { _clickTabDeposit, CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
 import Constant, { AGENT_CODE } from "../../constant";
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -33,8 +33,9 @@ export default function AfterLoginMobile() {
     const handleShow = () => setShow(true);
     const [nextSliderPage, setNextSliderPage] = useState(0)
     const [dataSlider, setDataSlider] = useState(0)
-
-
+    const [maxLevel, setMaxLevel] = useState();
+    const [historyCashBack, setHistoryCashBack] = useState([]);
+    const [codeCupon, setCodeCupon] = useState("");
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
@@ -85,8 +86,22 @@ export default function AfterLoginMobile() {
                 s_username: dataFromLogin?.username,
             },
         });
+
         if (_res?.data?.statusCode === 0) {
             setDataUser(_res?.data?.data);
+        }
+        const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
+        if (_level) setMaxLevel(_level);
+        const _resHistoryCashBack = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Cashback/History`,
+            data: {
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
+            },
+        });
+        if (_resHistoryCashBack?.data?.statusCode === 0) {
+            setHistoryCashBack(_resHistoryCashBack?.data?.data);
         }
     };
     const toggleSidebar = (event) => {
@@ -305,6 +320,48 @@ export default function AfterLoginMobile() {
             }
         }
     }
+    const _copyLinkAffiliate = (link) => {
+        navigator.clipboard.writeText(link);
+    };
+
+    const _receiveCashBack = async () => {
+        try {
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Affiliate/Receive`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                    f_amount: dataFromLogin?.balance?.cashback,
+                    actionBy: "ADM",
+                },
+            });
+            if (_res?.data) {
+                setReMessage(_res?.data?.statusDesc);
+            }
+            if (_res?.data?.statusCode === 0) {
+                _getData();
+            }
+        } catch (error) {
+            console.log("🚀 ~ const_login= ~ error:", error);
+        }
+    };
+
+    const _addCupon = async () => {
+        try {
+            const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
+                s_agent_code: Constant?.AGEN_CODE,
+                s_username: dataFromLogin?.username,
+                s_code: codeCupon,
+                actionBy: "ADM",
+            });
+            if (_data?.data) {
+                setReMessage(_data?.data?.statusDesc);
+            }
+        } catch (error) {
+            console.error("Error playing the game:", error);
+        }
+    };
 
     return (
         <div>
@@ -744,48 +801,28 @@ export default function AfterLoginMobile() {
                                     </div>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="change-profile-modal-content-mobile">
-                                        <div className="card flexBetween">
-                                            <div className="left">
-                                                <p>ธนาคารกสิกรไทย</p>
-                                                <p>นาย xxxxx xxxxx</p>
-                                                <p>026-999999-9</p>
-                                            </div>
-                                            <div className="right">
-                                                <div className="bank">
-                                                    <p>Kbank</p>
-                                                    <img src="/assets/icons/icon-bank-default/Ellipse 10.svg" alt="bank logo" />
+                                    <div className="change-profile-modal-content-mobile" style={{ marginTop: 20 }}>
+                                        {dataFromLogin?.length > 0 && dataFromLogin?.info?.bankList?.map((item, index) => (
+                                            <div className="card-kbank">
+                                                <div className="font-17">
+                                                    <p>{item?.s_account_name}</p>
+                                                    <div
+                                                        style={{ display: "flex", justifyContent: "space-between" }}
+                                                    >
+                                                        <div style={{ marginRight: 10 }}>{item?.s_icon.split(".")[0]}</div>
+                                                        <img
+                                                            src={`/assets/images/bank/${item?.s_icon}`}
+                                                            alt="logo"
+                                                            style={{ marginRop: -10 }}
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="balance">
-                                                    <small>ยอดคงเหลือในระบบ</small>
-                                                    <p>1000.00 บาท</p>
-                                                </div>
-                                                <div className="visa">
-                                                    <img src="/assets/icons/visa.svg" alt="" />
+                                                <div className="font-17">
+                                                    <p>{item?.s_account_no}</p>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="slider-container" style={{ display: "flex", justifyContent: "center" }}>
-                                            <div className="active-slider" />
-                                            <div className="slider" />
-                                        </div>
-                                        <div className="button-container flexCenter">
-                                            <div className="left flexCenter">ตั้งเป็นบัญชีหลัก</div>
-                                            <div className="right flexCenter" data-bs-toggle="modal" data-bs-target="#addAccount">
-                                                เพิ่มบัญชี
-                                            </div>
-                                        </div>
-                                        <hr />
-                                        <div className="user-detail flexBetween">
-                                            <div className="left">
-                                                <p>Username</p>
-                                                <p>Password</p>
-                                            </div>
-                                            <div className="right">
-                                                <small>st1745562156</small>
-                                                <small>************</small>
-                                            </div>
-                                        </div>
+                                        ))}
+
                                         <button type='button' className="change-password-container flexCenter" data-bs-toggle="modal"
                                             data-bs-target="#changePasswordModal">
                                             {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
@@ -1746,13 +1783,7 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="earn-modal-content">
-                                        <div className="earn-qr-container">
-                                            <div className="border-input-gold">
-                                                <div className="earn-qr-content">
-                                                    <img className="earn-qr-img" src="/assets/images/qr-code-image.svg" alt="" />
-                                                </div>
-                                            </div>
-                                        </div>
+
 
                                         <div className="border-input-gold">
                                             <div className="link-shared">
@@ -1760,70 +1791,18 @@ export default function AfterLoginMobile() {
                                                 <p className="link-shared-subtitle">
                                                     คุณจะได้รับรายได้ฟรีจากการแนะนำเพื่อน
                                                 </p>
-                                                <input type="text" className="link-shared-input" />
+                                                <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} />
 
                                                 <div className="link-shared-btn-group">
                                                     <div className="border-input-gold border-btn">
-                                                        <button type="button" className="btn-copy-link">
+                                                        <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)} onKeyDown={() => ""}>
                                                             คัดลอกลิ้งค์
                                                         </button>
                                                     </div>
-                                                    <button type="button" className="btn-share-link">แชร์</button>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="earn-menu-content">
-                                            <div className="border-input-gold">
-                                                <div className="earn-menu-item" data-bs-toggle="modal" data-bs-target="#earnMoneyDetailModal"
-                                                    data-bs-dismiss="modal">
-                                                    <img className="earn-menu-item-img" src="/assets/images/img-total-plays.svg" alt="" />
-                                                    <p className="earn-menu-item-title">ยอดเล่น</p>
-                                                    <p className="earn-menu-item-subtitle">
-                                                        ยอดเล่นของเพื่อนทั้งหมด
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="border-input-gold">
-                                                <div className="earn-menu-item">
-                                                    <img className="earn-menu-item-img" src="/assets/images/img-total-lose.png" alt="" />
-                                                    <p className="earn-menu-item-title">ยอดเสีย</p>
-                                                    <p className="earn-menu-item-subtitle">
-                                                        ยอดเสียของเพื่อนทั้งหมด
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="border-input-gold">
-                                                <div className="earn-menu-item">
-                                                    <img className="earn-menu-item-img" src="/assets/images/img-total-deposit.svg" alt="" />
-                                                    <p className="earn-menu-item-title">ยอดฝาก</p>
-                                                    <p className="earn-menu-item-subtitle">
-                                                        ยอดฝากของเพื่อนทั้งหมด
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="border-input-gold">
-                                                <div className="earn-menu-item">
-                                                    <img className="earn-menu-item-img" src="/assets/icons/icon-teasure.svg" alt="" />
-                                                    <p className="earn-menu-item-title">รับเครดิตฟรี</p>
-                                                    <p className="earn-menu-item-subtitle">
-                                                        เครดิตฟรีจากการแนะนำ
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="border-input-gold">
-                                                <div className="earn-menu-item">
-                                                    <img className="earn-menu-item-img" src="/assets/images/member-suggest.png" alt="" />
-                                                    <p className="earn-menu-item-title">สมาชิกแนะนำ</p>
-                                                    <p className="earn-menu-item-subtitle">ดูรายละเอียด</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="read-earn-rule">
-                                            หากมีข้อสงสัยเพิ่มเติม
-                                            <a href="https://www.google.com/">อ่านกฏกติกา</a>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2115,9 +2094,9 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="code-modal-content">
-                                        <input type="text" placeholder="กรุณากรอกโค้ด" className="input-box" />
-
-                                        <button type="button" className="button-warning">ยืนยัน</button>
+                                        <input type="text" placeholder="กรุณากรอกโค้ด" className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                                        <div style={{ color: "red", marginTop: -18 }}>{reMessage}</div>
+                                        <button type="button" className="button-warning" onClick={() => _addCupon()}>ยืนยัน</button>
                                     </div>
                                 </div>
                             </div>
@@ -2227,65 +2206,13 @@ export default function AfterLoginMobile() {
                                     </div>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="change-cashback-modal-content">
-                                        <div className="card-cashback">
-                                            <div data-bs-toggle="modal" data-bs-target="#cashbackDetail" data-bs-dismiss="modal">
-                                                <div className="card-body">
-                                                    <div className="name-cashback-game">
-                                                        <img src="/assets/images/cashback-1.svg" alt="" />
-                                                        <div className="text">
-                                                            <p className="name-game">สล๊อต</p>
-                                                            <p className="balance">คืนยอดเสีย 5.0%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="card-body">
-                                                <div className="name-cashback-game">
-                                                    <img src="/assets/images/cashback-2.svg" alt="" />
-                                                    <div className="text">
-                                                        <p className="name-game">บาคาร่า</p>
-                                                        <p className="balance">คืนยอดเสีย 5.0%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="card-body">
-                                                <div className="name-cashback-game">
-                                                    <img src="/assets/images/cashback-3.svg" alt="" />
-                                                    <div className="text">
-                                                        <p className="name-game">ยิงปลา</p>
-                                                        <p className="balance">คืนยอดเสีย 5.0%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="card-body">
-                                                <div className="name-cashback-game">
-                                                    <img src="/assets/images/cashback-4.svg" alt="" />
-                                                    <div className="text">
-                                                        <p className="name-game">ป้อกเด้ง</p>
-                                                        <p className="balance">คืนยอดเสีย 5.0%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="card-body">
-                                                <div className="name-cashback-game">
-                                                    <img src="/assets/images/cashback-5.svg" alt="" />
-                                                    <div className="text">
-                                                        <p className="name-game">หวย</p>
-                                                        <p className="balance">คืนยอดเสีย 5.0%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="card-body">
-                                                <div className="name-cashback-game">
-                                                    <img src="/assets/images/cashback-6.svg" alt="" />
-                                                    <div className="text">
-                                                        <p className="name-game">กีฬา</p>
-                                                        <p className="balance">คืนยอดเสีย 5.0%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div className="cash-back-content">
+                                        <div>ยอดเสียสะสมของคุณ (คืนยอดเสีย {maxLevel} %)</div>
+                                        <button className="btn-history" data-bs-toggle="modal"
+                                            data-bs-target="#cashbackDetail" type="button" >ประวัติการรับ</button>
+
+                                        <div>อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
+                                        <button type="button" onClick={() => _receiveCashBack()} className="btn-get-credit">รับเข้าเครดิต</button>
                                     </div>
                                 </div>
                             </div>
@@ -2303,7 +2230,7 @@ export default function AfterLoginMobile() {
                                     <div className="modal-header">
                                         <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
                                             data-bs-target="#cashback" data-bs-dismiss="modal" />
-                                        <p className="modal-title">Cashback</p>
+                                        <p className="modal-title">ประวัติการรับ</p>
                                         <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
                                             aria-label="Close" alt="" />
                                     </div>
@@ -2311,28 +2238,20 @@ export default function AfterLoginMobile() {
                                 <div className="modal-body">
                                     <div className="change-cashback-detail-modal-content">
                                         <div className="detail">
-                                            <div className="title">ยอดเสียเกมส์ สล็อต</div>
-                                            <div className="accumulated-lot-amount">
-                                                <div className="text-amount">
-                                                    <div className="text-left">ยอดเสียสะสม 0</div>
-                                                    <div className="text-right">Cashback 5.00 %</div>
+                                            <div>วันเวลา</div>
+                                            <div>จำนวนเงิน</div>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            {historyCashBack?.length > 0 && historyCashBack?.map((item, index) => (
+                                                <div>
+                                                    <div>
+                                                        {item?.d_create}
+                                                    </div>
+                                                    <div>
+                                                        {item?.f_amount}
+                                                    </div>
                                                 </div>
-                                                <div className="text-amount">
-                                                    <div className="text-left">ยอดเสียสะสม 0</div>
-                                                    <div className="text-right history-background">ประวัติการรับ</div>
-                                                </div>
-                                            </div>
-                                            <div className="your-loss">ยอดเสียของคุณ</div>
-                                            <div className="loss">0</div>
-                                            <div className="updated">อัพเดทล่าสุด 09-09-65 12.00 น.</div>
-                                            <div className="btn">
-                                                <button type='button' className="receive-credit">รับเข้าเครดิต</button>
-                                                <button type='button' className="withdraw-to-accont">ถอนเข้าบัญชี</button>
-                                            </div>
-                                            <div className="description">
-                                                <p className="text-left">ขั้นต่ำ 1 สูงสุด 10000</p>
-                                                <p className="text-right">ปิดใช้งานก่อนเข้าบัญชี</p>
-                                            </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>

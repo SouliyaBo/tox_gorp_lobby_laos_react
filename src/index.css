@@ -3332,7 +3332,7 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
   .change-cashback-detail-modal-content .detail {
     width: 100%s;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     gap: 8px; }
     .change-cashback-detail-modal-content .detail .title {
@@ -5198,4 +5198,29 @@ button {
 .active-bank {
   border: 2px solid #ffc757;
   border-radius: 8px;
+}
+
+.cash-back-content {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 13px;
+}
+.cash-back-content .btn-history{
+    background-color: green;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+}
+.cash-back-content .btn-get-credit{
+    border-radius: 5px;
+    background: #c1933b;
+    width: 217.141px;
+    height: 38.129px;
+    flex-shrink: 0;
+    font-weight: 600;
+    color: #ffff;
+    margin-bottom: 20px
 }
