@@ -23,7 +23,7 @@ export default function RegisterStep2() {
             history?.location?.state?.inputPassword,
             inputBank,
             bankCode,
-            history?.location?.state?.inputRef,
+            "MOBILE",
         );
         if (_res) setMessageCreate(_res?.statusDesc);
     };
@@ -46,7 +46,7 @@ export default function RegisterStep2() {
                 />
                 <img
                     className="logo"
-                    src="/assets/images/newicon/TTcc-01.png"
+                    src="/assets/images/Logo.png"
                     alt="logo"
                 />
 

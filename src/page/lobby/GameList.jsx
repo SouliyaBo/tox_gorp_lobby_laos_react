@@ -676,7 +676,7 @@ export default function GameList() {
               onClick={() => handleCloseLoginClick()}
               onKeyDown={() => ""}
             />
-            <img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
+            <img src="/assets/images/Login.png" alt="logo" />
             <h3>เข้าสู่ระบบ</h3>
             <div className="phone-input">
               <img src="/assets/icons/phone.svg" alt="icon" />

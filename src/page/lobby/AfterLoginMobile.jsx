@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { _clickTabDeposit, CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
-import Constant, { AGENT_CODE } from "../../constant";
+import Swal from 'sweetalert2'
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage, formatDateTimeDDMMYYYY } from "../../helper"
+import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
-import Swal from 'sweetalert2'
 
 export default function AfterLoginMobile() {
     const history = useHistory();
@@ -29,16 +29,20 @@ export default function AfterLoginMobile() {
     const [NewPasswordVery, setNewPasswordVery] = useState("")
     const { ChangePassword } = _LoginController();
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [nextSliderPage, setNextSliderPage] = useState(0)
     const [dataSlider, setDataSlider] = useState(0)
     const [maxLevel, setMaxLevel] = useState();
     const [historyCashBack, setHistoryCashBack] = useState([]);
     const [codeCupon, setCodeCupon] = useState("");
+    const [dataHistoryDeposit, setDataHistoryDeposit] = useState([]);
+    const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
+    const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
+    const [current, setCurrent] = useState(0);
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
+        console.log("_data: ", _data)
         if (_data) {
             setDataFromLogin(_data);
         }
@@ -102,6 +106,20 @@ export default function AfterLoginMobile() {
         });
         if (_resHistoryCashBack?.data?.statusCode === 0) {
             setHistoryCashBack(_resHistoryCashBack?.data?.data);
+        }
+        const _resHistoryMoney = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Member/History/Finance`,
+            data: {
+                s_agent_code: dataFromLogin?.agent,
+                s_username: dataFromLogin?.username,
+            },
+        });
+
+        if (_resHistoryMoney?.data?.statusCode === 0) {
+            setDataHistoryDeposit(_resHistoryMoney?.data?.data?.deposit);
+            setDataHistoryBonus(_resHistoryMoney?.data?.data?.bonus);
+            setDataHistoryWithdraw(_resHistoryMoney?.data?.data?.withdraw);
         }
     };
     const toggleSidebar = (event) => {
@@ -239,6 +257,14 @@ export default function AfterLoginMobile() {
                 data: _data,
             });
             if (_res?.data?.statusCode === 0) {
+                Swal.fire({
+                    icon: 'success',
+                    title: "ทำรายการสำเร็จ",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#242424', // Change to the color you want
+                    color: '#fff',
+                });
                 _getData()
             } else {
                 setReMessage(_res?.data?.statusDesc)
@@ -279,7 +305,7 @@ export default function AfterLoginMobile() {
             if (_resAppover?.data?.statusCode === 0) {
                 Swal.fire({
                     icon: 'success',
-                    title: "รายการสำเร็จ",
+                    title: "ทำรายการสำเร็จ",
                     showConfirmButton: false,
                     timer: 2000,
                     background: '#242424', // Change to the color you want
@@ -325,10 +351,11 @@ export default function AfterLoginMobile() {
     };
 
     const _receiveCashBack = async () => {
+        console.log("dataFromLogin: ", dataFromLogin?.balance?.cashback)
         try {
             const _res = await axios({
                 method: "post",
-                url: `${Constant.SERVER_URL}/Affiliate/Receive`,
+                url: `${Constant.SERVER_URL}/Cashback/Receive`,
                 data: {
                     s_agent_code: dataFromLogin?.agent,
                     s_username: dataFromLogin?.username,
@@ -346,6 +373,7 @@ export default function AfterLoginMobile() {
             console.log("🚀 ~ const_login= ~ error:", error);
         }
     };
+    console.log("dataFromLogin", dataFromLogin);
 
     const _addCupon = async () => {
         try {
@@ -363,6 +391,51 @@ export default function AfterLoginMobile() {
         }
     };
 
+    const _clickTabDeposit = (tab) => {
+        setTabName(tab);
+        if (tab === "tab-deposit") {
+            setTabs("ประวัติฝาก");
+        } else if (tab === "tab-withdraw") {
+            setTabs("ประวัติถอน");
+        } else {
+            setTabs("ประวัติโบนัส");
+        }
+    };
+    const SliderData = [
+        {
+            image:
+                '/assets/images/Cardgame/image 70.png'
+        },
+        {
+            image:
+                '/assets/images/Cardgame/5.png'
+        },
+        {
+            image:
+                '/assets/images/Cardgame/6.png'
+        },
+        {
+            image:
+                '/assets/images/Cardgame/7.png'
+        },
+        {
+            image:
+                '/assets/images/Cardgame/3.png'
+        }
+    ];
+
+    const length = SliderData.length;
+
+    const nextSlide = () => {
+        setCurrent(current === length - 1 ? 0 : current + 1);
+    };
+
+    const prevSlide = () => {
+        setCurrent(current === 0 ? length - 1 : current - 1);
+    };
+    if (!Array.isArray(SliderData) || SliderData.length <= 0) {
+        return null;
+    }
     return (
         <div>
             <main className="after-login-mobile-page">
@@ -390,7 +463,7 @@ export default function AfterLoginMobile() {
                             </div>
                         </div>
                         <div className="system-option flexCenter">
-                            <img className="thai-logo" src="../assets/images/logo-thai.svg" alt="thai logo" />
+                            {/* <img className="thai-logo" src="../assets/images/logo-thai.svg" alt="thai logo" /> */}
                             <div className="logout-btn" onClick={() => LogoutClearLocalStorage()} onKeyDown={() => ''}>
                                 <img src="../assets/icons/power-off.svg" alt="logout icon" />
                                 <p>ล็อกเอาท์</p>
@@ -402,14 +475,22 @@ export default function AfterLoginMobile() {
                 <div className="brand">
                     <div className="slideshow-container-after-login">
 
-                        <a className="prev" href='/' onclick="plusSlides(-1)">❮</a>
-                        <a className="next" href='/' onclick="plusSlides(1)">❯</a>
-                    </div>
-
-                    <div style={{ textAlign: "center" }}>
-                        <span className="dot" onclick="currentSlide(1)" />
-                        <span className="dot" onclick="currentSlide(2)" />
-                        <span className="dot" onclick="currentSlide(3)" />
+                        <div className="mySlides fade-slide">
+                            <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
+                            <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
+                            {SliderData.length > 0 && SliderData?.map((slide, index) => {
+                                return (
+                                    <div
+                                        className={index === current ? 'slide1 active' : 'slide1'}
+                                        key={slide?.image}
+                                    >
+                                        {index === current && (
+                                            <img src={slide.image} alt='travel' style={{ width: '100%' }} />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
                 <div style={{ height: 15 }} />
@@ -428,7 +509,7 @@ export default function AfterLoginMobile() {
                     </div>
                     <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/hothit.png" alt="game icon" />
-                        <p>เป็นที่นิยม</p>
+                        <p>ที่นิยม</p>
                     </div>
                     <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")} onKeyDown={() => ''}>
                         <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
@@ -604,7 +685,7 @@ export default function AfterLoginMobile() {
                                 />
                             </div>
                             <img
-                                src="/assets/images/newicon/TTcc-01.png"
+                                src="/assets/images/Logo.png"
                                 alt="logo"
                             />
                             <div className="flexBetween">
@@ -774,11 +855,11 @@ export default function AfterLoginMobile() {
                                     ออกจากระบบ
                                 </button>
                             </div>
-                            <h4>Power by</h4>
+                            {/* <h4>Power by</h4>
                             <img
                                 src="/assets/images/newicon/TTT-03.png"
                                 alt="powerby"
-                            />
+                            /> */}
                         </aside>
                         <div className="sidebar-container-background" />
                     </div>
@@ -822,7 +903,17 @@ export default function AfterLoginMobile() {
                                                 </div>
                                             </div>
                                         ))}
+                                        <br />
 
+                                        <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <p className="username">Username</p>
+                                            <p className="result">{dataFromLogin?.info?.profile?.s_username}</p>
+                                        </div>
+                                        <div className="password" style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <p className="pass">Password</p>
+                                            <p className="result">************</p>
+                                        </div>
+                                        <br />
                                         <button type='button' className="change-password-container flexCenter" data-bs-toggle="modal"
                                             data-bs-target="#changePasswordModal">
                                             {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
@@ -1043,10 +1134,9 @@ export default function AfterLoginMobile() {
                                     <div className="detail-card-scb">
                                         <div className="card-scb flexBetween">
                                             <div className="left">
-                                                <p style={{ margin: 0 }}>ธนาคารกสิกรไทย</p>
-                                                <p style={{ margin: 0 }}>นาย xxxxx xxxxx <span><img src="/assets/images/icon-coppy.svg" alt=""
-                                                    style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
-                                                <p style={{ margin: 0 }}>026-999999-9</p>
+                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankDeposit[0]?.s_fname_th}</p>
+                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankDeposit[0]?.s_account_name}<span><img src="/assets/images/icon-coppy.svg" alt="" style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
+                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankDeposit[0]?.s_account_no}</p>
                                             </div>
                                             <div className="right flexCenter">
                                                 <div className="flexCenter bank">
@@ -1218,33 +1308,14 @@ export default function AfterLoginMobile() {
                                     </div>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="withdraw-modal-content" >
-                                        {dataFromLogin?.info?.bankList?.map((item, index) => (
-                                            <div className="card" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', color: '#FFF' }}>
-                                                <div className="left ">
-                                                    {/* <p style={{ margin: 'none' }}>{item?.s_account_name}</p> */}
-                                                    <p style={{ margin: 'none' }}>{item?.s_account_name}</p>
-                                                    <p style={{ margin: 'none' }}>{item?.s_account_no}</p>
-                                                </div>
-                                                <div className="right">
-                                                    <div className="flexCenter bank">
-                                                        <h4>{item?.s_icon.split(".")[0]}</h4>
-                                                        <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
-                                                            <img src={`/assets/images/bank/${item?.s_icon}`} alt="kbank" />
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        ))}
-
+                                    <div className="withdraw-modal-content" style={{ marginTop: 40 }}>
                                         <div className="money-input" style={{ display: "flex", justifyContent: "space-between" }}>
                                             <div>จำนวนเงินที่ถอนได้</div>
                                             <div type="text">{dataUser?.amount}</div>
                                         </div>
                                         <p style={{ color: "red", marginLeft: 14 }}>{reMessage}</p>
 
-                                        <div className="button-warning" onClick={() => _withdrawMoney()} onKeyDown={() => ''}>ถอนเงิน</div>
+                                        <div className="button-warning" data-bs-dismiss="modal" onClick={() => _withdrawMoney()} onKeyDown={() => ''}>ถอนเงิน</div>
                                         <p style={{ marginLeft: 16, marginTop: 10 }}>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
                                         <button style={{ marginLeft: 16, marginTop: 10, marginBottom: 18 }} type='button' className="line-button flexCenter">
                                             <img src="/assets/icons/icon-line.svg" alt="line icon" />
@@ -1469,7 +1540,7 @@ export default function AfterLoginMobile() {
                                                     ? "history-tab-item active"
                                                     : "history-tab-item"
                                             }
-                                                onClick={() => _clickTabDeposit("tab-deposit", setTabs, setTabName)}
+                                                onClick={() => _clickTabDeposit("tab-deposit")}
                                                 onKeyDown={() => ""} id="tab-deposit"
                                             >
                                                 ฝาก
@@ -1479,125 +1550,65 @@ export default function AfterLoginMobile() {
                                                     ? "history-tab-item active"
                                                     : "history-tab-item"
                                             }
-                                                onClick={() => _clickTabDeposit("tab-withdraw", setTabs, setTabName)}
+                                                onClick={() => _clickTabDeposit("tab-withdraw")}
                                                 onKeyDown={() => ""} id="tab-withdraw">ถอน</div>
                                             <div className={
                                                 tabName === "tab-bonus"
                                                     ? "history-tab-item active"
                                                     : "history-tab-item"
                                             }
-                                                onClick={() => _clickTabDeposit("tab-bonus", setTabs, setTabName)}
+                                                onClick={() => _clickTabDeposit("tab-bonus")}
                                                 onKeyDown={() => ""} id="tab-bonus">โบนัส</div>
                                         </div>
                                         {/* <!-- ฝาก --> */}
                                         <div className="history-deposit" style={{ display: tabName === "tab-deposit" ? "block" : "none" }}>
-                                            <div className="history-list">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการฝาก</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
+                                            {dataHistoryDeposit?.length > 0 && dataHistoryDeposit?.map((deposit) => (
+                                                <div className="history-list">
+                                                    <div className="history-list-left">
+                                                        <label className="history-list-label">รายการถอน</label>
+                                                        <p className="history-list-label">{deposit?.f_amount}</p>
+                                                        <p className="history-list-label">หมายเหตุ : {deposit?.s_remark}</p>
+                                                    </div>
+                                                    <div className="history-list-right">
+                                                        <div className={`history-status${deposit?.s_status === 'Y' ? ' success' : deposit?.s_status === 'C' ? ' cancel' : ' not-success'}`}>{deposit?.s_status === "Y" ? "สำเร็จ" : deposit?.s_status === "C" ? "ยกเลีก" : "ไม่สำเร็จ"}</div>
+                                                        <p className="history-date">{deposit?.d_datetime}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
-                                            <div className="history-list">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการฝาก</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
-                                                </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
-                                            <div className="history-list border-0">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการฝาก</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
-                                                </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
+                                            ))}
                                         </div>
 
                                         {/* <!-- ถอน --> */}
                                         <div className="history-withdraw" style={{ display: tabName === "tab-withdraw" ? "block" : "none" }}>
-                                            <div className="history-list">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการถอน</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
+                                            {dataHistoryWithdraw?.length > 0 && dataHistoryWithdraw?.map((withdraw) => (
+                                                <div className="history-list">
+                                                    <div className="history-list-left">
+                                                        <label className="history-list-label">รายการถอน</label>
+                                                        <p className="history-list-label">{withdraw?.f_amount}</p>
+                                                        <p className="history-list-label">หมายเหตุ : {withdraw?.s_remark}</p>
+                                                    </div>
+                                                    <div className="history-list-right">
+                                                        <div className={`history-status${withdraw?.s_status === 'Y' ? ' success' : withdraw?.s_status === 'C' ? ' cancel' : ' not-success'}`}>{withdraw?.s_status === "Y" ? "สำเร็จ" : withdraw?.s_status === "C" ? "ยกเลีก" : "ไม่สำเร็จ"}</div>
+                                                        <p className="history-date">{withdraw?.d_datetime}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
-                                            <div className="history-list">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการถอน</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
-                                                </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
-                                            <div className="history-list border-0">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการถอน</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
-                                                </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
+                                            ))}
                                         </div>
 
                                         {/* <!-- โบนัส --> */}
                                         <div className="history-bonus" style={{ display: tabName === "tab-bonus" ? "block" : "none" }}>
-                                            <div className="history-list">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการโบนัส</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
+                                            {dataHistoryBonus?.length > 0 && dataHistoryBonus?.map((bonus) => (
+                                                <div className="history-list">
+                                                    <div className="history-list-left">
+                                                        <label className="history-list-label">รายการถอน</label>
+                                                        <p className="history-list-label">{bonus?.f_amount}</p>
+                                                        <p className="history-list-label">หมายเหตุ : {bonus?.s_remark}</p>
+                                                    </div>
+                                                    <div className="history-list-right">
+                                                        <div className={`history-status${bonus?.s_status === 'Y' ? ' success' : bonus?.s_status === 'C' ? ' cancel' : ' not-success'}`}>{bonus?.s_status === "Y" ? "สำเร็จ" : bonus?.s_status === "C" ? "ยกเลีก" : "ไม่สำเร็จ"}</div>
+                                                        <p className="history-date">{bonus?.d_datetime}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
-                                            <div className="history-list">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการโบนัส</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
-                                                </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
-                                            <div className="history-list border-0">
-                                                <div className="history-list-left">
-                                                    <label className="history-list-label">รายการโบนัส</label>
-                                                    <p className="history-list-label">55</p>
-                                                    <p className="history-list-label">หมายเหตุ : ไม่รับโบนัส</p>
-                                                </div>
-                                                <div className="history-list-right">
-                                                    <div className="history-status success">สำเร็จ</div>
-                                                    <p className="history-date">2022-10-16 16.00</p>
-                                                </div>
-                                            </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -2210,7 +2221,7 @@ export default function AfterLoginMobile() {
                                         <div>ยอดเสียสะสมของคุณ (คืนยอดเสีย {maxLevel} %)</div>
                                         <button className="btn-history" data-bs-toggle="modal"
                                             data-bs-target="#cashbackDetail" type="button" >ประวัติการรับ</button>
-
+                                        <div style={{ color: 'red' }}>{reMessage}</div>
                                         <div>อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
                                         <button type="button" onClick={() => _receiveCashBack()} className="btn-get-credit">รับเข้าเครดิต</button>
                                     </div>

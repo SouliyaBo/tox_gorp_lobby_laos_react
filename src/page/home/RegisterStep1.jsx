@@ -56,7 +56,7 @@ export default function RegisterStep1() {
                         alt="home-icon"
                     />
                 </a>
-                <img className="logo" src="/assets/images/newicon/TTcc-01.png" alt="logo" />
+                <img className="logo" src="/assets/images/Logo.png" alt="logo" />
 
                 <div className="progress-step-container flexCenter">
                     <div className="progress-step flexCenter">
@@ -95,7 +95,7 @@ export default function RegisterStep1() {
                         <input
                             name="password"
                             id="password"
-                            type="text"
+                            type="password"
                             placeholder="รหัสผ่าน"
                             onChange={(e) => setInputPassword(e?.target?.value)}
                         />

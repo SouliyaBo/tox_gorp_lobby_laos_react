@@ -16,6 +16,7 @@ export default function Home() {
 	const history = useHistory();
 	const UseParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
+	console.log("parsed: ", parsed)
 	const [current, setCurrent] = useState(0);
 	const [bankCode, setBankCode] = useState(0);
 
@@ -43,7 +44,7 @@ export default function Home() {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (UseParams?.token) {
-			loginWithToken(UseParams?.token,"PC")
+			loginWithToken(UseParams?.token, "PC")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [UseParams]);
@@ -206,7 +207,7 @@ export default function Home() {
 						onKeyDown={() => ""}
 					/>
 					<img
-						src="/assets/images/newicon/TTcc-01.png"
+						src="/assets/images/Logo.png"
 						alt="logo"
 						height="49px"
 						style={{ cursor: "pointer" }}
@@ -702,7 +703,7 @@ export default function Home() {
 							onClick={() => handleCloseLoginClick()}
 							onKeyDown={() => ""}
 						/>
-						<img src="/assets/images/newicon/TTcc-01.png" alt="logo" />
+						<img src="/assets/images/Logo.png" alt="logo" />
 						<h3>เข้าสู่ระบบ</h3>
 						<div className="phone-input">
 							<img src="/assets/icons/phone.svg" alt="icon" />
@@ -769,7 +770,7 @@ export default function Home() {
 									/>
 									<div className="signup-modal-body">
 										<img
-											src="/assets/images/newicon/TTcc-01.png"
+											src="/assets/images/Logo.png"
 											className="logo"
 											alt="logo"
 										/>
@@ -4591,7 +4592,7 @@ export default function Home() {
 					</div>
 					<div className="footer-item flexCenter">
 						<img src="/assets/images/contact-admin.svg" alt="login" />
-						<p className="font-20">ติดต่อ</p>
+						<p className="font-20">ติดต่อเรา</p>
 					</div>
 				</div>
 			</footer>
@@ -4599,7 +4600,7 @@ export default function Home() {
 			<footer className="footer" id="footer-mobile">
 				<div className="menu-wrapper">
 					<a
-						href="/pages/login-page-mobile.html"
+						href={constant?.PAGE_LOGIN_MOBILE}
 						style={{ textDecoration: "none" }}
 					>
 						<div className="footer-item flexCenter">
@@ -4608,7 +4609,7 @@ export default function Home() {
 						</div>
 					</a>
 					<a
-						href="/pages/register-step1.html"
+						href="/register-step1"
 						style={{ textDecoration: "none" }}
 					>
 						<div className="footer-item flexCenter">

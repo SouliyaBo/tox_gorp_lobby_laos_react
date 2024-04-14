@@ -11,7 +11,7 @@ export default function LoginPageMobile() {
 
     // ===== LoginController =====>
     const _Login = async () => {
-        const _res = await handleLogin(userNameInput, passwordInput,"MOBILE");
+        const _res = await handleLogin(userNameInput, passwordInput, "MOBILE");
         if (_res) setMessageCreate(_res?.statusDesc);
     };
 
@@ -27,7 +27,7 @@ export default function LoginPageMobile() {
                 </a>
                 <img
                     className="logo"
-                    src="/assets/images/newicon/TTcc-01.png"
+                    src="/assets/images/Logo.png"
                     alt="banner"
                 />
 
