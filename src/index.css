@@ -5,6 +5,10 @@
   font-family: 'NotoSansLaos';
   src: url("/public/assets/fonts/NotoSansLao.ttf") format("truetype");
 }
+@font-face {
+  font-family: 'TimeNewRoman';
+  src: url("/public/assets/fonts/TimesNewRoman.ttf") format("truetype");
+}
 
 * {
   font-family: 'NotoSansLaos' !important;
@@ -155,6 +159,12 @@ p {
   height: 61px;
   background: linear-gradient(to right, #242424, #0a0000, #191919, #000000, #242424);
   padding: 16px 23px 18px 23px; }
+  .login-page-header .hamburger{
+    float: left;
+    position: absolute;
+    left: 50px;
+    cursor: pointer;
+  }
   .login-page-header .coin-balance,
   .login-page-header .gem-balance {
     padding: 4px 8px;
@@ -168,13 +178,15 @@ p {
     font-size: 16px;
     font-weight: 500; }
   .login-page-header .left .coin-balance {
-    width: 127px; }
+    width: 127px;
+  }
     .login-page-header .left .coin-balance img {
       position: absolute;
       left: -30px;
       top: -20px; }
   .login-page-header .right .gem-balance {
-    width: 76px; }
+    width: 76px;
+  }
     .login-page-header .right .gem-balance img {
       position: absolute;
       left: -20px;
@@ -2055,10 +2067,13 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
             width: 100%;
             font-size: 18px; }
         .modal .modal-content .modal-body .change-profile-modal-content .user .username {
-          font-size: 18px; }
+          font-size: 18px;
+          font-family: "TimeNewRoman" !important;
+        }
         .modal .modal-content .modal-body .change-profile-modal-content .user .result {
           font-size: 20px; }
         .modal .modal-content .modal-body .change-profile-modal-content .password .pass {
+          font-family: "TimeNewRoman" !important;
           font-size: 18px; }
         .modal .modal-content .modal-body .change-profile-modal-content .password .result {
           font-size: 21px; }
@@ -3328,12 +3343,14 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
 .change-cashback-detail-modal-content {
   display: flex;
   flex-direction: column;
-  padding-top: 40px; }
+  padding-top: 30px;
+}
   .change-cashback-detail-modal-content .detail {
     width: 100%s;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 12px;
     gap: 8px; }
     .change-cashback-detail-modal-content .detail .title {
       font-weight: 600px; }
@@ -3563,12 +3580,15 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
   margin-top: 5px; }
   .detail-card-scb1 .card-scb1 {
     background-size: cover;
-    background-image: url("/public/assets/images/scb-img.png");
     background-size: contain;
     background-position: center;
+    /* background: rgba(62, 0, 72, 1); */
     background-repeat: no-repeat;
     margin: 0 auto;
-    padding: 16px; }
+    border-radius: 30px;
+    padding: 16px;
+    border: 3px solid #be8c1f;
+  }
     .detail-card-scb1 .card-scb1 .left {
       flex-direction: column;
       gap: 0.3rem; }
@@ -5233,4 +5253,12 @@ button {
     font-weight: 600;
     color: #ffff;
     margin-bottom: 20px
+}
+
+.deposit-bank-list {
+  position: absolute;
+  right: 60px;
+  top: 130px;
+  background: #000000;
+  color: #FFF;
 }

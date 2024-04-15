@@ -112,7 +112,7 @@ const LoginController = () => {
 							JSON.stringify(_resTwo?.data?.data),
 						);
 						if (isMobile === "MOBILE") {
-							history.push(Constant.AFTER_LOGIN_MOBILE);
+							history.push(Constant.AFTER_LOGIN_MOBILE, _resTwo?.data?.data);
 							_loginAfterRegister(
 								_resTwo?.data?.data?.s_username,
 								_resTwo?.data?.data?.s_password,
@@ -122,7 +122,7 @@ const LoginController = () => {
 								_resTwo?.data?.data?.s_username,
 								_resTwo?.data?.data?.s_password,
 							);
-							history.push(Constant.AFTER_LOGIN);
+							history.push(Constant.AFTER_LOGIN, _resTwo?.data?.data);
 						}
 					}
 				}

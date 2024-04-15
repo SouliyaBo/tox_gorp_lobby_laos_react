@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage, formatDateTimeDDMMYYYY } from "../../helper"
+import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
 import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
 
@@ -39,6 +39,7 @@ export default function AfterLoginMobile() {
     const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
     const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
     const [current, setCurrent] = useState(0);
+
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
@@ -348,6 +349,15 @@ export default function AfterLoginMobile() {
     }
     const _copyLinkAffiliate = (link) => {
         navigator.clipboard.writeText(link);
+
+        Swal.fire({
+            icon: 'success',
+            title: "คัดลอกลิ้งสำเร็จ",
+            showConfirmButton: false,
+            timer: 2000,
+            background: '#242424', // Change to the color you want
+            color: '#fff',
+        });
     };
 
     const _receiveCashBack = async () => {
@@ -373,7 +383,6 @@ export default function AfterLoginMobile() {
             console.log("🚀 ~ const_login= ~ error:", error);
         }
     };
-    console.log("dataFromLogin", dataFromLogin);
 
     const _addCupon = async () => {
         try {
@@ -883,28 +892,29 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="change-profile-modal-content-mobile" style={{ marginTop: 20 }}>
-                                        {dataFromLogin?.length > 0 && dataFromLogin?.info?.bankList?.map((item, index) => (
-                                            <div className="card-kbank">
-                                                <div className="font-17">
-                                                    <p>{item?.s_account_name}</p>
-                                                    <div
-                                                        style={{ display: "flex", justifyContent: "space-between" }}
-                                                    >
-                                                        <div style={{ marginRight: 10 }}>{item?.s_icon.split(".")[0]}</div>
-                                                        <img
-                                                            src={`/assets/images/bank/${item?.s_icon}`}
-                                                            alt="logo"
-                                                            style={{ marginRop: -10 }}
-                                                        />
-                                                    </div>
+                                        {dataFromLogin?.info?.bankList?.length > 0 && dataFromLogin?.info?.bankList?.map((item) => (
+                                            <div>
+                                                <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
+                                                    <p className="username">Bank</p>
+                                                    <div>{item?.s_icon.split(".")[0]} <img src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" /></div>
                                                 </div>
-                                                <div className="font-17">
-                                                    <p>{item?.s_account_no}</p>
+                                                <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
+                                                    <p className="username">Account Number</p>
+                                                    <p className="result">{item?.s_account_no}</p>
+                                                </div>
+                                                <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
+                                                    <p className="username">Account Name</p>
+                                                    <p className="result">{item?.s_account_name}</p>
                                                 </div>
                                             </div>
                                         ))}
-                                        <br />
 
+                                        <div style={{ border: "1px solid #b78113", marginTop: 10, marginBottom: 10 }} />
+
+                                        <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <p className="username">Line ID</p>
+                                            <p className="result">{dataFromLogin?.info?.profile?.s_line}</p>
+                                        </div>
                                         <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
                                             <p className="username">Username</p>
                                             <p className="result">{dataFromLogin?.info?.profile?.s_username}</p>
@@ -914,9 +924,8 @@ export default function AfterLoginMobile() {
                                             <p className="result">************</p>
                                         </div>
                                         <br />
-                                        <button type='button' className="change-password-container flexCenter" data-bs-toggle="modal"
+                                        {/* <button type='button' className="change-password-container flexCenter" data-bs-toggle="modal"
                                             data-bs-target="#changePasswordModal">
-                                            {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
                                             <svg xmlns="http://www.w3.org/2000/svg" width="51" height="51" viewBox="0 0 51 51" fill="none">
                                                 <path
                                                     d="M25.033 21.7165C24.4104 21.0943 23.4014 21.0945 22.779 21.7171C22.1568 22.3397 22.157 23.3487 22.7796 23.9711L24.309 25.4996L22.7794 27.0294C22.157 27.6518 22.157 28.6607 22.7794 29.2832C23.4018 29.9056 24.4108 29.9056 25.0332 29.2832L26.5634 27.7529L28.0921 29.281C28.7148 29.9032 29.7237 29.903 30.3461 29.2804C30.9683 28.658 30.9681 27.6488 30.3455 27.0266L28.8174 25.4992L30.3457 23.9707C30.9681 23.3482 30.9681 22.3393 30.3457 21.7169C29.7233 21.0944 28.7143 21.0944 28.0919 21.7169L26.563 23.2458L25.033 21.7165Z"
@@ -932,7 +941,7 @@ export default function AfterLoginMobile() {
                                                     fill="white" />
                                             </svg>
                                             <p>เปลี่ยนรหัสผ่าน</p>
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>
@@ -1134,9 +1143,9 @@ export default function AfterLoginMobile() {
                                     <div className="detail-card-scb">
                                         <div className="card-scb flexBetween">
                                             <div className="left">
-                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankDeposit[0]?.s_fname_th}</p>
-                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankDeposit[0]?.s_account_name}<span><img src="/assets/images/icon-coppy.svg" alt="" style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
-                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankDeposit[0]?.s_account_no}</p>
+                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankList[0]?.s_fname_th}</p>
+                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankList[0]?.s_account_name}</p>
+                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankList[0]?.s_account_no}<span><img src="/assets/images/icon-coppy.svg" alt="" style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
                                             </div>
                                             <div className="right flexCenter">
                                                 <div className="flexCenter bank">
@@ -1152,10 +1161,7 @@ export default function AfterLoginMobile() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="slide-image">
-                                        <div className="active" />
-                                        <div className="none-active" />
-                                    </div>
+
                                     <div>
                                         <div className="button-validationt">
                                             <div style={{ color: "white" }}>
@@ -1570,7 +1576,7 @@ export default function AfterLoginMobile() {
                                                         <p className="history-list-label">หมายเหตุ : {deposit?.s_remark}</p>
                                                     </div>
                                                     <div className="history-list-right">
-                                                        <div className={`history-status${deposit?.s_status === 'Y' ? ' success' : deposit?.s_status === 'C' ? ' cancel' : ' not-success'}`}>{deposit?.s_status === "Y" ? "สำเร็จ" : deposit?.s_status === "C" ? "ยกเลีก" : "ไม่สำเร็จ"}</div>
+                                                        <div className={`history-status${deposit?.s_status === 'Y' ? ' success' : deposit?.s_status === 'C' ? ' cancel' : ' not-success'}`}>{deposit?.s_status === "Y" ? "สำเร็จ" : deposit?.s_status === "C" ? "ยกเลิก" : "ไม่สำเร็จ"}</div>
                                                         <p className="history-date">{deposit?.d_datetime}</p>
                                                     </div>
                                                 </div>
@@ -1806,7 +1812,7 @@ export default function AfterLoginMobile() {
 
                                                 <div className="link-shared-btn-group">
                                                     <div className="border-input-gold border-btn">
-                                                        <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)} onKeyDown={() => ""}>
+                                                        <button type="button" className="btn-copy-link" data-bs-dismiss="modal" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)} onKeyDown={() => ""}>
                                                             คัดลอกลิ้งค์
                                                         </button>
                                                     </div>
@@ -2252,18 +2258,16 @@ export default function AfterLoginMobile() {
                                             <div>วันเวลา</div>
                                             <div>จำนวนเงิน</div>
                                         </div>
-                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                            {historyCashBack?.length > 0 && historyCashBack?.map((item, index) => (
+                                        {historyCashBack?.length > 0 && historyCashBack?.map((item, index) => (
+                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
                                                 <div>
-                                                    <div>
-                                                        {item?.d_create}
-                                                    </div>
-                                                    <div>
-                                                        {item?.f_amount}
-                                                    </div>
+                                                    {item?.d_create}
                                                 </div>
-                                            ))}
-                                        </div>
+                                                <div>
+                                                    {item?.f_amount}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -2312,192 +2316,8 @@ export default function AfterLoginMobile() {
                     </div>
                 </div>
                 {/* <!-- diamond modal end --> */}
-
-                {/* <!-- tournament modal --> */}
-                <div className="modal fade" id="tournamentModal" tabindex="-1" aria-labelledby="tournamentModalLabel"
-                    aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-border">
-                            <div className="modal-content">
-                                <div className="modal-header-container">
-                                    <div className="modal-header">
-                                        <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
-                                            data-bs-target="#bagModal" data-bs-dismiss="modal" />
-                                        <p className="modal-title">ทัวร์นาเมนท์</p>
-                                        <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
-                                            aria-label="Close" alt="" />
-                                    </div>
-                                </div>
-                                <div className="modal-body">
-                                    <div className="tournament-modal-content">
-                                        <div className="top-recharge-select-container">
-                                            <div className="top-recharge-select">
-                                                <img className="select-icon" id="icon-top-play" src="/assets/icons/icon-top-play.svg" alt="" />
-                                                <img className="select-icon" id="icon-top-recharge" src="/assets/icons/icon-top-recharge.svg" alt="" />
-                                                <img className="select-icon" id="icon-top-lose" src="/assets/icons/icon-top-lose.svg" alt="" />
-                                                <select className="top-recharge-select-content" id="top-rank-select">
-                                                    <option value="top-play">ยอดเล่นสูงสุด 30 อันดับ</option>
-                                                    <option value="top-recharge">
-                                                        ยอดเติมสูงสุด 30 อันดับ
-                                                    </option>
-                                                    <option value="top-lose">ยอดเสียสูงสุด 30 อันดับ</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <p className="top-rank">TOP RANK</p>
-                                        <div className="slide-rank">
-                                            <div className="slide-rank-item top1">
-                                                <img className="rank-icon" src="/assets/icons/icon-top1.svg" alt="" />
-                                                <img className="rank-profile" src="/assets/images/image-top1.svg" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-
-                                                <p className="rank-item-text">1,500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item top2">
-                                                <img className="rank-icon" src="/assets/icons/icon-top2.svg" alt="" />
-                                                <img className="rank-profile" src="/assets/images/image-top2.svg" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-
-                                                <p className="rank-item-text">1,200,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item top3">
-                                                <img className="rank-icon" src="/assets/icons/icon-top3.svg" alt="" />
-                                                <img className="rank-profile" src="/assets/images/image-top3.svg" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-
-                                                <p className="rank-item-text">1,000,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                            <div className="slide-rank-item">
-                                                <img className="rank-profile" src="/assets/images/st-vegas-logo.png" alt="" />
-                                                <p className="rank-item-text">ST14526641</p>
-                                                <p className="rank-item-text">500,000 บาท</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="table-rank">
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">11</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">12</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">13</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">14</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">15</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">16</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">17</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">18</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">19</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                            <div className="table-rank-item">
-                                                <div className="no-rank">20</div>
-                                                <div className="rank-detail">
-                                                    <div className="rank-phone">095-xxx-xxxx</div>
-                                                    <div className="rank-detail-title">ยอด</div>
-                                                    <div className="rank-money">351,353</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {/* <!-- tournament modal end --> */}
-
-                {/* <!-- End Modal --> */}
             </main>
+
         </div>
     )
 }

@@ -16,7 +16,6 @@ export default function Home() {
 	const history = useHistory();
 	const UseParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
-	console.log("parsed: ", parsed)
 	const [current, setCurrent] = useState(0);
 	const [bankCode, setBankCode] = useState(0);
 
@@ -32,7 +31,6 @@ export default function Home() {
 	const [passwordInput, setPasswordInput] = useState();
 	const [messageCreate, setMessageCreate] = useState();
 	const [dataGameList, setDataGameList] = useState(dataCradGame?.SLOT)
-	console.log("dataGameList: ", dataGameList)
 	const [warningPhone, setWarningPhone] = useState("")
 	const [warningPassword, setWarningPassword] = useState("")
 	const [warningFirstName, setWarningFirstName] = useState("")
@@ -259,11 +257,7 @@ export default function Home() {
 							เข้าสู่ระบบ
 						</button>
 					</a>
-					<img
-						src="/assets/images/logo-thai.svg"
-						className="logo-thai"
-						alt="logo thai"
-					/>
+
 				</div>
 			</header>
 

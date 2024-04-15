@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import constant from "../../constant";
 import _LoginController from "../../api/login";
-
+import { useHistory } from "react-router-dom";
 export default function LoginPageMobile() {
+    const history = useHistory();
     const [userNameInput, setUserNameInput] = useState();
     const [passwordInput, setPasswordInput] = useState();
     const [messageCreate, setMessageCreate] = useState();
@@ -79,7 +80,7 @@ export default function LoginPageMobile() {
                     </button>
                     {/* </a> */}
                     {/* <a href={constant?.PAGE_REGISTER_STEP1}>  */}
-                    <button type="button" style={{ cursor: "pointer" }} id="signupBtn">
+                    <button type="button" style={{ cursor: "pointer" }} onClick={() => history.push(constant?.PAGE_REGISTER_STEP1)} id="signupBtn">
                         สมัครสมาชิก
                     </button>
                     {/* </a> */}
