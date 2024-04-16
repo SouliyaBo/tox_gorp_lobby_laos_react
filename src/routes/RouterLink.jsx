@@ -17,7 +17,7 @@ import RegisterStep1 from "../page/home/RegisterStep1";
 import RegisterStep2 from "../page/home/RegisterStep2";
 import AfterLogin from "../page/lobby/AfterLogin";
 import AfterLoginMobile from "../page/lobby/AfterLoginMobile";
-import GameList from "../page/lobby/GameList";
+// import GameList from "../page/lobby/GameList";
 import AfterLoginMobileAllGame from "../page/lobby/AfterLoginMobileAllGame";
 
 
@@ -38,7 +38,7 @@ function RouterLink() {
                 <>
                   <PrivateRoute exact path={Const.AFTER_LOGIN} component={AfterLogin} />
                   <PrivateRoute exact path={Const.AFTER_LOGIN_MOBILE} component={AfterLoginMobile} />
-                  <PrivateRoute exact path={Const.GAME_LIST} component={GameList} />
+                  {/* <PrivateRoute exact path={Const.GAME_LIST} component={GameList} /> */}
                   <PrivateRoute exact path={Const.GAME_LIST_MOBILE} component={AfterLoginMobileAllGame} />
                 </>
               </React.Fragment>

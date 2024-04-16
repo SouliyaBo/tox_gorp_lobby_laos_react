@@ -146,7 +146,7 @@ export default function AfterLogin() {
     const [dataHistoryDeposit, setDataHistoryDeposit] = useState([]);
     const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
     const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
-    const [depositBankList, setDepositBankList] = useState({});
+    const [depositBankList, setDepositBankList] = useState();
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -157,7 +157,7 @@ export default function AfterLogin() {
             setDepositBankList(_data?.info?.bankDeposit[0])
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
-                setDepositBankList({ ...depositBankList, background: color[0].backgroundColor })
+                setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
             }
         }
         setDataSlide(history?.location?.state?.info?.promotionList);
@@ -474,12 +474,19 @@ export default function AfterLogin() {
 
     const _getOptionBank = (bankName) => {
         setDisableArrow(!disableArrow)
-        const color = BackList.filter((data) => data?.bankName === bankName?.target?.value)
+
+    }
+    const _getOptionBank2 = (bankName) => {
+        setDisableArrow(!disableArrow)
+        const newData = JSON.parse(bankName);
+        const color = BackList.filter((data) => data?.bankName === newData?.s_fname_th)
         if (color?.length > 0) {
-            setDepositBankList({ ...depositBankList, background: color[0].backgroundColor })
+            setDepositBankList({ ...newData, background: color[0].backgroundColor })
         }
     }
-
+    const _copyAccountNo = (accountNo) => {
+        navigator.clipboard.writeText(accountNo);
+    };
 
     return (
         <div>
@@ -570,9 +577,9 @@ export default function AfterLogin() {
 
                 <section className="card-container">
                     <div className="card-wrapper">
-                        {dataGameList?.length ? dataGameList?.map((game) =>
+                        {dataGameList?.length ? dataGameList?.map((game, index) =>
                             <div
-                                key={game?.s_img}
+                                key={game?.index}
                                 className="game-card"
                             >
                                 <div style={{
@@ -596,9 +603,9 @@ export default function AfterLogin() {
                                     onClick={() => _getDataGamePlayGame(game)}
                                     onKeyDown={() => ''}
                                 />
-                            </div>) : categoryGame?.length > 0 && categoryGame?.map((item) => (
+                            </div>) : categoryGame?.length > 0 && categoryGame?.map((item, index) => (
                                 <div
-                                    key={item?.s_img}
+                                    key={item?.index}
                                     className="game-card"
                                 >
                                     {dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? <div style={{
@@ -816,8 +823,8 @@ export default function AfterLogin() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="change-profile-modal-content">
-                                        {dataFromLogin?.info?.bankList?.length > 0 && dataFromLogin?.info?.bankList?.map((item) => (
-                                            <div>
+                                        {dataFromLogin?.info?.bankList?.length > 0 && dataFromLogin?.info?.bankList?.map((item, index) => (
+                                            <div key={index}>
                                                 <div className="user">
                                                     <p className="username">Bank</p>
                                                     <div>{item?.s_icon.split(".")[0]} <img src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" /></div>
@@ -1236,27 +1243,33 @@ export default function AfterLogin() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="detail-card-scb1">
-                                        <div className="card-scb1" style={{ background: depositBankList?.background }}>
+                                        <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
                                             <div className="left">
-                                                <p>{depositBankList?.s_fname_th}</p>
-                                                <p>{depositBankList?.s_account_name}</p>
-                                                <p>{depositBankList?.s_account_no}</p>
+                                                <p>{depositBankList && depositBankList?.s_fname_th}</p>
+                                                <p>{depositBankList && depositBankList?.s_account_name}</p>
+                                                <p>{depositBankList && depositBankList?.s_account_no}
+                                                    <span>
+                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 20, height: 20, marginBottom: -3 }} />
+                                                    </span>
+                                                </p>
                                             </div>
                                             <div className="right">
                                                 <div className="bank">
-                                                    <h3>SCB</h3>
-                                                    <div style={{ borderRadius: '100%' }}>
-                                                        <img src="/assets/images/scb 1.png" alt="scb" />
+                                                    <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon.split(".")[0]}</h3>
+                                                    <div style={{ borderRadius: '100%', marginTop: -10 }}>
+                                                        <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
                                                     </div>
                                                 </div>
                                                 <div style={{ marginLeft: 50 }}>
-                                                    <img onClick={() => _getOptionBank()} onKeyDown={() => ''} style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }} src="/assets/images/arrow-bottom.svg" alt="" srcset="" />
+                                                    <div className="deposit-bank-title-pc">เปลี่ยนธนาคาร</div>
+                                                    <img onClick={() => _getOptionBank()} onKeyDown={() => ''}
+                                                        style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }} src="/assets/images/arrow-bottom.svg" alt="" srcset="" />
                                                     <select
-                                                        onChange={(e) => _getOptionBank(e)}
-                                                        className="deposit-bank-list"
+                                                        onChange={(e) => _getOptionBank2(e.target.value)}
+                                                        className="deposit-bank-list-pc"
                                                         style={{ display: disableArrow === true ? "block" : "none" }}>
-                                                        {dataFromLogin?.info?.bankDeposit.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                                                            <option value={bank?.s_fname_th}>{bank?.s_fname_th}</option>
+                                                        {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank, index) => (
+                                                            <option key={bank?.index} value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>
                                                         ))}
 
                                                     </select>
@@ -1543,7 +1556,7 @@ export default function AfterLogin() {
                             <div className="modal-body">
                                 <div className="withdraw-modal-content flexCenter">
                                     {dataFromLogin?.length > 0 && dataFromLogin?.info?.bankList?.map((item, index) => (
-                                        <div className="card flexBetween">
+                                        <div key={index} className="card flexBetween">
                                             <div className="left flexCenter">
                                                 <p>{item?.s_account_name}</p>
                                                 <p>{item?.s_account_no}</p>
@@ -2020,8 +2033,8 @@ export default function AfterLogin() {
                                     </div>
                                     {/* <!-- ฝาก --> */}
                                     <div className="history-deposit" style={{ display: tabName === "tab-deposit" ? "block" : "none" }}>
-                                        {dataHistoryDeposit?.length > 0 && dataHistoryDeposit?.map((deposit) => (
-                                            <div className="history-list">
+                                        {dataHistoryDeposit?.length > 0 && dataHistoryDeposit?.map((deposit, index) => (
+                                            <div className="history-list" key={deposit?.index}>
                                                 <div className="history-list-left">
                                                     <label className="history-list-label">รายการถอน</label>
                                                     <p className="history-list-label">{deposit?.f_amount}</p>
@@ -2038,8 +2051,8 @@ export default function AfterLogin() {
 
                                     {/* <!-- ถอน --> */}
                                     <div className="history-withdraw" style={{ display: tabName === "tab-withdraw" ? "block" : "none" }}>
-                                        {dataHistoryWithdraw?.length > 0 && dataHistoryWithdraw?.map((withdraw) => (
-                                            <div className="history-list">
+                                        {dataHistoryWithdraw?.length > 0 && dataHistoryWithdraw?.map((withdraw, index) => (
+                                            <div className="history-list" key={withdraw?.index}>
                                                 <div className="history-list-left">
                                                     <label className="history-list-label">รายการถอน</label>
                                                     <p className="history-list-label">{withdraw?.f_amount}</p>
@@ -2056,8 +2069,8 @@ export default function AfterLogin() {
 
                                     {/* <!-- โบนัส --> */}
                                     <div className="history-bonus" style={{ display: tabName === "tab-bonus" ? "block" : "none" }}>
-                                        {dataHistoryBonus?.length > 0 && dataHistoryBonus?.map((bonus) => (
-                                            <div className="history-list">
+                                        {dataHistoryBonus?.length > 0 && dataHistoryBonus?.map((bonus, index) => (
+                                            <div className="history-list" key={bonus?.index}>
                                                 <div className="history-list-left">
                                                     <label className="history-list-label">รายการถอน</label>
                                                     <p className="history-list-label">{bonus?.f_amount}</p>
@@ -2172,38 +2185,7 @@ export default function AfterLogin() {
                                             </div>
                                             <p className="bag-modal-menu-title">กรอกโค้ด</p>
                                         </div>
-                                        {/* <div
-                                            className="bag-modal-menu-item"
-                                            id="spinner-modal-btn"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#spinnerModal"
-                                            data-bs-dismiss="modal"
-                                        >
-                                            <div className="bag-menu-img-container">
-                                                <img
-                                                    className="bag-menu-icon"
-                                                    src="/assets/icons/icon-spinner.svg"
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <p className="bag-modal-menu-title">กงล้อ</p>
-                                        </div> */}
-                                        {/* <div
-                                            className="bag-modal-menu-item"
-                                            id="credit-modal-btn"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#creditModal"
-                                            data-bs-dismiss="modal"
-                                        >
-                                            <div className="bag-menu-img-container">
-                                                <img
-                                                    className="bag-menu-icon"
-                                                    src="/assets/icons/icon-teasure.svg"
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <p className="bag-modal-menu-title">เครดิตฟรี</p>
-                                        </div> */}
+
                                         <div
                                             className="bag-modal-menu-item"
                                             data-bs-toggle="modal"
@@ -2219,48 +2201,7 @@ export default function AfterLogin() {
                                             </div>
                                             <p className="bag-modal-menu-title">คืนยอดเสีย</p>
                                         </div>
-                                        {/* <div
-                                            className="bag-modal-menu-item"
-                                            id="diamond-modal-btn"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#diamondModal"
-                                            data-bs-dismiss="modal"
-                                        >
-                                            <div className="bag-menu-img-container">
-                                                <img
-                                                    className="bag-menu-icon"
-                                                    src="/assets/icons/icon-diamond.svg"
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <p className="bag-modal-menu-title">แลกเพรช</p>
-                                        </div> */}
-                                        {/* <div
-                                            className="bag-modal-menu-item"
-                                            id="tournament-modal-btn"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#tournamentModal"
-                                            data-bs-dismiss="modal"
-                                        >
-                                            <div className="bag-menu-img-container">
-                                                <img
-                                                    className="bag-menu-icon"
-                                                    src="/assets/icons/icon-trophy.svg"
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <p className="bag-modal-menu-title">ทัวร์นาเมนต์</p>
-                                        </div> */}
-                                        {/* <div className="bag-modal-menu-item">
-                                            <div className="bag-menu-img-container">
-                                                <img
-                                                    className="bag-menu-icon"
-                                                    src="/assets/icons/icon-road-map.svg"
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <p className="bag-modal-menu-title">Road Map</p>
-                                        </div> */}
+
                                     </div>
                                 </div>
                             </div>
@@ -2429,14 +2370,6 @@ export default function AfterLogin() {
                                 <div className="credit-modal-content">
                                     <div className="border-input-gold">
                                         <div className="credit-modal-body">
-                                            {/* <!-- show this if no credit --> */}
-                                            {/* <!-- <div className="no-credit">
-                                          <div className="no-credit-right">
-                                              <p className="no-credit-text">ไม่พบรายการ</p>
-                                              <p className="no-credit-text">เครดิตฟรี</p>
-                                          </div>
-                                      </div> --> */}
-
                                             {/* <!-- show this if thre is free credit --> */}
                                             <div className="free-credit">
                                                 <div className="credit-point-content">
@@ -2925,81 +2858,6 @@ export default function AfterLogin() {
                                         </div>
                                     </div>
 
-                                    {/* <div className="earn-menu-content">
-                                        <div className="border-input-gold">
-                                            <div
-                                                className="earn-menu-item"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#earnMoneyDetailModal"
-                                                data-bs-dismiss="modal"
-                                            >
-                                                <img
-                                                    className="earn-menu-item-img"
-                                                    src="/assets/images/img-total-plays.svg"
-                                                    alt=""
-                                                />
-                                                <p className="earn-menu-item-title">ยอดเล่น</p>
-                                                <p className="earn-menu-item-subtitle">
-                                                    ยอดเล่นของเพื่อนทั้งหมด
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="border-input-gold">
-                                            <div className="earn-menu-item">
-                                                <img
-                                                    className="earn-menu-item-img"
-                                                    src="/assets/images/img-total-lose.png"
-                                                    alt=""
-                                                />
-                                                <p className="earn-menu-item-title">ยอดเสีย</p>
-                                                <p className="earn-menu-item-subtitle">
-                                                    ยอดเสียของเพื่อนทั้งหมด
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="border-input-gold">
-                                            <div className="earn-menu-item">
-                                                <img
-                                                    className="earn-menu-item-img"
-                                                    src="/assets/images/img-total-deposit.svg"
-                                                    alt=""
-                                                />
-                                                <p className="earn-menu-item-title">ยอดฝาก</p>
-                                                <p className="earn-menu-item-subtitle">
-                                                    ยอดฝากของเพื่อนทั้งหมด
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="border-input-gold">
-                                            <div className="earn-menu-item">
-                                                <img
-                                                    className="earn-menu-item-img"
-                                                    src="/assets/icons/icon-teasure.svg"
-                                                    alt=""
-                                                />
-                                                <p className="earn-menu-item-title">รับเครดิตฟรี</p>
-                                                <p className="earn-menu-item-subtitle">เครดิตฟรีจากการแนะนำ</p>
-                                            </div>
-                                        </div>
-                                        <div className="border-input-gold">
-                                            <div className="earn-menu-item">
-                                                <img
-                                                    className="earn-menu-item-img"
-                                                    src="/assets/images/member-suggest.png"
-                                                    alt=""
-                                                />
-                                                <p className="earn-menu-item-title">สมาชิกแนะนำ</p>
-                                                <p className="earn-menu-item-subtitle">ดูรายละเอียด</p>
-                                            </div>
-                                        </div>
-                                    </div> */}
-
-                                    {/* <div className="read-earn-rule">
-                                        หากมีข้อสงสัยเพิ่มเติม
-                                        <a href="https://www.google.com/" target="_blank" rel="noreferrer"
-                                        >อ่านกฏกติกา</a
-                                        >
-                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -3483,7 +3341,7 @@ export default function AfterLogin() {
                                         className="modal-icon-close"
                                         data-bs-dismiss="modal"
                                         aria-label="Close"
-                                        alt=""
+                                        alt="shun808"
                                     />
                                 </div>
                             </div>
@@ -3502,12 +3360,13 @@ export default function AfterLogin() {
                                 </div>
                                 <b />
                                 {historyCashBack?.length > 0 && historyCashBack?.map((item, index) => (
-                                    <div style={{
-                                        color: "white",
-                                        display: "flex",
-                                        width: "90%",
-                                        justifyContent: "space-between",
-                                    }}>
+                                    <div key={index}
+                                        style={{
+                                            color: "white",
+                                            display: "flex",
+                                            width: "90%",
+                                            justifyContent: "space-between",
+                                        }}>
                                         <div>
                                             {item?.d_create}
                                         </div>

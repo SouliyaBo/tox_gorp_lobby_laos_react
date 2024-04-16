@@ -8,6 +8,7 @@ import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome
 import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
 import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
+import { BackList } from "../../constant/bankList";
 
 export default function AfterLoginMobile() {
     const history = useHistory();
@@ -39,13 +40,20 @@ export default function AfterLoginMobile() {
     const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
     const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
     const [current, setCurrent] = useState(0);
-
+    const [disableArrow, setDisableArrow] = useState(false);
+    const [depositBankList, setDepositBankList] = useState({});
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
         console.log("_data: ", _data)
         if (_data) {
             setDataFromLogin(_data);
+            setDepositBankList(_data?.info?.bankDeposit[0])
+            const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
+            if (color?.length > 0) {
+                setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
+            }
+
         }
         setDeviceType(false)
         setDataSlider(history?.location?.state?.info?.promotionList);
@@ -359,6 +367,9 @@ export default function AfterLoginMobile() {
             color: '#fff',
         });
     };
+    const _copyAccountNo = (accountNo) => {
+        navigator.clipboard.writeText(accountNo);
+    };
 
     const _receiveCashBack = async () => {
         console.log("dataFromLogin: ", dataFromLogin?.balance?.cashback)
@@ -444,6 +455,18 @@ export default function AfterLoginMobile() {
     };
     if (!Array.isArray(SliderData) || SliderData.length <= 0) {
         return null;
+    }
+    const _getOptionBank = (bankName) => {
+        setDisableArrow(!disableArrow)
+
+    }
+    const _getOptionBank2 = (bankName) => {
+        setDisableArrow(!disableArrow)
+        const newData = JSON.parse(bankName);
+        const color = BackList.filter((data) => data?.bankName === newData?.s_fname_th)
+        if (color?.length > 0) {
+            setDepositBankList({ ...newData, background: color[0].backgroundColor })
+        }
     }
     return (
         <div>
@@ -909,7 +932,7 @@ export default function AfterLoginMobile() {
                                             </div>
                                         ))}
 
-                                        <div style={{ border: "1px solid #b78113", marginTop: 10, marginBottom: 10 }} />
+                                        <div style={{ border: "1px solid #0000001f", marginTop: 10, marginBottom: 10 }} />
 
                                         <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
                                             <p className="username">Line ID</p>
@@ -1140,23 +1163,38 @@ export default function AfterLoginMobile() {
                                     </div>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="detail-card-scb">
+                                    <div className="detail-card-scb" style={{ background: depositBankList && depositBankList?.background, borderRadius: 20 }}>
                                         <div className="card-scb flexBetween">
                                             <div className="left">
-                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankList[0]?.s_fname_th}</p>
-                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankList[0]?.s_account_name}</p>
-                                                <p style={{ margin: 0 }}>{dataFromLogin?.info?.bankList[0]?.s_account_no}<span><img src="/assets/images/icon-coppy.svg" alt="" style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
+                                                <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_fname_th}</p>
+                                                <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_account_name}</p>
+                                                <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_account_no}
+                                                    <span>
+                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 20, height: 20, marginBottom: -3 }} />
+                                                    </span>
+                                                </p>
                                             </div>
-                                            <div className="right flexCenter">
+                                            <div className="right" style={{ height: 80 }}>
                                                 <div className="flexCenter bank">
-                                                    <h4>SCB</h4>
-                                                    <div style={{ borderRadius: "100%" }}>
-                                                        <img src="/assets/images/scb 1.png" alt="scb" />
+                                                    <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon?.split(".")[0]}</h3>
+                                                    <div style={{ borderRadius: '100%', marginTop: -10 }}>
+                                                        <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
                                                     </div>
                                                 </div>
+                                                <div>
+                                                    <div className="deposit-bank-title">เปลี่ยนธนาคาร</div>
+                                                    <img onClick={() => _getOptionBank()} onKeyDown={() => ''}
+                                                        className="arrow-down"
+                                                        style={{ display: disableArrow === true ? "none" : "block", cursor: "pointer" }} src="/assets/images/arrow-bottom.svg" alt="" srcset="" />
+                                                    <select
+                                                        onChange={(e) => _getOptionBank2(e.target.value)}
+                                                        className="deposit-bank-list"
+                                                        style={{ display: disableArrow === true ? "block" : "none" }}>
+                                                        {dataFromLogin?.info?.bankDeposit.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                                            <option value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>
+                                                        ))}
 
-                                                <div className="visa">
-                                                    <img src="/assets/icons/visa.svg" alt="visa" />
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
