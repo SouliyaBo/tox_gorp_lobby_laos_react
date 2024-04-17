@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
+import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, openUrlInNewWindow, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
 import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
@@ -238,10 +238,12 @@ export default function AfterLoginMobile() {
                 url: `${Constant.SERVER_URL}/Game/Access`,
                 data: _data,
             });
-            if (_res?.data?.url) {
-                window.open(_res?.data?.url, '_blank');
+            if (_res?.data?.url !== "undefined") {
+                setTimeout(() => {
+                    window.open(_res?.data?.url, '_blank');
+                })
             }
-            if (_res?.data) {
+            if (_res?.data?.res_html !== undefined) {
                 OpenNewTabWithHTML(_res?.data?.res_html);
             }
         } catch (error) {
@@ -356,19 +358,28 @@ export default function AfterLoginMobile() {
         }
     }
     const _copyLinkAffiliate = (link) => {
-        navigator.clipboard.writeText(link);
 
         Swal.fire({
             icon: 'success',
             title: "คัดลอกลิ้งสำเร็จ",
             showConfirmButton: false,
             timer: 2000,
-            background: '#242424', // Change to the color you want
+            background: '#242424',
             color: '#fff',
         });
+        navigator?.clipboard.writeText(link);
+
     };
     const _copyAccountNo = (accountNo) => {
         navigator.clipboard.writeText(accountNo);
+        Swal.fire({
+            icon: 'success',
+            title: "คัดลอกสำเร็จ",
+            showConfirmButton: false,
+            timer: 2000,
+            background: '#242424',
+            color: '#fff',
+        });
     };
 
     const _receiveCashBack = async () => {
@@ -468,6 +479,7 @@ export default function AfterLoginMobile() {
             setDepositBankList({ ...newData, background: color[0].backgroundColor })
         }
     }
+
     return (
         <div>
             <main className="after-login-mobile-page">
@@ -497,8 +509,8 @@ export default function AfterLoginMobile() {
                         <div className="system-option flexCenter">
                             {/* <img className="thai-logo" src="../assets/images/logo-thai.svg" alt="thai logo" /> */}
                             <div className="logout-btn" onClick={() => LogoutClearLocalStorage()} onKeyDown={() => ''}>
-                                <img src="../assets/icons/power-off.svg" alt="logout icon" />
-                                <p>ล็อกเอาท์</p>
+                                <img src="/assets/icons/power-off.svg" alt="logout icon" />
+                                <p style={{ color: 'red' }}>ล็อกเอาท์</p>
                             </div>
                         </div>
                     </div>
@@ -587,6 +599,7 @@ export default function AfterLoginMobile() {
                                         style={{ color: "#FFF", fontSize: 25 }}
                                     />
                                 </div>
+                                {/* <a href={_getDataGamePlayGame()} onClick={() => _getDataGamePlayGame(game)}> */}
                                 <img
                                     src={game?.s_img ?? "/assets/images/jilli_card.svg"}
                                     id="game-card"
@@ -596,6 +609,7 @@ export default function AfterLoginMobile() {
                                     onKeyDown={() => ""}
                                     onClick={() => _getDataGamePlayGame(game)}
                                 />
+                                {/* </a> */}
                             </div>
                             )) : categoryGame.length > 0 && categoryGame?.map((item) => (
                                 <div key={item?.s_img} className="content-image" style={{ position: "relative" }}>
@@ -1170,7 +1184,7 @@ export default function AfterLoginMobile() {
                                                 <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_account_name}</p>
                                                 <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_account_no}
                                                     <span>
-                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 20, height: 20, marginBottom: -3 }} />
+                                                        <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
                                                     </span>
                                                 </p>
                                             </div>

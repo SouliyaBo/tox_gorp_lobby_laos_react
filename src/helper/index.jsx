@@ -98,3 +98,17 @@ export const formatDateTimeDDMMYYYY = (today) => {
   const todays = moment(today).format("DD/MM/YYYY hh:mm");
   return todays;
 };
+
+export const openUrlInNewWindow = (url) => {
+  console.log("url: ", url)
+  // Attempt to open the URL in a new window/tab
+  const newWindow = window.open(url, '_blank');
+  console.log("newWindow: ", newWindow)
+
+  // Check if newWindow is not null
+  if (newWindow === null) {
+    console.log("newWindow: ", newWindow)
+    // If newWindow is null, it indicates that the pop-up blocker might be enabled or the operation was blocked
+    console.error('Failed to open URL in a new window.');
+  }
+}

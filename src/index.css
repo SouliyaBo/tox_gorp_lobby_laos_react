@@ -48,6 +48,23 @@ body {
 p {
   margin: 0;
 }
+@keyframes coinGif {
+0% {
+    top: 5px;
+    transform: translateY(0);
+    animation-timing-function: ease-in;
+}
+
+50% {
+    top: 60%;
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+}
+100% {
+    top: 5px;
+    transform: translateY(0);
+}
+}
 .header {
   position: fixed;
   top: 0;
@@ -172,7 +189,9 @@ p {
     position: relative;
     text-align: right;
     border-radius: 50px;
-    border: 2px solid #a68859;
+    border-bottom: 2px solid #a68859;
+    border-right: 2px solid #a68859;
+    border-top: 2px solid #a68859;
     background: #000;
     color: #fff;
     font-size: 16px;
@@ -182,8 +201,13 @@ p {
   }
     .login-page-header .left .coin-balance img {
       position: absolute;
-      left: -30px;
-      top: -20px; }
+      left: -10px;
+      top: -9px;
+      width: 40px;
+      height: 40px;
+      /* transform: scaleY(0);
+      animation: coinGif 6s infinite; */
+    }
   .login-page-header .right .gem-balance {
     width: 76px;
   }
@@ -290,7 +314,8 @@ p {
         transform: scale(1.05);
         transition: all 0.5s ease-in-out;
         /* background: linear-gradient(#f9df7b, #b57e10, #b78113, #be8c1f, #cb9d32, #dcb64e, #f2d570, #f9df7b, #fff3a6, #f9df7b, #b57e10, #e5c25b, #f9df7b);  */
-        background: linear-gradient(#b57e10, #b78113, #be8c1f, #cb9d32, #dcb64e, #f2d570, #cfb85e);
+        /* background: linear-gradient(#b57e10, #b78113, #be8c1f, #cb9d32, #dcb64e, #f2d570, #cfb85e); */
+        background: linear-gradient(217deg, rgba(255,255,255,1) 0%, rgba(251,229,172,1) 6%, rgba(254,222,144,1) 11%, rgba(254,207,87,1) 26%, rgba(207,173,86,1) 41%, rgba(43,41,41,1) 100%);
       }
         .featured-game-wrapper .container .featured-game:hover p {
           color: #000;
@@ -622,10 +647,19 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
       cursor: pointer;
       background: none;
       outline: none;
-      border: none; }
+      border: none;
+      /* box-shadow: rgba(255, 255, 255, 0.15) 0px 48px 100px 0px; */
+    }
+
       .footer .menu-wrapper .footer-item img {
         width: 44px;
-        height: 44px; }
+        height: 44px;
+      }
+      .footer .menu-wrapper .footer-item img:hover {
+        transform: scale(1.25);
+        transition: all 0.5s ease-in-out;
+        /* box-shadow: var(--box-shadow-btn-list) */
+      }
 
 .gradient-border {
   position: relative;
@@ -1613,8 +1647,8 @@ background: linear-gradient(270deg, #242424 0%, #0a0000 23.44%, #191919 52.6%, #
             font-size: 7px;
             font-weight: 500; }
             .after-login-mobile-page .header .right .system-option .logout-btn img {
-              width: 19px;
-              height: 19px; }
+              width: 28px;
+              height: 28px; }
     .after-login-mobile-page .search-input {
       width: 90%;
       margin-left: 20px;

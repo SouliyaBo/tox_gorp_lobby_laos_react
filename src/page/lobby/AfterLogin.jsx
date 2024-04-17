@@ -19,6 +19,7 @@ import {
     FillerCategory,
     LogoutClearLocalStorage,
     OpenNewTabWithHTML,
+    openUrlInNewWindow
 } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
@@ -311,7 +312,9 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.url) {
-                window.open(_res?.data?.url, "_blank");
+                setTimeout(() => {
+                    window.open(_res?.data?.url, '_blank');
+                })
             }
             if (_res?.data) {
                 OpenNewTabWithHTML(_res?.data?.res_html);
@@ -502,7 +505,7 @@ export default function AfterLogin() {
                 />
                 <div className="left">
                     <div className="coin-balance">
-                        <img src="/assets/images/coin.svg" alt="coin" />
+                        <img src="/assets/images/gif/border-card-bank.gif" alt="coin" />
                         {dataUser?.amount}
                     </div>
                 </div>
@@ -1249,7 +1252,7 @@ export default function AfterLogin() {
                                                 <p>{depositBankList && depositBankList?.s_account_name}</p>
                                                 <p>{depositBankList && depositBankList?.s_account_no}
                                                     <span>
-                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 20, height: 20, marginBottom: -3 }} />
+                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
                                                     </span>
                                                 </p>
                                             </div>
