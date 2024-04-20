@@ -18,9 +18,7 @@ export default function Home() {
 	const parsed = queryString.parse(history?.location?.search);
 	const [current, setCurrent] = useState(0);
 	const [bankCode, setBankCode] = useState(0);
-
 	const { handleLogin, handleRegister, loginWithToken } = _LoginController();
-
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
@@ -35,8 +33,12 @@ export default function Home() {
 	const [warningPassword, setWarningPassword] = useState("")
 	const [warningFirstName, setWarningFirstName] = useState("")
 	const [warningLastName, setWarningLastName] = useState("")
+	const [inputPhonenumber, setInputPhonenumber] = useState("");
+	const [inputPassword, setInputPassword] = useState("");
+	const [inputFirstname, setInputFirstname] = useState("");
+	const [inputLastname, setInputLastname] = useState("");
+	const [inputBank, setInputBank] = useState();
 
-	// ========> register by code friend <=======
 
 	// ========> loginWithToken <=======
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -111,11 +113,6 @@ export default function Home() {
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 	// ===== CreateUser =====>
-	const [inputPhonenumber, setInputPhonenumber] = useState("");
-	const [inputPassword, setInputPassword] = useState("");
-	const [inputFirstname, setInputFirstname] = useState("");
-	const [inputLastname, setInputLastname] = useState("");
-	const [inputBank, setInputBank] = useState();
 
 	const CreateUser = async () => {
 		const _res = await handleRegister(
@@ -135,22 +132,7 @@ export default function Home() {
 			image:
 				'/assets/images/Cardgame/image 70.png'
 		},
-		{
-			image:
-				'/assets/images/Cardgame/5.png'
-		},
-		{
-			image:
-				'/assets/images/Cardgame/6.png'
-		},
-		{
-			image:
-				'/assets/images/Cardgame/7.png'
-		},
-		{
-			image:
-				'/assets/images/Cardgame/3.png'
-		}
+
 	];
 
 	const length = SliderData.length;
@@ -195,7 +177,7 @@ export default function Home() {
 		<div>
 			<header className="header">
 				<div className="left">
-					<img
+					{/* <img
 						src="/assets/images/icon-hamburger.svg"
 						alt="hamburger"
 						className="hamburger"
@@ -203,7 +185,7 @@ export default function Home() {
 						width="35px"
 						// onClick={(event) => toggleSidebar(event)}
 						onKeyDown={() => ""}
-					/>
+					/> */}
 					<img
 						src="/assets/images/Logo.png"
 						alt="logo"

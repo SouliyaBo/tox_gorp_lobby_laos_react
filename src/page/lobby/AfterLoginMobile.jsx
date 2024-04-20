@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, openUrlInNewWindow, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
+import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
 import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
@@ -42,13 +42,18 @@ export default function AfterLoginMobile() {
     const [current, setCurrent] = useState(0);
     const [disableArrow, setDisableArrow] = useState(false);
     const [depositBankList, setDepositBankList] = useState({});
+    // const [sliderData, setSliderData] = useState([]);
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
-        console.log("_data: ", _data)
+        // const { name } = _data?.info?.slide
+        // console.log("name::: ", name)
+        // console.log("slide: ", _data?.info?.slide)
+
         if (_data) {
             setDataFromLogin(_data);
             setDepositBankList(_data?.info?.bankDeposit[0])
+            // setSliderData()
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
                 setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
@@ -57,7 +62,6 @@ export default function AfterLoginMobile() {
         }
         setDeviceType(false)
         setDataSlider(history?.location?.state?.info?.promotionList);
-        console.log("dataSlider: ", history)
 
 
     }, []);
@@ -157,6 +161,7 @@ export default function AfterLoginMobile() {
                 },
             });
             if (_getData?.data?.statusCode === 0) {
+                console.log("_getData?.data?.data: ", _getData?.data?.data)
                 setCategoryGame(_getData?.data?.data?.FAVORITE)
             }
         } else {
@@ -432,27 +437,14 @@ export default function AfterLoginMobile() {
             setTabs("ประวัติโบนัส");
         }
     };
+
+
     const SliderData = [
         {
             image:
                 '/assets/images/Cardgame/image 70.png'
         },
-        {
-            image:
-                '/assets/images/Cardgame/5.png'
-        },
-        {
-            image:
-                '/assets/images/Cardgame/6.png'
-        },
-        {
-            image:
-                '/assets/images/Cardgame/7.png'
-        },
-        {
-            image:
-                '/assets/images/Cardgame/3.png'
-        }
+
     ];
 
     const length = SliderData.length;
@@ -479,6 +471,7 @@ export default function AfterLoginMobile() {
             setDepositBankList({ ...newData, background: color[0].backgroundColor })
         }
     }
+
 
     return (
         <div>
@@ -508,7 +501,9 @@ export default function AfterLoginMobile() {
                         </div>
                         <div className="system-option flexCenter">
                             {/* <img className="thai-logo" src="../assets/images/logo-thai.svg" alt="thai logo" /> */}
-                            <div className="logout-btn" onClick={() => LogoutClearLocalStorage()} onKeyDown={() => ''}>
+                            <div className="logout-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmLogout" >
                                 <img src="/assets/icons/power-off.svg" alt="logout icon" />
                                 <p style={{ color: 'red' }}>ล็อกเอาท์</p>
                             </div>
@@ -526,10 +521,10 @@ export default function AfterLoginMobile() {
                                 return (
                                     <div
                                         className={index === current ? 'slide1 active' : 'slide1'}
-                                        key={slide?.image}
+                                        key={slide?.i_index}
                                     >
                                         {index === current && (
-                                            <img src={slide.image} alt='travel' style={{ width: '100%' }} />
+                                            <img src={`data:image/jpeg;base64,${slide?.s_image}`} alt='travel' style={{ width: '100%' }} />
                                         )}
                                     </div>
                                 );
@@ -599,7 +594,6 @@ export default function AfterLoginMobile() {
                                         style={{ color: "#FFF", fontSize: 25 }}
                                     />
                                 </div>
-                                {/* <a href={_getDataGamePlayGame()} onClick={() => _getDataGamePlayGame(game)}> */}
                                 <img
                                     src={game?.s_img ?? "/assets/images/jilli_card.svg"}
                                     id="game-card"
@@ -609,12 +603,12 @@ export default function AfterLoginMobile() {
                                     onKeyDown={() => ""}
                                     onClick={() => _getDataGamePlayGame(game)}
                                 />
-                                {/* </a> */}
                             </div>
                             )) : categoryGame.length > 0 && categoryGame?.map((item) => (
                                 <div key={item?.s_img} className="content-image" style={{ position: "relative" }}>
                                     {dataGameType === "FAVORITE" ||
-                                        dataGameType === "HOTHIT" ? (
+                                        dataGameType === "HOTHIT" ||
+                                        dataGameType === "FISHING" ? (
                                         <div
                                             style={{
                                                 position: "absolute",
@@ -648,10 +642,9 @@ export default function AfterLoginMobile() {
                                                 ""
                                             }
                                             onClick={() =>
-                                                dataGameType ===
-                                                    "FAVORITE" ||
-                                                    dataGameType ===
-                                                    "HOTHIT"
+                                                dataGameType === "FAVORITE" ||
+                                                    dataGameType === "HOTHIT" ||
+                                                    dataGameType === "FISHING"
                                                     ? _getDataGamePlayGame(
                                                         item,
                                                     )
@@ -887,7 +880,8 @@ export default function AfterLoginMobile() {
                                     เปลี่ยนรหัสผ่าน
                                 </button>
                                 <button
-                                    onClick={() => LogoutClearLocalStorage()}
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmLogout"
                                     type="button"
                                     className="gradient-border sidebar-button flexCenter"
                                     style={{
@@ -1184,7 +1178,9 @@ export default function AfterLoginMobile() {
                                                 <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_account_name}</p>
                                                 <p style={{ margin: 0 }}>{depositBankList && depositBankList?.s_account_no}
                                                     <span>
-                                                        <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
+                                                        <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal"
+                                                            onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt=""
+                                                            style={{ width: 35, height: 35, marginBottom: 3, marginLeft: 8 }} />
                                                     </span>
                                                 </p>
                                             </div>
@@ -1297,61 +1293,7 @@ export default function AfterLoginMobile() {
                 </div>
                 {/* <!-- end  modal ฝากทศนิยม --> */}
 
-                {/* <!-- start  modal ฝากทศนิยม --> */}
-                <div className="modal fade" id="leaveAdecimal1" tabindex="-1" aria-labelledby="leaveAdecimal1" aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-border">
-                            <div className="modal-content">
-                                <div className="modal-header-container">
-                                    <div className="modal-header">
-                                        <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
-                                            data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
-                                        <p className="modal-title" id="leaveAdecimal1">ฝากทศนิยม</p>
-                                        <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
-                                            aria-label="Close" alt="" />
-                                    </div>
-                                </div>
-                                <div className="modal-body">
-                                    <div className="leaveAdecimal1 flexCenter">
-                                        <p>ยอดเงินที่ต้องโอน</p>
-                                        <h3 className="money-value">111.11</h3>
-                                        <p>
-                                            กรุณาโอนเงินภายใน <span style={{ color: 'red' }}>00.00</span> นาที
-                                        </p>
-
-                                        <div className="bank-card flexBetween">
-                                            <div className="left">
-                                                <p>ธนาคารไทยพาณิชย์</p>
-                                                <p>026-999999-9 <span><img src="/assets/images/icon-coppy.svg" alt=""
-                                                    style={{ width: 20, height: 20, marginBottom: -3 }} /></span></p>
-                                                <p>นาย xxxxx xxxxx</p>
-                                            </div>
-                                            <div className="right">
-                                                <p style={{ transform: "translateY(30%)" }}>SCB</p>
-                                                <img src="/assets/images/scb 1.png" alt="bank icon" />
-                                            </div>
-                                            <img className="visa" src="/assets/icons/visa.svg" alt="visa" />
-                                        </div>
-
-                                        <div className="warning-box flexCenter">
-                                            กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
-                                        </div>
-
-                                        <p className="contact">พบปัญหา <a href='/'>ติดต่อฝ่ายบริการลูกค้า</a></p>
-                                        <button type='button' className="line-button flexCenter" style={{ padding: '5px 5px', borderRadius: 5 }}>
-                                            <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                                            <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {/* <!-- end  modal ฝากทศนิยม --> */}
-
                 {/* <!-- ถอนเงิน start  modal --> */}
-
                 <div className="modal fade" id="withdraw" tabindex="-1" aria-labelledby="withdraw" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-border">
@@ -1458,6 +1400,7 @@ export default function AfterLoginMobile() {
                     </div>
                 </div>
                 {/* <!-- end  modal QR Pay --> */}
+
                 {/* <!-- start modal QR  --> */}
                 <div className="modal fade" id="showQR" tabindex="-1" aria-labelledby="showQR" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-centered">
@@ -1578,6 +1521,7 @@ export default function AfterLoginMobile() {
                     </div>
                 </div>
                 {/* <!-- slip verify end --> */}
+
                 {/* <!-- history modal --> */}
                 <div className="modal fade" id="historyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-centered">
@@ -1753,19 +1697,19 @@ export default function AfterLoginMobile() {
                                 <div className="modal-body">
                                     <div className="change-password-modal-content">
                                         <div className="border-input-gold">
-                                            <input type="text" placeholder="กรุณากรอกรหัสผ่านเดิม" className="input-for-border-gold" onChange={(e) => setOldPassword(e.target.value)} />
+                                            <input type="password" placeholder="กรุณากรอกรหัสผ่านเดิม" className="input-for-border-gold" onChange={(e) => setOldPassword(e.target.value)} />
                                         </div>
                                         <div className="change-password-hr">
                                             <div className="hr" />
                                         </div>
                                         <div className="border-input-gold">
-                                            <input type="text" placeholder="กรุณากรอกรหัสผ่านใหม่" className="input-for-border-gold" onChange={(e) => setNewPassword(e.target.value)} />
+                                            <input type="password" placeholder="กรุณากรอกรหัสผ่านใหม่" className="input-for-border-gold" onChange={(e) => setNewPassword(e.target.value)} />
                                         </div>
                                         <div className="border-input-gold">
-                                            <input type="text" placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง" className="input-for-border-gold" onChange={(e) => setNewPasswordVery(e.target.value)} />
+                                            <input type="password" placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง" className="input-for-border-gold" onChange={(e) => setNewPasswordVery(e.target.value)} />
                                         </div>
 
-                                        <button type="button" className="button-warning" onClick={() => _ChangePassword()}>ยืนยัน</button>
+                                        <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _ChangePassword()}>ยืนยัน</button>
                                     </div>
                                 </div>
                             </div>
@@ -2368,6 +2312,33 @@ export default function AfterLoginMobile() {
                     </div>
                 </div>
                 {/* <!-- diamond modal end --> */}
+
+                {/* <!-- confirm logout modal --> */}
+                <div className="modal fade" id="confirmLogout" tabindex="-1" aria-labelledby="confirmLogoutLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-border">
+                            <div className="modal-content">
+                                <div className="modal-header-container">
+                                    <div className="modal-header">
+
+                                        <p className="modal-title">ยืนยันออกจากระบบ</p>
+
+                                    </div>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="code-modal-content" style={{ textAlign: "center" }}>
+                                        <div>คุณต้องการออกจากระบบหรือไม่ ?</div>
+                                    </div>
+                                    <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+                                        <button type="button" className="btn-confirm-logout" onClick={() => LogoutClearLocalStorage()}>ยืนยัน</button>
+                                        <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">ยกเลิก</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* <!-- confirm logout modal end --> */}
             </main>
 
         </div>

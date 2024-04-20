@@ -19,7 +19,6 @@ import {
     FillerCategory,
     LogoutClearLocalStorage,
     OpenNewTabWithHTML,
-    openUrlInNewWindow
 } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
@@ -148,6 +147,7 @@ export default function AfterLogin() {
     const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
     const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
     const [depositBankList, setDepositBankList] = useState();
+    const [current, setCurrent] = useState(0);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -289,7 +289,7 @@ export default function AfterLogin() {
             setdataGameList(_res?.data?.data);
         }
     };
-    const _getDataGamePlayGame = async (value) => {
+    const _getDataGamePlayGame = async (value, type) => {
         try {
             const _data = {
                 s_game_code:
@@ -311,6 +311,8 @@ export default function AfterLogin() {
                 url: `${Constant.SERVER_URL}/Game/Access`,
                 data: _data,
             });
+            console.log("URL: ", _res?.data?.url)
+            console.log("HTML: ", _res?.data?.res_html)
             if (_res?.data?.url) {
                 setTimeout(() => {
                     window.open(_res?.data?.url, '_blank');
@@ -475,7 +477,8 @@ export default function AfterLogin() {
         }
     };
 
-    const _getOptionBank = (bankName) => {
+    const _getOptionBank = () => {
+        console.log("AAAA")
         setDisableArrow(!disableArrow)
 
     }
@@ -489,7 +492,36 @@ export default function AfterLogin() {
     }
     const _copyAccountNo = (accountNo) => {
         navigator.clipboard.writeText(accountNo);
+        Swal.fire({
+            icon: 'success',
+            title: "คัดลอกลิ้งสำเร็จ",
+            showConfirmButton: false,
+            timer: 2000,
+            background: '#242424', // Change to the color you want
+            color: '#fff',
+        });
     };
+
+    const SliderData = [
+        {
+            image:
+                '/assets/images/Cardgame/image 70.png'
+        },
+
+    ];
+
+    const length = SliderData.length;
+
+    const nextSlide = () => {
+        setCurrent(current === length - 1 ? 0 : current + 1);
+    };
+
+    const prevSlide = () => {
+        setCurrent(current === 0 ? length - 1 : current - 1);
+    };
+    if (!Array.isArray(SliderData) || SliderData.length <= 0) {
+        return null;
+    }
 
     return (
         <div>
@@ -530,16 +562,21 @@ export default function AfterLogin() {
                 <div className="brand">
                     <div className="slideshow-container">
                         <div className="mySlides fade-slide">
-                            <img src="/assets/images/Cardgame/image 70.png" style={{ width: "100%" }} alt="brand" />
+                            <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
+                            <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
+                            {SliderData.length > 0 && SliderData?.map((slide, index) => {
+                                return (
+                                    <div
+                                        className={index === current ? 'slide1 active' : 'slide1'}
+                                        key={slide?.image}
+                                    >
+                                        {index === current && (
+                                            <img src={slide.image} alt='travel' style={{ width: '100%' }} />
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
-                        {/* <a className="prev" onClick={() => plusSlides(-1)} onKeyDown={() => ''}>❮</a>
-                        <a className="next" onClick={() => plusSlides(1)} onKeyDown={() => ''}>❯</a> */}
-                    </div>
-
-                    <div style={{ textAlign: "center" }}>
-                        <span className="dot" onClick={() => currentSlide(1)} onKeyDown={() => ''} />
-                        <span className="dot" onClick={() => currentSlide(2)} onKeyDown={() => ''} />
-                        <span className="dot" onClick={() => currentSlide(3)} onKeyDown={() => ''} />
                     </div>
                 </div>
                 <div className="marquee-custome">
@@ -610,28 +647,68 @@ export default function AfterLogin() {
                                 <div
                                     key={item?.index}
                                     className="game-card"
+                                    style={{ marginLeft: index === 0 ? 70 : 20 }}
                                 >
-                                    {dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? <div style={{
-                                        position: "absolute",
-                                        top: "0", left: "0",
-                                        zIndex: 1,
-                                        backgroundColor: "#FE2147", //"#A4A4A4"
-                                        padding: 8,
-                                        borderRadius: "50%",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        display: "flex",
-                                    }} onClick={() => _addFavorite(item)} onKeyDown={() => ''}>
+                                    {dataGameType === "FAVORITE" ||
+                                        dataGameType === "HOTHIT" ||
+                                        dataGameType === "FISHING" ? <div style={{
+                                            position: "absolute",
+                                            top: "0", left: "0",
+                                            zIndex: 1,
+                                            backgroundColor: "#FE2147", //"#A4A4A4"
+                                            padding: 8,
+                                            borderRadius: "50%",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            display: "flex",
+                                        }} onClick={() => _addFavorite(item)} onKeyDown={() => ''}>
                                         <FontAwesomeIcon icon={faHeart} style={{ color: '#FFF', fontSize: 25 }} />
                                     </div> : null}
-                                    <img
-                                        src={item?.s_img ?? item?.s_lobby_url}
-                                        id="game-card"
-                                        className="game-image"
-                                        alt="game"
-                                        onKeyDown={() => ''}
-                                        onClick={() => dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? _getDataGamePlayGame(item) : _getDataGame(item)}
-                                    />
+                                    {item?.s_img !== undefined ? (
+                                        <img
+                                            src={item?.s_img}
+                                            style={{ width: 148, height: 183, }}
+                                            id="game-card"
+                                            className="game-image"
+                                            alt="game"
+                                            onKeyDown={() =>
+                                                ""
+                                            }
+                                            onClick={() =>
+                                                dataGameType === "FAVORITE" ||
+                                                    dataGameType === "HOTHIT" ||
+                                                    dataGameType === "FISHING"
+                                                    ? _getDataGamePlayGame(
+                                                        item, "FISHING"
+                                                    )
+                                                    : _getDataGame(
+                                                        item,
+                                                    )
+                                            }
+                                        />
+                                    ) : (
+                                        <img
+                                            src={item?.s_lobby_url}
+                                            id="game-card"
+                                            className="url"
+                                            alt="game"
+                                            onKeyDown={() =>
+                                                ""
+                                            }
+                                            onClick={() =>
+                                                dataGameType ===
+                                                    "FAVORITE" ||
+                                                    dataGameType ===
+                                                    "HOTHIT"
+                                                    ? _getDataGamePlayGame(
+                                                        item,
+                                                    )
+                                                    : _getDataGame(
+                                                        item,
+                                                    )
+                                            }
+                                        />
+                                    )}
                                 </div>
                             ))}
 
@@ -736,8 +813,9 @@ export default function AfterLogin() {
                             <button
                                 type='button'
                                 className="gradient-border sidebar-button flexCenter"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmLogout"
                                 style={{ width: "100%", marginBottom: 16 }}
-                                onClick={() => LogoutClearLocalStorage()}
                             >
                                 ออกจากระบบ
                             </button>
@@ -1252,7 +1330,7 @@ export default function AfterLogin() {
                                                 <p>{depositBankList && depositBankList?.s_account_name}</p>
                                                 <p>{depositBankList && depositBankList?.s_account_no}
                                                     <span>
-                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
+                                                        <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
                                                     </span>
                                                 </p>
                                             </div>
@@ -1271,7 +1349,7 @@ export default function AfterLogin() {
                                                         onChange={(e) => _getOptionBank2(e.target.value)}
                                                         className="deposit-bank-list-pc"
                                                         style={{ display: disableArrow === true ? "block" : "none" }}>
-                                                        {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank, index) => (
+                                                        {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
                                                             <option key={bank?.index} value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>
                                                         ))}
 
@@ -1728,6 +1806,7 @@ export default function AfterLogin() {
                 </div>
             </div>
             {/* <!-- end  modal QR Pay --> */}
+
             {/* <!-- start modal QR  --> */}
             <div
                 className="modal fade"
@@ -3192,7 +3271,7 @@ export default function AfterLogin() {
                                 <div className="change-password-modal-content">
                                     <div className="border-input-gold">
                                         <input
-                                            type="text"
+                                            type="password"
                                             placeholder="กรุณากรอกรหัสผ่านเดิม"
                                             className="input-for-border-gold"
                                             onChange={(e) => setOldPassword(e.target.value)}
@@ -3203,7 +3282,7 @@ export default function AfterLogin() {
                                     </div>
                                     <div className="border-input-gold">
                                         <input
-                                            type="text"
+                                            type="password"
                                             placeholder="กรุณากรอกรหัสผ่านใหม่"
                                             className="input-for-border-gold"
                                             onChange={(e) => setNewPassword(e.target.value)}
@@ -3211,7 +3290,7 @@ export default function AfterLogin() {
                                     </div>
                                     <div className="border-input-gold">
                                         <input
-                                            type="text"
+                                            type="password"
                                             placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง"
                                             className="input-for-border-gold"
                                             onChange={(e) => setNewPasswordVery(e.target.value)}
@@ -3225,6 +3304,32 @@ export default function AfterLogin() {
                     </div>
                 </div>
             </div>
+            {/* <!-- confirm logout modal --> */}
+            <div className="modal fade" id="confirmLogout" tabindex="-1" aria-labelledby="confirmLogoutLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-border">
+                        <div className="modal-content">
+                            <div className="modal-header-container">
+                                <div className="modal-header">
+
+                                    <p className="modal-title">ยืนยันออกจากระบบ</p>
+
+                                </div>
+                            </div>
+                            <div className="modal-body">
+                                <div className="code-modal-content" style={{ textAlign: "center" }}>
+                                    <div>คุณต้องการออกจากระบบหรือไม่ ?</div>
+                                </div>
+                                <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+                                    <button type="button" className="btn-confirm-logout" onClick={() => LogoutClearLocalStorage()}>ยืนยัน</button>
+                                    <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">ยกเลิก</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* <!-- confirm logout modal end --> */}
 
             {/* <!-- Modal --> */}
 
@@ -3265,59 +3370,69 @@ export default function AfterLogin() {
                     </div>
                 </div>
             </footer>
-            <Modal show={show} onHide={handleClose}>
-                <div>
-                    <div className="modal-border">
-                        <div className="modal-content">
-                            <div className="modal-header-container">
-                                <div className="modal-header">
-                                    <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
-                                </div>
+
+            <Modal show={show} style onHide={handleClose}>
+                <div className="modal-border">
+                    <div className="modal-content">
+                        <div className="modal-header-container">
+                            <div className="modal-header">
+                                <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
                             </div>
-                            <div className="modal-body">
-                                <div className="detail-card-scb1">
-                                    <div className="card-scb1">
-                                        <div className="left">
-                                            <p>{dataFromLogin?.info?.bankDeposit[0]?.s_fname_th}</p>
-                                            <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_name}</p>
-                                            <p>{dataFromLogin?.info?.bankDeposit[0]?.s_account_no}</p>
-                                        </div>
-                                        <div className="right">
-                                            <div className="bank">
-                                                <h3>SCB</h3>
-                                                <div style={{ borderRadius: '100%' }}>
-                                                    <img src="/assets/images/scb 1.png" alt="scb" />
-                                                </div>
+                        </div>
+                        <div className="modal-body">
+                            <div className="detail-card-scb1">
+                                <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
+                                    <div className="left">
+                                        <p>{depositBankList && depositBankList?.s_fname_th}</p>
+                                        <p>{depositBankList && depositBankList?.s_account_name}</p>
+                                        <p>{depositBankList && depositBankList?.s_account_no}
+                                            <span>
+                                                <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div className="right">
+                                        <div className="bank">
+                                            <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon.split(".")[0]}</h3>
+                                            <div style={{ borderRadius: '100%', marginTop: -10 }}>
+                                                <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="button-validationt">
-                                        <div style={{ color: "white" }}>
-                                            กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                        <div style={{ marginLeft: 50 }}>
+                                            <div className="deposit-bank-title-pc">เปลี่ยนธนาคาร</div>
+                                            <img onClick={() => _getOptionBank()} onKeyDown={() => ''}
+                                                style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }} src="/assets/images/arrow-bottom.svg" alt="" />
+                                            <select
+                                                onChange={(e) => _getOptionBank2(e.target.value)}
+                                                className="deposit-bank-list-pc"
+                                                style={{ display: disableArrow === true ? "block" : "none" }}>
+                                                {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                                    <option key={bank?.index} value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>
+                                                ))}
+
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
-                                <div
-                                    style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}
-                                >
-                                    <div>
-                                        พบปัญหา
-                                        <span
-                                        >ติดต่อฝ่ายบริการลูกค้า</span
-                                        >
+                            </div>
+                            <div>
+                                <div className="button-validationt">
+                                    <div style={{ color: "white" }}>
+                                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
                                     </div>
                                 </div>
-                                <div className="button-line">
-                                    <div>
-                                        <img
-                                            src="/assets/icons/icon-line.svg"
-                                            style={{ width: 28, height: 28 }}
-                                            alt="line"
-                                        />
-                                        ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
-                                    </div>
+                            </div>
+                            <div style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}>
+                                <div> พบปัญหา <span>ติดต่อฝ่ายบริการลูกค้า</span></div>
+                            </div>
+                            <div className="button-line">
+                                <div>
+                                    <img
+                                        src="/assets/icons/icon-line.svg"
+                                        style={{ width: 28, height: 28 }}
+                                        alt="line"
+                                    />
+                                    ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
                                 </div>
                             </div>
                         </div>
