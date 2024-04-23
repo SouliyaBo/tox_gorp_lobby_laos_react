@@ -2,22 +2,25 @@ import React, { useState } from "react";
 import constant from "../../constant";
 import _LoginController from "../../api/login";
 import { useHistory } from "react-router-dom";
+import Loading from "../../component/Loading";
 export default function LoginPageMobile() {
     const history = useHistory();
     const [userNameInput, setUserNameInput] = useState();
     const [passwordInput, setPasswordInput] = useState();
     const [messageCreate, setMessageCreate] = useState();
+    const [loading, setLoading] = useState(false);
 
     const { handleLogin } = _LoginController();
 
     // ===== LoginController =====>
     const _Login = async () => {
-        const _res = await handleLogin(userNameInput, passwordInput, "MOBILE");
+        const _res = await handleLogin(userNameInput, passwordInput, "MOBILE", (e) => { setLoading(e) });
         if (_res) setMessageCreate(_res?.statusDesc);
     };
 
     return (
         <div>
+            {loading ? <Loading /> : ""}
             <main className="login-page flexCenter">
                 <a href={constant?.HOME}>
                     <img
@@ -49,7 +52,7 @@ export default function LoginPageMobile() {
                         />
                     </div>
                 </div>
-                <div className="phone-input">
+                <div className="phone-input" style={{ marginTop: 18 }}>
                     {/* <small>กรุณากรอก รหัสผ่าน</small> */}
                     <div className="input-container flexCenter">
                         <img src="../assets/icons/lock-alt.svg" alt="lock icon" />

@@ -11,6 +11,8 @@ import Sidebar from "../../component/Sidebar";
 import { _clickTabDeposit, } from "../../helper"
 import { BackList } from "../../constant/bankList";
 import { dataCradGame } from "../../helper/listCardGame"
+import Loading from "../../component/Loading";
+
 export default function Home() {
 
 	const history = useHistory();
@@ -30,6 +32,7 @@ export default function Home() {
 	const [messageCreate, setMessageCreate] = useState();
 	const [dataGameList, setDataGameList] = useState(dataCradGame?.SLOT)
 	const [warningPhone, setWarningPhone] = useState("")
+	const [phoneCheck, setPhoneCheck] = useState("")
 	const [warningPassword, setWarningPassword] = useState("")
 	const [warningFirstName, setWarningFirstName] = useState("")
 	const [warningLastName, setWarningLastName] = useState("")
@@ -38,6 +41,9 @@ export default function Home() {
 	const [inputFirstname, setInputFirstname] = useState("");
 	const [inputLastname, setInputLastname] = useState("");
 	const [inputBank, setInputBank] = useState();
+	const [typePhone, setTypePhone] = useState("thai");
+	const [placeholderText, setPlaceholderText] = useState("เบอร์โทรศัพท์ไทย");
+	const [loading, setLoading] = useState(false);
 
 
 	// ========> loginWithToken <=======
@@ -92,16 +98,12 @@ export default function Home() {
 	const _gotoSet2 = () => {
 		if (inputPhonenumber === "") {
 			setWarningPhone("กรุณากรอกเบอร์โทร");
-			console.log("กรุณากรอกเบอร์โทร")
 		} else if (inputPassword === "") {
 			setWarningPassword("กรุณาป้อนรหัสผ่าน");
-			console.log("กรุณาป้อนรหัสผ่าน")
 		} else if (inputFirstname === "") {
 			setWarningFirstName("กรุณาป้อนชื่อ")
-			console.log("กรุณาป้อนชื่อ")
 		} else if (inputLastname === "") {
 			setWarningLastName("กรุณาป้อนนามสกุล")
-			console.log("กรุณาป้อนนามสกุล")
 		} else {
 			setGotoStepTwo(!false);
 		}
@@ -109,7 +111,8 @@ export default function Home() {
 
 	// ===== LoginController =====>
 	const _Login = async () => {
-		const _res = await handleLogin(userNameInput, passwordInput, "PC");
+		const _res = await handleLogin(userNameInput, passwordInput, "PC",
+			(e) => { setLoading(e) });
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 	// ===== CreateUser =====>
@@ -123,11 +126,16 @@ export default function Home() {
 			inputBank,
 			bankCode,
 			parsed?.ref,
+			(e) => { setLoading(e) }
 		);
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 
 	const SliderData = [
+		{
+			image:
+				'/assets/images/Cardgame/image 70.png'
+		},
 		{
 			image:
 				'/assets/images/Cardgame/image 70.png'
@@ -161,9 +169,16 @@ export default function Home() {
 	}
 
 	const handleChange = useCallback((event) => {
+
 		const re = /^[0-9\b]+$/;
 		if (event.target.value === '' || re.test(event.target.value)) {
+			console.log("event.target.value:: ", event.target.value.length)
 			setInputPhonenumber(event.target.value)
+		}
+		if (event.target.value.length < 10 && typePhone === "thai") {
+			setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 10 หลัก");
+		} else {
+			setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
 		}
 	});
 
@@ -173,8 +188,19 @@ export default function Home() {
 			setInputBank(event?.target?.value);
 		}
 	});
+
+	const _selectTypePhone = (type) => {
+		if (type === "thai") {
+			setPlaceholderText("เบอร์โทรศัพท์ไทย")
+		} else {
+			setPlaceholderText("เบอร์โทรศัพท์ลาว")
+		}
+		setInputPhonenumber("")
+		setTypePhone(type)
+	}
 	return (
 		<div>
+			{loading ? <Loading /> : ""}
 			<header className="header">
 				<div className="left">
 					{/* <img
@@ -256,7 +282,7 @@ export default function Home() {
 										key={slide?.image}
 									>
 										{index === current && (
-											<img src={slide.image} alt='travel' style={{ width: '100%' }} />
+											<img src={slide?.image} alt='travel' style={{ width: '100%' }} />
 										)}
 									</div>
 								);
@@ -413,6 +439,9 @@ export default function Home() {
 					<h4>Casino คาสิโนออนไลน์ ที่ดีที่สุด</h4>
 					<p>เพื่อประสบการณ์ที่ดีทของผู้เล่นอย่างแท้จริง</p>
 				</section>
+				{/* <section className="hero-text flexCenter">
+					<iframe title="W3Schools Free Online Web Tutorials" src="https://www.livescore.com/en/" >frame body</iframe>
+				</section> */}
 
 				<h3
 					style={{ margin: "20px auto", textAlign: "center", color: "white" }}
@@ -785,20 +814,29 @@ export default function Home() {
 												<h3 className="signup-header">สมัครสมาชิก</h3>
 											</div>
 											<div className="phone-input">
-												<img src="/assets/icons/phone.svg" alt="icon" />
-												<label for="phone" />
+												{/* <img src="/assets/icons/phone.svg" alt="icon" /> */}
+												{/* <label for="phone" /> */}
+												<select onChange={(event) => _selectTypePhone(event.target?.value)} className="type-phone">
+													<option value={"thai"}>ไทย</option>
+													<option value={"lao"}>ลาว</option>
+												</select>
 												<input
 													type="text"
-													id="phone"
-													maxLength={10}
+													maxLength={typePhone === "thai" ? 10 : 13}
 													name="phone"
 													value={inputPhonenumber}
-													placeholder="เบอร์โทรศัพท์"
+													placeholder={placeholderText}
 													onChange={(event) => { handleChange(event) }}
 												/>
 
 											</div>
-											<span style={{ color: "red" }}>{inputPhonenumber !== "" ? "" : warningPhone}</span>
+											<span style={{ color: "red" }}>
+												{inputPhonenumber !== "" ? "" : warningPhone}
+												{inputPhonenumber !== "" ? typePhone === "thai" ?
+													(inputPhonenumber.length < 10 ? phoneCheck : "") :
+													(inputPhonenumber.length < 13 ? phoneCheck : "") : ""
+												}
+											</span>
 											<div className="phone-input">
 												<img src="/assets/icons/lock-alt.svg" alt="icon" />
 												<label for="phone" />

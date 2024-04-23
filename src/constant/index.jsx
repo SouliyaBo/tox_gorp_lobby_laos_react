@@ -11,7 +11,7 @@ module.exports = {
     HOME: "/",
     PAGE_LOGIN_CAN_LOGIN_PLAY: "/api/v1/Authen/Token",
     AFTER_LOGIN: "/lobby",
-    AFTER_LOGIN_MOBILE: "/lobby-mobile",
+    AFTER_LOGIN_MOBILE: "/lobbies",
     GAME_LIST: "/game-list",
     GAME_LIST_MOBILE: "/game-list-mobile",
 

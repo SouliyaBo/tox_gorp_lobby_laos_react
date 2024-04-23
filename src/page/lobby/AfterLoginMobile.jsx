@@ -42,18 +42,22 @@ export default function AfterLoginMobile() {
     const [current, setCurrent] = useState(0);
     const [disableArrow, setDisableArrow] = useState(false);
     const [depositBankList, setDepositBankList] = useState({});
-    // const [sliderData, setSliderData] = useState([]);
+    const [sliderData, setSliderData] = useState({});
+    const [percentageData, setPercentageData] = useState([]);
+
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
-        // const { name } = _data?.info?.slide
-        // console.log("name::: ", name)
-        // console.log("slide: ", _data?.info?.slide)
+        // const { 2368: name } = _data?.info?.slide?.2368
+        // const slide2368 = _data?.info?.slide?.['2368'];
+        // setSliderData([_data?.info?.slide]);
+
+        // console.log("slide: ", _data?.info?.slide?.length)
 
         if (_data) {
             setDataFromLogin(_data);
             setDepositBankList(_data?.info?.bankDeposit[0])
-            // setSliderData()
+            setSliderData(_data?.info?.slide)
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
                 setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
@@ -65,6 +69,8 @@ export default function AfterLoginMobile() {
 
 
     }, []);
+    console.log("name::: ", sliderData)
+
 
     useEffect(() => {
         const pageClickEvent = (e) => {
@@ -161,7 +167,6 @@ export default function AfterLoginMobile() {
                 },
             });
             if (_getData?.data?.statusCode === 0) {
-                console.log("_getData?.data?.data: ", _getData?.data?.data)
                 setCategoryGame(_getData?.data?.data?.FAVORITE)
             }
         } else {
@@ -204,6 +209,7 @@ export default function AfterLoginMobile() {
             },
         });
         if (_res?.data?.statusCode === 0) {
+            generatePercentageData(_res?.data?.data?.length);
             setDataGameList(_res?.data?.data)
         }
     }
@@ -441,10 +447,14 @@ export default function AfterLoginMobile() {
 
     const SliderData = [
         {
-            image:
-                '/assets/images/Cardgame/image 70.png'
+            image: sliderData?.['2368']?.s_image
         },
-
+        {
+            image: sliderData?.['2369']?.s_image
+        },
+        {
+            image: sliderData?.['2370']?.s_image
+        },
     ];
 
     const length = SliderData.length;
@@ -470,6 +480,15 @@ export default function AfterLoginMobile() {
         if (color?.length > 0) {
             setDepositBankList({ ...newData, background: color[0].backgroundColor })
         }
+    }
+
+    const generatePercentageData = (count) => {
+        const data = [];
+        for (let i = 0; i < count; i++) {
+            const percentage = Math.random();
+            data.push({ percentage: percentage });
+        }
+        setPercentageData(data);
     }
 
 
@@ -513,8 +532,7 @@ export default function AfterLoginMobile() {
 
                 <div className="brand">
                     <div className="slideshow-container-after-login">
-
-                        <div className="mySlides fade-slide">
+                        <div className="mySlides">
                             <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
                             <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
                             {SliderData.length > 0 && SliderData?.map((slide, index) => {
@@ -524,7 +542,7 @@ export default function AfterLoginMobile() {
                                         key={slide?.i_index}
                                     >
                                         {index === current && (
-                                            <img src={`data:image/jpeg;base64,${slide?.s_image}`} alt='travel' style={{ width: '100%' }} />
+                                            <img src={`data:image/jpeg;base64,${slide?.image}`} alt='travel' style={{ width: '100%' }} />
                                         )}
                                     </div>
                                 );
@@ -571,13 +589,13 @@ export default function AfterLoginMobile() {
                 <section className="all-mobile-games" style={{ marginTop: 15, padding: 10 }}>
                     <div className="container-image">
                         {dataGameList?.length ?
-                            dataGameList?.map((game) =>
+                            dataGameList?.map((game, index) =>
                             (<div key={game?.s_img} className="content-image" style={{ position: "relative" }}>
                                 <div
                                     style={{
                                         position: "absolute",
                                         top: "0",
-                                        left: "0",
+                                        right: "0",
                                         zIndex: 1,
                                         backgroundColor: game?.s_flg_favorite === "Y" ? "#FE2147" : "#A4A4A4",
                                         padding: 8,
@@ -591,8 +609,11 @@ export default function AfterLoginMobile() {
                                 >
                                     <FontAwesomeIcon
                                         icon={faHeart}
-                                        style={{ color: "#FFF", fontSize: 25 }}
+                                        style={{ color: "#FFF", fontSize: 15 }}
                                     />
+                                </div>
+                                <div className="percentage-mb">
+                                    RTP {(percentageData[index]?.percentage * 100).toFixed(2)} %
                                 </div>
                                 <img
                                     src={game?.s_img ?? "/assets/images/jilli_card.svg"}
@@ -604,31 +625,36 @@ export default function AfterLoginMobile() {
                                     onClick={() => _getDataGamePlayGame(game)}
                                 />
                             </div>
-                            )) : categoryGame.length > 0 && categoryGame?.map((item) => (
+                            )) : categoryGame.length > 0 && categoryGame?.map((item, index) => (
                                 <div key={item?.s_img} className="content-image" style={{ position: "relative" }}>
                                     {dataGameType === "FAVORITE" ||
                                         dataGameType === "HOTHIT" ||
                                         dataGameType === "FISHING" ? (
-                                        <div
-                                            style={{
-                                                position: "absolute",
-                                                top: "0",
-                                                left: "0",
-                                                zIndex: 1,
-                                                backgroundColor: "#FE2147", //"#A4A4A4"
-                                                padding: 8,
-                                                borderRadius: "50%",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                display: "flex",
-                                            }}
-                                            onClick={() => _addFavorite(item)}
-                                            onKeyDown={() => ""}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faHeart}
-                                                style={{ color: "#FFF", fontSize: 15 }}
-                                            />
+                                        <div>
+                                            <div
+                                                style={{
+                                                    position: "absolute",
+                                                    top: "0",
+                                                    right: "0",
+                                                    zIndex: 1,
+                                                    backgroundColor: "#FE2147", //"#A4A4A4"
+                                                    padding: 8,
+                                                    borderRadius: "50%",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    display: "flex",
+                                                }}
+                                                onClick={() => _addFavorite(item)}
+                                                onKeyDown={() => ""}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faHeart}
+                                                    style={{ color: "#FFF", fontSize: 15 }}
+                                                />
+                                            </div>
+                                            <div className="percentage-mb">
+                                                RTP {(percentageData[index]?.percentage * 100).toFixed(2)} %
+                                            </div>
                                         </div>
                                     ) : null}
                                     {item?.s_img !== undefined ? (

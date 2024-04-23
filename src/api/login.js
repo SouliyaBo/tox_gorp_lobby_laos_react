@@ -9,8 +9,9 @@ const LoginController = () => {
 	const history = useHistory();
 
 	// ==================> handleLogin <=================
-	const handleLogin = async (username, password, isMobile) => {
+	const handleLogin = async (username, password, isMobile, setLoading) => {
 		try {
+			setLoading(true);
 			const { data } = await axios.post(`${Constant.SERVER_URL}/Authen/Login`, {
 				agentCode: Constant.AGEN_CODE,
 				username,
@@ -20,7 +21,6 @@ const LoginController = () => {
 
 			if (data.statusCode === 0) {
 				localStorage.setItem(Constant.LOGIN_TOKEN_DATA, data.data.token);
-
 				localStorage.setItem(
 					Constant.LOGIN_USER_DATA,
 					JSON.stringify({
@@ -40,8 +40,10 @@ const LoginController = () => {
 					}),
 				);
 				if (isMobile === "MOBILE") {
+					setLoading(false);
 					history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
 				} else {
+					setLoading(false);
 					history.push(Constant.AFTER_LOGIN, data?.data);
 				}
 			}
@@ -59,8 +61,10 @@ const LoginController = () => {
 		inputBank,
 		ref,
 		isMobile,
+		setLoading
 	) => {
 		try {
+			setLoading(true);
 			const _date = {
 				s_agent_code: Constant.AGEN_CODE,
 				s_phone: inputPhonenumber,
@@ -80,6 +84,7 @@ const LoginController = () => {
 				data: _date,
 			});
 			if (_resOne?.data?.statusCode === 0) {
+				setLoading(false);
 				const _resTwo = await axios({
 					method: "post",
 					url: `${Constant.SERVER_URL}/Member/Register/Confirm`,
@@ -94,6 +99,7 @@ const LoginController = () => {
 				});
 				console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data);
 				if (_resTwo?.data.statusCode === 0) {
+					setLoading(false);
 					const _resThree = await axios({
 						method: "post",
 						url: `${Constant.SERVER_URL}/Member/Balance`,
@@ -103,6 +109,7 @@ const LoginController = () => {
 						},
 					});
 					if (_resThree?.data.statusCode === 0) {
+						setLoading(false);
 						localStorage.setItem(
 							Constant.LOGIN_TOKEN_DATA,
 							_resTwo?.data?.data?.token,
@@ -112,12 +119,15 @@ const LoginController = () => {
 							JSON.stringify(_resTwo?.data?.data),
 						);
 						if (isMobile === "MOBILE") {
+							setLoading(false);
 							history.push(Constant.AFTER_LOGIN_MOBILE, _resTwo?.data?.data);
 							_loginAfterRegister(
 								_resTwo?.data?.data?.s_username,
 								_resTwo?.data?.data?.s_password,
+
 							);
 						} else {
+							setLoading(false);
 							_loginAfterRegister(
 								_resTwo?.data?.data?.s_username,
 								_resTwo?.data?.data?.s_password,
@@ -134,7 +144,7 @@ const LoginController = () => {
 		}
 	};
 
-	const _loginAfterRegister = async (username, password, isMobile) => {
+	const _loginAfterRegister = async (username, password, isMobile, setLoading) => {
 		try {
 			const _res = await axios({
 				method: "post",
@@ -167,8 +177,10 @@ const LoginController = () => {
 					}),
 				);
 				if (isMobile === "MOBILE") {
+					setLoading(false);
 					history.push(Constant.AFTER_LOGIN_MOBILE, _res?.data);
 				} else {
+					setLoading(false);
 					history.push(Constant.AFTER_LOGIN, _res?.data);
 				}
 				return null;

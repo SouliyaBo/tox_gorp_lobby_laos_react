@@ -18,6 +18,9 @@ export default function RegisterStep1() {
     const [warningPassword, setWarningPassword] = useState("")
     const [warningFirstName, setWarningFirstName] = useState("")
     const [warningLastName, setWarningLastName] = useState("")
+    const [typePhone, setTypePhone] = useState("thai");
+    const [placeholderText, setPlaceholderText] = useState("เบอร์โทรศัพท์ไทย");
+    const [phoneCheck, setPhoneCheck] = useState("")
 
     const _clickNextStep = () => {
         if (inputPhonenumber === "") {
@@ -45,7 +48,22 @@ export default function RegisterStep1() {
         if (event.target.value === '' || re.test(event.target.value)) {
             setInputPhonenumber(event?.target?.value)
         }
+        if (event.target.value.length < 10 && typePhone === "thai") {
+            setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 10 หลัก");
+        } else {
+            setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
+        }
     });
+
+    const _selectTypePhone = (type) => {
+        if (type === "thai") {
+            setPlaceholderText("เบอร์โทรศัพท์ไทย")
+        } else {
+            setPlaceholderText("เบอร์โทรศัพท์ลาว")
+        }
+        setInputPhonenumber("")
+        setTypePhone(type)
+    }
     return (
         <div>
             <main className="register-page flexCenter">
@@ -72,70 +90,82 @@ export default function RegisterStep1() {
                 <div className="text-container" style={{ textAlign: "center" }}>
                     <h3>สมัครสมาชิก</h3>
                 </div>
-                <div className="phone-input">
-                    <div className="input-container flexCenter">
-                        <img src="/assets/icons/phone.svg" alt="phone icon" />
-                        <label for="phone" />
-                        <input
-                            type="text"
-                            name="phone"
-                            id="phone"
-                            maxlength={20}
-                            value={inputPhonenumber}
-                            placeholder="เบอร์โทรศัพท์"
-                            onChange={(event) => handleChangePhone(event)}
-                        />
+                <div className='register-form'>
+                    <div className="phone-input">
+                        <div className="input-container flexCenter">
+                            <select onChange={(event) => _selectTypePhone(event.target?.value)} className="type-phone">
+                                <option value={"thai"}>ไทย</option>
+                                <option value={"lao"}>ลาว</option>
+                            </select>
+                            <input
+                                type="text"
+                                name="phone"
+                                id="phone"
+                                maxLength={typePhone === "thai" ? 10 : 13}
+                                value={inputPhonenumber}
+                                placeholder={placeholderText}
+                                onChange={(event) => handleChangePhone(event)}
+                            />
+                        </div>
                     </div>
-                    <span style={{ color: "red" }}>{inputPhonenumber !== "" ? "" : warningPhone}</span>
-                </div>
-                <div className="phone-input">
-                    <div className="input-container flexCenter">
-                        <img src="/assets/icons/lock-alt.svg" alt="phone icon" />
-                        <label for="phone" />
-                        <input
-                            name="password"
-                            id="password"
-                            type="password"
-                            placeholder="รหัสผ่าน"
-                            onChange={(e) => setInputPassword(e?.target?.value)}
-                        />
+                    <span style={{ color: "red" }} >
+                        {inputPhonenumber !== "" ? "" : warningPhone}
+                        {inputPhonenumber !== "" ? typePhone === "thai" ?
+                            (inputPhonenumber.length < 10 ? phoneCheck : "") :
+                            (inputPhonenumber.length < 13 ? phoneCheck : "") : ""
+                        }
+                    </span>
+                    <div className="phone-input">
+                        <div className="input-container flexCenter">
+                            <img src="/assets/icons/lock-alt.svg" alt="phone icon" />
+                            <label for="phone" />
+                            <input
+                                name="password"
+                                id="password"
+                                type="password"
+                                placeholder="รหัสผ่าน"
+                                onChange={(e) => setInputPassword(e?.target?.value)}
+                            />
+                        </div>
                     </div>
-                </div>
-                <span style={{ color: "red" }}>{inputPassword !== "" ? "" : warningPassword}</span>
-                <div className="phone-input">
-                    <div className="input-container flexCenter">
-                        <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
-                        <label for="s_firstname" />
-                        <input
-                            name="s_firstname"
-                            id="s_firstname"
-                            type="text"
-                            placeholder="ซื่อ"
-                            onChange={(e) => setInputFirstname(e?.target?.value)}
-                        />
+                    <span style={{ color: "red" }}>{inputPassword !== "" ? "" : warningPassword}</span>
+                    <div className="phone-input">
+                        <div className="input-container flexCenter">
+                            <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
+                            <label for="s_firstname" />
+                            <input
+                                name="s_firstname"
+                                id="s_firstname"
+                                type="text"
+                                placeholder="ซื่อ"
+                                onChange={(e) => setInputFirstname(e?.target?.value)}
+                            />
+                        </div>
                     </div>
                     <span style={{ color: "red" }}>{inputFirstname !== "" ? "" : warningFirstName}</span>
-                </div>
-                <div className="phone-input">
-                    <div className="input-container flexCenter">
-                        <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
-                        <label for="s_lastname" />
-                        <input
-                            name="s_lastname"
-                            id="s_lastname"
-                            type="text"
-                            placeholder="นามสกุล"
-                            onChange={(e) => setInputLastname(e?.target?.value)}
-                        />
+                    <div className="phone-input">
+                        <div className="input-container flexCenter">
+                            <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
+                            <label for="s_lastname" />
+                            <input
+                                name="s_lastname"
+                                id="s_lastname"
+                                type="text"
+                                placeholder="นามสกุล"
+                                onChange={(e) => setInputLastname(e?.target?.value)}
+                            />
+                        </div>
                     </div>
                     <span style={{ color: "red" }}>{inputLastname !== "" ? "" : warningLastName}</span>
                 </div>
+
                 <button type='button' onClick={() => _clickNextStep()} className="next-step-button">ถัดไป</button>
+
                 <p style={{ marginTop: 8 }}>
                     คุณมีบัญชีอยู่แล้ว
                     <a href={Constant?.PAGE_LOGIN_MOBILE}>เข้าสู่ระบบ</a>
                 </p>
-            </main>
-        </div>
+            </main >
+        </div >
     )
 }

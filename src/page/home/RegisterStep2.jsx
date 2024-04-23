@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
-
+import Loading from "../../component/Loading";
 export default function RegisterStep2() {
     const history = useHistory();
 
@@ -14,6 +14,7 @@ export default function RegisterStep2() {
     const [inputBank, setInputBank] = useState('');
     const [bankCode, setBankCode] = useState(0);
     const [messageCreate, setMessageCreate] = useState();
+    const [loading, setLoading] = useState(false);
 
     const CreateUser = async () => {
         const _res = await handleRegister(
@@ -24,6 +25,7 @@ export default function RegisterStep2() {
             inputBank,
             bankCode,
             "MOBILE",
+            (e) => { setLoading(e) }
         );
         if (_res) setMessageCreate(_res?.statusDesc);
     };
@@ -36,6 +38,7 @@ export default function RegisterStep2() {
     });
     return (
         <div>
+            {loading ? <Loading /> : ""}
             <main className="register-page flexCenter">
                 <img
                     src="/assets/icons/home-icon.svg"

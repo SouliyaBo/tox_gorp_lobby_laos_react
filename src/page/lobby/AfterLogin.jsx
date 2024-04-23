@@ -124,9 +124,6 @@ export default function AfterLogin() {
         showSlides(slideIndex + n);
     };
 
-    function currentSlide(n) {
-        showSlides(n);
-    }
 
     const showSlides = (n) => {
         const slides = document.getElementsByClassName("mySlides");
@@ -148,13 +145,17 @@ export default function AfterLogin() {
     const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
     const [depositBankList, setDepositBankList] = useState();
     const [current, setCurrent] = useState(0);
+    const [sliderData, setSliderData] = useState({});
+    const [percentageData, setPercentageData] = useState([]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
         console.log("data: ", _data)
+
         if (_data) {
             setDataFromLogin(_data);
+            setSliderData(_data?.info?.slide)
             setDepositBankList(_data?.info?.bankDeposit[0])
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
@@ -162,6 +163,7 @@ export default function AfterLogin() {
             }
         }
         setDataSlide(history?.location?.state?.info?.promotionList);
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -286,6 +288,8 @@ export default function AfterLogin() {
             },
         });
         if (_res?.data?.statusCode === 0) {
+            generatePercentageData(_res?.data?.data?.length);
+
             setdataGameList(_res?.data?.data);
         }
     };
@@ -478,7 +482,6 @@ export default function AfterLogin() {
     };
 
     const _getOptionBank = () => {
-        console.log("AAAA")
         setDisableArrow(!disableArrow)
 
     }
@@ -504,10 +507,14 @@ export default function AfterLogin() {
 
     const SliderData = [
         {
-            image:
-                '/assets/images/Cardgame/image 70.png'
+            image: sliderData?.['2368']?.s_image
         },
-
+        {
+            image: sliderData?.['2369']?.s_image
+        },
+        {
+            image: sliderData?.['2370']?.s_image
+        },
     ];
 
     const length = SliderData.length;
@@ -521,6 +528,15 @@ export default function AfterLogin() {
     };
     if (!Array.isArray(SliderData) || SliderData.length <= 0) {
         return null;
+    }
+
+    const generatePercentageData = (count) => {
+        const data = [];
+        for (let i = 0; i < count; i++) {
+            const percentage = Math.random();
+            data.push({ percentage: percentage });
+        }
+        setPercentageData(data);
     }
 
     return (
@@ -571,7 +587,7 @@ export default function AfterLogin() {
                                         key={slide?.image}
                                     >
                                         {index === current && (
-                                            <img src={slide.image} alt='travel' style={{ width: '100%' }} />
+                                            <img src={`data:image/jpeg;base64,${slide?.image}`} alt='travel' style={{ width: '100%' }} />
                                         )}
                                     </div>
                                 );
@@ -624,7 +640,7 @@ export default function AfterLogin() {
                             >
                                 <div style={{
                                     position: "absolute",
-                                    top: "0", left: "0",
+                                    top: "0", right: "0",
                                     zIndex: 1,
                                     backgroundColor: game?.s_flg_favorite === "Y" ? "#FE2147" : "#A4A4A4",
                                     padding: 8,
@@ -634,6 +650,9 @@ export default function AfterLogin() {
                                     display: "flex",
                                 }} onClick={() => _addFavorite(game)} onKeyDown={() => ''}>
                                     <FontAwesomeIcon icon={faHeart} style={{ color: "white", fontSize: 25 }} />
+                                </div>
+                                <div className="percentage">
+                                    RTP {(percentageData[index]?.percentage * 100).toFixed(2)} %
                                 </div>
                                 <img
                                     src={game?.s_img ?? "/assets/images/jilli_card.svg"}
