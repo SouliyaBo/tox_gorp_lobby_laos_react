@@ -1,26 +1,76 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import constant from "../../constant";
 import _LoginController from "../../api/login";
 import { useHistory } from "react-router-dom";
-import Loading from "../../component/Loading";
+import Swal from 'sweetalert2'
+
 export default function LoginPageMobile() {
     const history = useHistory();
     const [userNameInput, setUserNameInput] = useState();
     const [passwordInput, setPasswordInput] = useState();
     const [messageCreate, setMessageCreate] = useState();
-    const [loading, setLoading] = useState(false);
+    const [deviceType, setDeviceType] = useState(false);
 
     const { handleLogin } = _LoginController();
+    useEffect(() => {
+        let hasTouchScreen = false;
+        if ("maxTouchPoints" in navigator) {
+            hasTouchScreen = navigator.maxTouchPoints > 0;
+        } else if ("msMaxTouchPoints" in navigator) {
+            hasTouchScreen = navigator.msMaxTouchPoints > 0;
+        } else {
+            const mQ = window.matchMedia && matchMedia("(pointer:coarse)");
+            if (mQ && mQ.media === "(pointer:coarse)") {
+                hasTouchScreen = !!mQ.matches;
+            } else if ("orientation" in window) {
+                hasTouchScreen = true; // deprecated, but good fallback
+            } else {
+                // Only as a last resort, fall back to user agent sniffing
+                const UA = navigator.userAgent;
+                hasTouchScreen =
+                    /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+                    /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA);
+            }
+        }
+        if (hasTouchScreen) {
+            setDeviceType("MOBILE");
+            // console.log("Mobile: ");
+        } else {
+            setDeviceType("DESKTOP");
+            // console.log("Desktop: ");
+        }
 
+
+    }, []);
     // ===== LoginController =====>
     const _Login = async () => {
-        const _res = await handleLogin(userNameInput, passwordInput, "MOBILE", (e) => { setLoading(e) });
+        const _res = await handleLogin(userNameInput, passwordInput, deviceType,
+            (response) => {
+                if (response === false) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: "สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424', // Change to the color you want
+                        color: '#fff',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "ทำรายการไม่สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424',
+                        color: '#fff',
+                    });
+                }
+            });
         if (_res) setMessageCreate(_res?.statusDesc);
     };
 
     return (
         <div>
-            {loading ? <Loading /> : ""}
             <main className="login-page flexCenter">
                 <a href={constant?.HOME}>
                     <img

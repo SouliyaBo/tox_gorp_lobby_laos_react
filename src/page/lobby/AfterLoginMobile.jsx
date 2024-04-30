@@ -18,7 +18,7 @@ export default function AfterLoginMobile() {
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
     const [dataFromLogin, setDataFromLogin] = useState({});
-    const [dataGameType, setDataGameType] = useState("FAVORITE");
+    const [dataGameType, setDataGameType] = useState("SLOT");
     const [dataGameList, setDataGameList] = useState();
     const [categoryGame, setCategoryGame] = useState([]);
     const [deviceType, setDeviceType] = useState(false);
@@ -42,22 +42,21 @@ export default function AfterLoginMobile() {
     const [current, setCurrent] = useState(0);
     const [disableArrow, setDisableArrow] = useState(false);
     const [depositBankList, setDepositBankList] = useState({});
-    const [sliderData, setSliderData] = useState({});
+    const [sliderData, setSliderData] = useState([]);
     const [percentageData, setPercentageData] = useState([]);
+    const [logoWebsite, setLogoWebsite] = useState("");
+    const [linkLine, setLinkLine] = useState("");
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
-        // const { 2368: name } = _data?.info?.slide?.2368
-        // const slide2368 = _data?.info?.slide?.['2368'];
-        // setSliderData([_data?.info?.slide]);
-
-        // console.log("slide: ", _data?.info?.slide?.length)
-
         if (_data) {
+            setLogoWebsite(_data?.info?.configLobby?.s_logo)
+            setLinkLine(_data?.info?.configLobby?.s_line)
             setDataFromLogin(_data);
             setDepositBankList(_data?.info?.bankDeposit[0])
-            setSliderData(_data?.info?.slide)
+            const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
+            setSliderData(slideArray)
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
                 setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
@@ -66,10 +65,10 @@ export default function AfterLoginMobile() {
         }
         setDeviceType(false)
         setDataSlider(history?.location?.state?.info?.promotionList);
-
-
+        if (_data === undefined) {
+            history.push("/")
+        }
     }, []);
-    console.log("name::: ", sliderData)
 
 
     useEffect(() => {
@@ -94,11 +93,18 @@ export default function AfterLoginMobile() {
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
-        _clickCategoryGame("FAVORITE");
+        _clickCategoryGame("SLOT");
         _getData();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataFromLogin]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrent(current === length - 1 ? 0 : current + 1);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [current]);
 
     const _getData = async () => {
         const _res = await axios({
@@ -175,10 +181,8 @@ export default function AfterLoginMobile() {
         }
     }
     const _clickFavorite = async (value) => {
-        console.log("A")
         setDataGameType("FAVORITE")
         setDataGameList([])
-        console.log("B")
 
         const _getData = await axios({
             method: 'post',
@@ -188,7 +192,6 @@ export default function AfterLoginMobile() {
                 s_username: dataFromLogin?.username,
             },
         });
-        console.log("C", _getData)
 
         if (_getData?.data?.statusCode === 0) {
             setCategoryGame(_getData?.data?.data?.FAVORITE)
@@ -209,8 +212,13 @@ export default function AfterLoginMobile() {
             },
         });
         if (_res?.data?.statusCode === 0) {
-            generatePercentageData(_res?.data?.data?.length);
             setDataGameList(_res?.data?.data)
+            let dataLength = _res?.data?.data?.length;
+            generatePercentageData(dataLength);
+            const intervalId = setInterval(() => {
+                generatePercentageData(dataLength);
+            }, 5000);
+            return () => clearInterval(intervalId);
         }
     }
     const _addFavorite = async (value) => {
@@ -226,8 +234,10 @@ export default function AfterLoginMobile() {
         });
         if (_getData?.data?.statusCode === 0) {
             if (dataGameType === "FAVORITE" || dataGameType === "HOTHIT") {
+
                 _clickCategoryGame(dataGameType)
             } else {
+
                 _getDataGame(value)
             }
         }
@@ -249,13 +259,15 @@ export default function AfterLoginMobile() {
                 url: `${Constant.SERVER_URL}/Game/Access`,
                 data: _data,
             });
-            if (_res?.data?.url !== "undefined") {
+            if (_res?.data?.url) {
                 setTimeout(() => {
                     window.open(_res?.data?.url, '_blank');
                 })
             }
-            if (_res?.data?.res_html !== undefined) {
-                OpenNewTabWithHTML(_res?.data?.res_html);
+            if (_res?.data?.res_html) {
+                setTimeout(() => {
+                    OpenNewTabWithHTML(_res?.data?.res_html);
+                })
             }
         } catch (error) {
             console.error("Error playing the game:", error);
@@ -271,7 +283,6 @@ export default function AfterLoginMobile() {
                 i_ip: "1.2.3.4",
                 actionBy: "adm"
             };
-            console.log("🚀 ~ const_withdrawMoney= ~ Constant?.AGEN_CODE:", Constant?.AGEN_CODE)
             // Send the data to the server to get the game URL
             const _res = await axios({
                 method: "post",
@@ -313,7 +324,6 @@ export default function AfterLoginMobile() {
         }
     }
     const approverPromotion = async (value) => {
-        console.log("🚀 ~ approverPromotion ~ value:", value)
         try {
             const _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
                 s_agent_code: Constant?.AGEN_CODE,
@@ -323,7 +333,6 @@ export default function AfterLoginMobile() {
                 i_ip: "1.2.3.4",
                 actionBy: "ADM"
             })
-            console.log("🚀 ~ approverPromotion ~ _resAppover?.data:", _resAppover)
             if (_resAppover?.data?.statusCode === 0) {
                 Swal.fire({
                     icon: 'success',
@@ -394,7 +403,6 @@ export default function AfterLoginMobile() {
     };
 
     const _receiveCashBack = async () => {
-        console.log("dataFromLogin: ", dataFromLogin?.balance?.cashback)
         try {
             const _res = await axios({
                 method: "post",
@@ -413,7 +421,7 @@ export default function AfterLoginMobile() {
                 _getData();
             }
         } catch (error) {
-            console.log("🚀 ~ const_login= ~ error:", error);
+            console.log("error:", error);
         }
     };
 
@@ -445,19 +453,7 @@ export default function AfterLoginMobile() {
     };
 
 
-    const SliderData = [
-        {
-            image: sliderData?.['2368']?.s_image
-        },
-        {
-            image: sliderData?.['2369']?.s_image
-        },
-        {
-            image: sliderData?.['2370']?.s_image
-        },
-    ];
-
-    const length = SliderData.length;
+    const length = sliderData.length;
 
     const nextSlide = () => {
         setCurrent(current === length - 1 ? 0 : current + 1);
@@ -466,7 +462,7 @@ export default function AfterLoginMobile() {
     const prevSlide = () => {
         setCurrent(current === 0 ? length - 1 : current - 1);
     };
-    if (!Array.isArray(SliderData) || SliderData.length <= 0) {
+    if (!Array.isArray(sliderData) || sliderData.length <= 0) {
         return null;
     }
     const _getOptionBank = (bankName) => {
@@ -497,13 +493,13 @@ export default function AfterLoginMobile() {
             <main className="after-login-mobile-page">
                 <header className="header flexBetween">
                     <div className="left" onClick={(event) => toggleSidebar(event)} onKeyDown={() => ''}>
-                        <img className="hamburger" src="../assets/images/icon-hamburger.svg" alt="hamburger icon" />
+                        <img className="hamburger" src="/assets/images/icon-hamburger.svg" alt="hamburger icon" />
                     </div>
                     <div className="right">
                         <div className="balance-container">
                             <div className="balance">
                                 <div className="icon flexCenter">
-                                    <img src="../assets/icons/user-outline-white.svg" alt="icon" />
+                                    <img src="/assets/icons/user-outline-white.svg" alt="icon" />
                                 </div>
                                 <div className="balance-text">
                                     <p>{dataFromLogin?.username}</p>
@@ -511,7 +507,7 @@ export default function AfterLoginMobile() {
                             </div>
                             <div className="balance">
                                 <div className="icon flexCenter">
-                                    <img src="../assets/icons/wallet-outline-white.svg" alt="icon" />
+                                    <img src="/assets/icons/wallet-outline-white.svg" alt="icon" />
                                 </div>
                                 <div className="balance-text">
                                     <p>{dataUser?.amount}</p>
@@ -535,14 +531,14 @@ export default function AfterLoginMobile() {
                         <div className="mySlides">
                             <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
                             <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
-                            {SliderData.length > 0 && SliderData?.map((slide, index) => {
+                            {sliderData.length > 0 && sliderData?.map((slide, index) => {
                                 return (
                                     <div
                                         className={index === current ? 'slide1 active' : 'slide1'}
                                         key={slide?.i_index}
                                     >
                                         {index === current && (
-                                            <img src={`data:image/jpeg;base64,${slide?.image}`} alt='travel' style={{ width: '100%' }} />
+                                            <img src={slide?.s_image ? `data:image/jpeg;base64,${slide?.s_image}` : '/assets/images/Cardgame/image 70.png'} alt='travel' style={{ width: '100%' }} />
                                         )}
                                     </div>
                                 );
@@ -551,13 +547,7 @@ export default function AfterLoginMobile() {
                     </div>
                 </div>
                 <div style={{ height: 15 }} />
-                <div className="marquee-container">
-                    {/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
-                    <marquee className="description">
-                        เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
-                        100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
-                    </marquee>
-                </div>
+
 
                 <section className="featured-game-wrapper" id="mobile-after-login">
                     <div className="featured-game flexBetween" onClick={() => _clickFavorite()} onKeyDown={() => ''}>
@@ -711,9 +701,10 @@ export default function AfterLoginMobile() {
 
                 <footer className="footer">
                     <div className="menu-wrapper">
-                        <button type='button' className="footer-item flexCenter">
-                            <img src="/assets/icons/home.svg" alt="login" />
-                            <p>หน้าหลัก</p>
+                        <button type='button' className="footer-item flexCenter" data-bs-toggle="modal"
+                            data-bs-target="#historyModal">
+                            <img src="/assets/icons/History.svg" alt="login" />
+                            <p>ประวัติ</p>
                         </button>
                         <button type='button' className="footer-item flexCenter" data-bs-toggle="modal" data-bs-target="#promotionModal"
                             data-bs-dismiss="modal">
@@ -728,10 +719,10 @@ export default function AfterLoginMobile() {
                             <img src="/assets/icons/money-bag.svg" alt="login" />
                             <p>กระเป๋า</p>
                         </button>
-                        <button type='button' className="footer-item flexCenter">
+                        <a target='_blank' href={linkLine} className="footer-item flexCenter" style={{ textDecoration: "none" }} rel="noreferrer">
                             <img src="/assets/images/contact-admin.svg" alt="login" />
                             <p>ติดต่อเรา</p>
-                        </button>
+                        </a>
                     </div>
                 </footer>
 
@@ -750,7 +741,7 @@ export default function AfterLoginMobile() {
                                 />
                             </div>
                             <img
-                                src="/assets/images/Logo.png"
+                                src={`data:image/jpeg;base64,${logoWebsite}`}
                                 alt="logo"
                             />
                             <div className="flexBetween">
@@ -865,19 +856,21 @@ export default function AfterLoginMobile() {
                                 >
                                     ไลน์บอท
                                 </button>
-                                <button
-                                    type="button"
+                                <a
+                                    target="_blank"
+                                    href={linkLine} rel="noreferrer"
+
                                     className="gradient-border sidebar-button flexCenter"
                                     style={{
-                                        width:
-                                            "50%",
+                                        width: "50%",
+                                        textDecoration: "none",
                                         height: 42,
                                         borderRadius: 10,
                                         fontSize: 13,
                                     }}
                                 >
                                     ติดต่อพนักงาน
-                                </button>
+                                </a>
                             </div>
                             <div
                                 className="flexCenter"
@@ -1170,10 +1163,10 @@ export default function AfterLoginMobile() {
                                             </div>
                                         </div>
 
-                                        <button type='button' className="line-button flexCenter">
+                                        {/* <button type='button' className="line-button flexCenter">
                                             <img src="/assets/icons/icon-line.svg" alt="line icon" />
                                             <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>
@@ -1341,12 +1334,12 @@ export default function AfterLoginMobile() {
                                         </div>
                                         <p style={{ color: "red", marginLeft: 14 }}>{reMessage}</p>
 
-                                        <div className="button-warning" data-bs-dismiss="modal" onClick={() => _withdrawMoney()} onKeyDown={() => ''}>ถอนเงิน</div>
+                                        <div className="button-warning" data-bs-dismiss={reMessage !== "" ? "not-modal" : "modal"} onClick={() => _withdrawMoney()} onKeyDown={() => ''}>ถอนเงิน</div>
                                         <p style={{ marginLeft: 16, marginTop: 10 }}>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
-                                        <button style={{ marginLeft: 16, marginTop: 10, marginBottom: 18 }} type='button' className="line-button flexCenter">
+                                        {/* <button style={{ marginLeft: 16, marginTop: 10, marginBottom: 18 }} type='button' className="line-button flexCenter">
                                             <img src="/assets/icons/icon-line.svg" alt="line icon" />
                                             <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>

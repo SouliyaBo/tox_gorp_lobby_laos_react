@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 import { useHistory } from "react-router-dom";
 
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
-import Loading from "../../component/Loading";
+import Swal from 'sweetalert2'
 export default function RegisterStep2() {
     const history = useHistory();
 
@@ -14,7 +14,38 @@ export default function RegisterStep2() {
     const [inputBank, setInputBank] = useState('');
     const [bankCode, setBankCode] = useState(0);
     const [messageCreate, setMessageCreate] = useState();
-    const [loading, setLoading] = useState(false);
+    const [deviceType, setDeviceType] = useState(false);
+
+    useEffect(() => {
+        let hasTouchScreen = false;
+        if ("maxTouchPoints" in navigator) {
+            hasTouchScreen = navigator.maxTouchPoints > 0;
+        } else if ("msMaxTouchPoints" in navigator) {
+            hasTouchScreen = navigator.msMaxTouchPoints > 0;
+        } else {
+            const mQ = window.matchMedia && matchMedia("(pointer:coarse)");
+            if (mQ && mQ.media === "(pointer:coarse)") {
+                hasTouchScreen = !!mQ.matches;
+            } else if ("orientation" in window) {
+                hasTouchScreen = true; // deprecated, but good fallback
+            } else {
+                // Only as a last resort, fall back to user agent sniffing
+                const UA = navigator.userAgent;
+                hasTouchScreen =
+                    /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+                    /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA);
+            }
+        }
+        if (hasTouchScreen) {
+            setDeviceType("MOBILE");
+            // console.log("Mobile: ");
+        } else {
+            setDeviceType("DESKTOP");
+            // console.log("Desktop: ");
+        }
+
+
+    }, []);
 
     const CreateUser = async () => {
         const _res = await handleRegister(
@@ -24,8 +55,28 @@ export default function RegisterStep2() {
             history?.location?.state?.inputPassword,
             inputBank,
             bankCode,
-            "MOBILE",
-            (e) => { setLoading(e) }
+            deviceType,
+            (response) => {
+                if (response === false) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: "สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424', // Change to the color you want
+                        color: '#fff',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "ทำรายการไม่สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424',
+                        color: '#fff',
+                    });
+                }
+            }
         );
         if (_res) setMessageCreate(_res?.statusDesc);
     };
@@ -38,7 +89,6 @@ export default function RegisterStep2() {
     });
     return (
         <div>
-            {loading ? <Loading /> : ""}
             <main className="register-page flexCenter">
                 <img
                     src="/assets/icons/home-icon.svg"
@@ -244,39 +294,40 @@ export default function RegisterStep2() {
                         />
                     </div>
                 </div>
-                <div className="phone-input">
-                    <div className="input-container flexCenter">
-                        {/* <img src="../assets/icons/bank-icon.svg" alt="phone icon" /> */}
-                        <label for="phone" />
-                        <select
-                            style={{ background: "transparent", border: 0, color: '#FFF' }}
-                            id="bank"
-                            value={bankCode}
-                            placeholder="เลขบัญชีธนาคาร"
-                            onChange={(event) =>
-                                setBankCode(Number.parseInt(event?.target?.value))
-                            }
-                        >
-                            <option>กรุณาเลือกธนาคารของคุณ</option>
-                            {BackList?.map((bank) => (
-                                <option key={bank?.code} value={bank?.code}>
-                                    {bank?.bankName}
-                                </option>
-                            ))}
-                        </select>
+                <div className='register-form'>
+                    <div className="phone-input">
+                        <div className="input-container flexCenter" style={{ marginTop: 10 }}>
+                            <label for="phone" />
+                            <select
+                                style={{ background: "transparent", border: 0, color: '#FFF' }}
+                                id="bank"
+                                value={bankCode}
+                                placeholder="เลขบัญชีธนาคาร"
+                                onChange={(event) =>
+                                    setBankCode(Number.parseInt(event?.target?.value))
+                                }
+                            >
+                                <option>กรุณาเลือกธนาคารของคุณ</option>
+                                {BackList?.map((bank) => (
+                                    <option key={bank?.code} value={bank?.code}>
+                                        {bank?.bankName}
+                                    </option>
+                                ))}
+                            </select>
 
-                    </div>
-                    <div className="input-container flexCenter">
-                        <input
-                            style={{ paddingLeft: 8 }}
-                            name="bank"
-                            id="bank"
-                            type="text"
-                            maxlength={10}
-                            value={inputBank}
-                            placeholder="เลขบัญชีธนาคาร"
-                            onChange={(e) => handleChangeBank(e)}
-                        />
+                        </div>
+                        <div className="input-container flexCenter" style={{ marginTop: 18 }}>
+                            <input
+                                style={{ paddingLeft: 8 }}
+                                name="bank"
+                                id="bank"
+                                type="text"
+                                maxlength={10}
+                                value={inputBank}
+                                placeholder="เลขบัญชีธนาคาร"
+                                onChange={(e) => handleChangeBank(e)}
+                            />
+                        </div>
                     </div>
                 </div>
 

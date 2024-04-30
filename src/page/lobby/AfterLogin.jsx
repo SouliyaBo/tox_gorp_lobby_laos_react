@@ -33,15 +33,35 @@ export default function AfterLogin() {
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
-    const [slideIndex, setSlideIndex] = useState(1);
     const [reMessage, setReMessage] = useState("");
     const [maxLevel, setmaxLevel] = useState();
-    const [showHistoryCashBack, setShowHistoryCashBack] = useState(false);
     const [historyCashBack, setHistoryCashBack] = useState([]);
     const [dataSlide, setDataSlide] = useState([]);
     const [disableArrow, setDisableArrow] = useState(false);
-
     const { ChangePassword } = _LoginController();
+    const [dataFromLogin, setDataFromLogin] = useState({});
+    const [dataGameList, setDataGameList] = useState();
+    const [categoryGame, setCategoryGame] = useState([]);
+    const [deviceType, setDeviceType] = useState(false);
+    const [dataGameType, setDataGameType] = useState("SLOT"); // FAVORITE || HOTHIT
+    const [dataUser, setDataUser] = useState();
+    const [dataHistoryDeposit, setDataHistoryDeposit] = useState([]);
+    const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
+    const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
+    const [depositBankList, setDepositBankList] = useState();
+    const [current, setCurrent] = useState(0);
+    const [sliderData, setSliderData] = useState([]);
+    const [percentageData, setPercentageData] = useState([]);
+
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    const [oldPassword, setOldPassword] = useState("");
+    const [NewPassword, setNewPassword] = useState("");
+    const [NewPasswordVery, setNewPasswordVery] = useState("");
+    const [logoWebsite, setLogoWebsite] = useState("");
+    const [linkLine, setLinkLine] = useState("");
 
     useEffect(() => {
         let hasTouchScreen = false;
@@ -92,10 +112,10 @@ export default function AfterLogin() {
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const interval = setInterval(() => {
-            plusSlides(1);
+            setCurrent(current === length - 1 ? 0 : current + 1);
         }, 3000);
         return () => clearInterval(interval);
-    }, [slideIndex]);
+    }, [current]);
 
     const toggleSidebar = (event) => {
         event.stopPropagation();
@@ -120,56 +140,36 @@ export default function AfterLogin() {
         }
     };
 
-    const plusSlides = (n) => {
-        showSlides(slideIndex + n);
-    };
 
-
-    const showSlides = (n) => {
-        const slides = document.getElementsByClassName("mySlides");
-        const dots = document.getElementsByClassName("dot");
-        if (n > slides?.length) {
-            // setSlideIndex(1);
-        }
-    };
-
-    // =============> connect data <================
-    const [dataFromLogin, setDataFromLogin] = useState({});
-    const [dataGameList, setdataGameList] = useState();
-    const [categoryGame, setCategoryGame] = useState([]);
-    const [deviceType, setDeviceType] = useState(false);
-    const [dataGameType, setDataGameType] = useState("FAVORITE"); // FAVORITE || HOTHIT
-    const [dataUser, setDataUser] = useState();
-    const [dataHistoryDeposit, setDataHistoryDeposit] = useState([]);
-    const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
-    const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
-    const [depositBankList, setDepositBankList] = useState();
-    const [current, setCurrent] = useState(0);
-    const [sliderData, setSliderData] = useState({});
-    const [percentageData, setPercentageData] = useState([]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
-        console.log("data: ", _data)
+        console.log("_data: ", _data?.info)
 
         if (_data) {
+            setLogoWebsite(_data?.info?.configLobby?.s_logo)
+            setLinkLine(_data?.info?.configLobby?.s_line)
             setDataFromLogin(_data);
-            setSliderData(_data?.info?.slide)
+            const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
+            setSliderData(slideArray)
             setDepositBankList(_data?.info?.bankDeposit[0])
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
                 setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
             }
+
         }
         setDataSlide(history?.location?.state?.info?.promotionList);
-
+        if (_data === undefined) {
+            history.push("/")
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
-        _clickCategoryGame("FAVORITE");
+        _clickCategoryGame("SLOT");
         if (dataFromLogin) {
             _getData();
         }
@@ -221,7 +221,7 @@ export default function AfterLogin() {
 
     const _clickCategoryGame = async (value) => {
         setDataGameType(value);
-        setdataGameList([]);
+        setDataGameList([]);
         if (value === "FAVORITE") {
             const _getData = await axios({
                 method: "post",
@@ -231,17 +231,19 @@ export default function AfterLogin() {
                     s_username: dataFromLogin?.username,
                 },
             });
+
             if (_getData?.data?.statusCode === 0) {
                 setCategoryGame(_getData?.data?.data?.FAVORITE);
             }
         } else {
-            setdataGameList();
+            setDataGameList();
             FillerCategory(value, setCategoryGame);
         }
     };
-    const _clickFavarite = async (value) => {
+
+    const _clickFavorite = async (value) => {
         setDataGameType("FAVORITE");
-        setdataGameList([]);
+        setDataGameList([]);
         const _getData = await axios({
             method: "post",
             url: `${Constant.SERVER_URL}/Game/Brand/List`,
@@ -254,6 +256,7 @@ export default function AfterLogin() {
             setCategoryGame(_getData?.data?.data?.FAVORITE);
         }
     };
+
     const _addFavorite = async (value) => {
         const _getData = await axios({
             method: "post",
@@ -265,6 +268,7 @@ export default function AfterLogin() {
                 actionBy: "ADM",
             },
         });
+
         if (_getData?.data?.statusCode === 0) {
             if (dataGameType === "FAVORITE" || dataGameType === "HOTHIT") {
                 _clickCategoryGame(dataGameType);
@@ -273,11 +277,13 @@ export default function AfterLogin() {
             }
         }
     };
+
     const _getDataGame = async (value) => {
         if (value?.s_type === "CASINO" || value?.s_type === "SPORT") {
             _getDataGamePlayGame(value);
             return;
         }
+
         const _res = await axios({
             method: "post",
             url: `${Constant.SERVER_URL}/Game/ListGame`,
@@ -288,11 +294,16 @@ export default function AfterLogin() {
             },
         });
         if (_res?.data?.statusCode === 0) {
-            generatePercentageData(_res?.data?.data?.length);
-
-            setdataGameList(_res?.data?.data);
+            setDataGameList(_res?.data?.data);
+            let dataLength = _res?.data?.data?.length;
+            generatePercentageData(dataLength);
+            const intervalId = setInterval(() => {
+                generatePercentageData(dataLength);
+            }, 5000);
+            return () => clearInterval(intervalId);
         }
     };
+
     const _getDataGamePlayGame = async (value, type) => {
         try {
             const _data = {
@@ -315,15 +326,16 @@ export default function AfterLogin() {
                 url: `${Constant.SERVER_URL}/Game/Access`,
                 data: _data,
             });
-            console.log("URL: ", _res?.data?.url)
-            console.log("HTML: ", _res?.data?.res_html)
+
             if (_res?.data?.url) {
                 setTimeout(() => {
                     window.open(_res?.data?.url, '_blank');
                 })
             }
-            if (_res?.data) {
-                OpenNewTabWithHTML(_res?.data?.res_html);
+            if (_res?.data?.res_html) {
+                setTimeout(() => {
+                    OpenNewTabWithHTML(_res?.data?.res_html);
+                })
             }
         } catch (error) {
             console.error("Error playing the game:", error);
@@ -361,9 +373,7 @@ export default function AfterLogin() {
         } catch (error) { }
     };
     //  =================> ChangePassword <=================
-    const [oldPassword, setOldPassword] = useState("");
-    const [NewPassword, setNewPassword] = useState("");
-    const [NewPasswordVery, setNewPasswordVery] = useState("");
+
     const _ChangePassword = async () => {
         try {
             if (NewPassword !== NewPasswordVery) {
@@ -454,9 +464,7 @@ export default function AfterLogin() {
             errorAdd("รายการไม่สำเร็จ");
         }
     };
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+
 
     const _resiveCashBack = async () => {
         try {
@@ -505,19 +513,7 @@ export default function AfterLogin() {
         });
     };
 
-    const SliderData = [
-        {
-            image: sliderData?.['2368']?.s_image
-        },
-        {
-            image: sliderData?.['2369']?.s_image
-        },
-        {
-            image: sliderData?.['2370']?.s_image
-        },
-    ];
-
-    const length = SliderData.length;
+    const length = sliderData.length;
 
     const nextSlide = () => {
         setCurrent(current === length - 1 ? 0 : current + 1);
@@ -526,7 +522,7 @@ export default function AfterLogin() {
     const prevSlide = () => {
         setCurrent(current === 0 ? length - 1 : current - 1);
     };
-    if (!Array.isArray(SliderData) || SliderData.length <= 0) {
+    if (!Array.isArray(sliderData) || sliderData.length <= 0) {
         return null;
     }
 
@@ -538,6 +534,7 @@ export default function AfterLogin() {
         }
         setPercentageData(data);
     }
+
 
     return (
         <div>
@@ -559,7 +556,7 @@ export default function AfterLogin() {
                 </div>
                 <div className="middle">
                     <img
-                        src="/assets/images/Logo.png"
+                        src={`data:image/jpeg;base64,${logoWebsite}`}
                         alt="logo"
                         height="49px"
                         style={{ cursor: "pointer" }}
@@ -580,14 +577,14 @@ export default function AfterLogin() {
                         <div className="mySlides fade-slide">
                             <div className='left-arrow' onClick={() => prevSlide()} onKeyDown={() => ''}>❮</div>
                             <div className='right-arrow' onClick={() => nextSlide()} onKeyDown={() => ''}>❯</div>
-                            {SliderData.length > 0 && SliderData?.map((slide, index) => {
+                            {sliderData?.length > 0 && sliderData?.map((slide, index) => {
                                 return (
                                     <div
                                         className={index === current ? 'slide1 active' : 'slide1'}
-                                        key={slide?.image}
+                                        key={slide?.s_image}
                                     >
                                         {index === current && (
-                                            <img src={`data:image/jpeg;base64,${slide?.image}`} alt='travel' style={{ width: '100%' }} />
+                                            <img src={slide?.s_image ? `data:image/jpeg;base64,${slide?.s_image}` : '/assets/images/Cardgame/image 70.png'} alt='travel' style={{ width: '100%' }} />
                                         )}
                                     </div>
                                 );
@@ -595,16 +592,10 @@ export default function AfterLogin() {
                         </div>
                     </div>
                 </div>
-                <div className="marquee-custome">
-                    {/* biome-ignore lint/a11y/noDistractingElements: <explanation> */}
-                    <marquee className="description">
-                        เว็บตรง ไม่ผ่านเอเย่นต์ อันดับ 1 ฝาก-ถอน ไม่มีขั้นต่ำ ถอนสูงสุดวันละ
-                        100 ล้าน สล็อต บาคาร่า หวย กีฬา มีครบจบที่เดียว
-                    </marquee>
-                </div>
+
                 <section className="featured-game-wrapper">
                     <div className="container flexBetween">
-                        <div className="featured-game flexBetween" onClick={() => _clickFavarite()} onKeyDown={() => ''}>
+                        <div className="featured-game flexBetween" onClick={() => _clickFavorite()} onKeyDown={() => ''}>
                             <img src="/assets/images/newicon/favorite.png" alt="game icon" />
                             <p>เกมโปรด</p>
                         </div>
@@ -634,10 +625,7 @@ export default function AfterLogin() {
                 <section className="card-container">
                     <div className="card-wrapper">
                         {dataGameList?.length ? dataGameList?.map((game, index) =>
-                            <div
-                                key={game?.index}
-                                className="game-card"
-                            >
+                            <div key={game?.index} className="game-card">
                                 <div style={{
                                     position: "absolute",
                                     top: "0", right: "0",
@@ -669,8 +657,8 @@ export default function AfterLogin() {
                                     style={{ marginLeft: index === 0 ? 70 : 20 }}
                                 >
                                     {dataGameType === "FAVORITE" ||
-                                        dataGameType === "HOTHIT" ||
-                                        dataGameType === "FISHING" ? <div style={{
+                                        dataGameType === "HOTHIT" ?
+                                        <div style={{
                                             position: "absolute",
                                             top: "0", left: "0",
                                             zIndex: 1,
@@ -681,8 +669,8 @@ export default function AfterLogin() {
                                             justifyContent: "center",
                                             display: "flex",
                                         }} onClick={() => _addFavorite(item)} onKeyDown={() => ''}>
-                                        <FontAwesomeIcon icon={faHeart} style={{ color: '#FFF', fontSize: 25 }} />
-                                    </div> : null}
+                                            <FontAwesomeIcon icon={faHeart} style={{ color: '#FFF', fontSize: 25 }} />
+                                        </div> : null}
                                     {item?.s_img !== undefined ? (
                                         <img
                                             src={item?.s_img}
@@ -748,7 +736,7 @@ export default function AfterLogin() {
                             >
                                 <img src="/assets/images/turn-back 1.png" alt="logo" />
                             </div>
-                            <img src="/assets/images/Logo.png" alt="logo" />
+                            <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="logo" />
                             <div className="flexBetween font-14">
                                 <p>Username:</p>
                                 <p>{dataFromLogin?.username}</p>
@@ -812,13 +800,19 @@ export default function AfterLogin() {
                                 >
                                     ไลน์บอท
                                 </button>
+                                {/*
                                 <button
                                     type='button'
                                     className="gradient-border sidebar-button flexCenter"
-                                    style={{ fontSize: 17, width: "50%" }}
-                                >
+                                    style={{ fontSize: 17, width: "100%" }}
+                                > */}
+                                <a target="_blank"
+                                    className="gradient-border sidebar-button flexCenter"
+                                    style={{ fontSize: 17, width: "50%", textDecoration: "none" }} href={linkLine} rel="noreferrer">
                                     ติดต่อพนักงาน
-                                </button>
+                                </a>
+
+                                {/* </button> */}
                             </div>
                             <button
                                 type='button'
@@ -856,7 +850,7 @@ export default function AfterLogin() {
                             </div> */}
 
                             {/* <h4>Power by</h4>
-                            <img src="/assets/images/Logo.png" alt="powerby" /> */}
+                            <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="powerby" /> */}
                         </aside>
                         <div className="sidebar-container-background" />
                     </div>
@@ -1105,10 +1099,13 @@ export default function AfterLogin() {
                                         <div className="detail" style={{ display: "flex", flexDirection: "column" }}>
                                             <div className="your-loss">ยอดเสียสะสมของคุณ (คืนยอดเสีย  {maxLevel} %)</div>
                                             <button
-                                                data-bs-dismiss="modal"
                                                 aria-label="Close"
                                                 type='button'
-                                                className="withdraw-to-accont" style={{ backgroundColor: "green", color: "white", padding: 10, borderRadius: 8 }} onClick={() => setShowHistoryCashBack(showHistoryCashBack ? false : true)}>ประวัติการรับ</button>
+                                                className="withdraw-to-accont" style={{ backgroundColor: "green", color: "white", padding: 10, borderRadius: 8 }}
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#historyCashback"
+                                                data-bs-dismiss="modal"
+                                            >ประวัติการรับ</button>
                                             <div className="loss">{dataFromLogin?.balance?.cashback}</div>
                                             <div style={{ textAlign: "center", fontSize: 14 }} >อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
                                             <div className="btn">
@@ -1294,16 +1291,16 @@ export default function AfterLogin() {
                                             >
                                         </div>
                                     </div>
-                                    <div className="button-line">
+                                    {/* <div className="button-line">
                                         <div>
                                             <img
                                                 src="/assets/icons/icon-line.svg"
                                                 alt="line"
                                                 style={{ width: 30, height: 30 }}
                                             />
-                                            ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                                            ไลน์บอทkk / แจ้งเตือนยอดฝาก - ถอน
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -1397,7 +1394,7 @@ export default function AfterLogin() {
                                             >
                                         </div>
                                     </div>
-                                    <div className="button-line">
+                                    {/* <div className="button-line">
                                         <div>
                                             <img
                                                 src="/assets/icons/icon-line.svg"
@@ -1406,7 +1403,7 @@ export default function AfterLogin() {
                                             />
                                             ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -1485,7 +1482,7 @@ export default function AfterLogin() {
                                             >
                                         </div>
                                     </div>
-                                    <div className="button-line" style={{ cursor: "pointer", fontSize: 13 }}>
+                                    {/* <div className="button-line" style={{ cursor: "pointer", fontSize: 13 }}>
                                         <div>
                                             <img
                                                 src="/assets/icons/icon-line.svg"
@@ -1494,7 +1491,7 @@ export default function AfterLogin() {
                                             />
                                             <span> ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน </span>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -1602,7 +1599,7 @@ export default function AfterLogin() {
                                             >
                                         </div>
                                     </div>
-                                    <div className="button-line">
+                                    {/* <div className="button-line">
                                         <div>
                                             <img
                                                 src="/assets/icons/icon-line.svg"
@@ -1611,7 +1608,7 @@ export default function AfterLogin() {
                                             />
                                             ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -1678,16 +1675,16 @@ export default function AfterLogin() {
 
                                     <div style={{ color: "red" }}>{reMessage}</div>
 
-                                    <div className="button-warning" data-bs-dismiss="modal" onClick={() => _withdrawMoney()} onKeyDown={() => ''}>ถอนเงิน</div>
+                                    <div className="button-warning" data-bs-dismiss={reMessage === "มีรายการแจ้งถอนค้างอยู่ในระบบ" ? "not-modal" : "modal"} onClick={() => _withdrawMoney()} onKeyDown={() => ''}> ถอนเงิน</div>
 
                                     <p style={{ display: "flex" }}>พบปัญหา
                                         <div style={{ marginLeft: "5px", color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</div>
                                     </p>
 
-                                    <button type='button' className="line-button flexCenter">
+                                    {/* <button type='button' className="line-button flexCenter">
                                         <img src="/assets/icons/icon-line.svg" alt="line icon" />
                                         <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         </div>
@@ -1808,7 +1805,7 @@ export default function AfterLogin() {
                                             >
                                         </p>
                                     </div>
-                                    <div className="button-line">
+                                    {/* <div className="button-line">
                                         <div>
                                             <img
                                                 src="/assets/icons/icon-line.svg"
@@ -1817,7 +1814,7 @@ export default function AfterLogin() {
                                             />
                                             ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -2068,14 +2065,14 @@ export default function AfterLogin() {
                                         พบปัญหา ติดต่อฝ่ายบริการลูกค้า
                                     </p>
 
-                                    <button type='button' className="line-button">
+                                    {/* <button type='button' className="line-button">
                                         <img
                                             src="/assets/icons/icon-line.svg"
                                             style={{ width: 30, height: 30 }}
                                             alt="line icon"
                                         />
                                         <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         </div>
@@ -3350,116 +3347,9 @@ export default function AfterLogin() {
             </div>
             {/* <!-- confirm logout modal end --> */}
 
-            {/* <!-- Modal --> */}
-
-            <footer className="footer" style={{ zIndex: 5 }}>
-                <div className="menu-wrapper">
-                    <div className="footer-item flexCenter">
-                        <img src="/assets/icons/home.svg" alt="login" />
-                        <p className="font-20">หน้าหลัก</p>
-                    </div>
-                    <div
-                        className="footer-item flexCenter"
-                        data-bs-toggle="modal"
-                        data-bs-target="#promotionModal"
-                        data-bs-dismiss="modal"
-                    >
-                        <img src="/assets/icons/gift.svg" alt="login" />
-                        <p className="font-20">โปรโมชั่น</p>
-                    </div>
-                    <div
-                        className="footer-item flexCenter"
-                        data-bs-toggle="modal"
-                        data-bs-target="#depositWithdraw"
-                    >
-                        <img src="/assets/icons/return-money.svg" alt="login" />
-                        <p className="font-20">ฝาก-ถอน</p>
-                    </div>
-                    <div
-                        className="footer-item flexCenter"
-                        data-bs-toggle="modal"
-                        data-bs-target="#bagModal"
-                    >
-                        <img src="/assets/icons/money-bag.svg" alt="login" />
-                        <p className="font-20">กระเป๋า</p>
-                    </div>
-                    <div className="footer-item flexCenter">
-                        <img src="/assets/images/contact-admin.svg" alt="login" />
-                        <p className="font-20">ติดต่อเรา</p>
-                    </div>
-                </div>
-            </footer>
-
-            <Modal show={show} style onHide={handleClose}>
-                <div className="modal-border">
-                    <div className="modal-content">
-                        <div className="modal-header-container">
-                            <div className="modal-header">
-                                <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
-                            </div>
-                        </div>
-                        <div className="modal-body">
-                            <div className="detail-card-scb1">
-                                <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
-                                    <div className="left">
-                                        <p>{depositBankList && depositBankList?.s_fname_th}</p>
-                                        <p>{depositBankList && depositBankList?.s_account_name}</p>
-                                        <p>{depositBankList && depositBankList?.s_account_no}
-                                            <span>
-                                                <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
-                                            </span>
-                                        </p>
-                                    </div>
-                                    <div className="right">
-                                        <div className="bank">
-                                            <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon.split(".")[0]}</h3>
-                                            <div style={{ borderRadius: '100%', marginTop: -10 }}>
-                                                <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
-                                            </div>
-                                        </div>
-                                        <div style={{ marginLeft: 50 }}>
-                                            <div className="deposit-bank-title-pc">เปลี่ยนธนาคาร</div>
-                                            <img onClick={() => _getOptionBank()} onKeyDown={() => ''}
-                                                style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }} src="/assets/images/arrow-bottom.svg" alt="" />
-                                            <select
-                                                onChange={(e) => _getOptionBank2(e.target.value)}
-                                                className="deposit-bank-list-pc"
-                                                style={{ display: disableArrow === true ? "block" : "none" }}>
-                                                {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                                                    <option key={bank?.index} value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>
-                                                ))}
-
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <div className="button-validationt">
-                                    <div style={{ color: "white" }}>
-                                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}>
-                                <div> พบปัญหา <span>ติดต่อฝ่ายบริการลูกค้า</span></div>
-                            </div>
-                            <div className="button-line">
-                                <div>
-                                    <img
-                                        src="/assets/icons/icon-line.svg"
-                                        style={{ width: 28, height: 28 }}
-                                        alt="line"
-                                    />
-                                    ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Modal>
-            <Modal show={showHistoryCashBack} onHide={() => setShowHistoryCashBack(false)}>
-                <div>
+            {/* <!-- confirm logout modal --> */}
+            <div className="modal fade" id="historyCashback" tabindex="-1" aria-labelledby="history-cashbackLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-border">
                         <div className="modal-content">
                             <div className="modal-header-container">
@@ -3517,7 +3407,121 @@ export default function AfterLogin() {
                         </div>
                     </div>
                 </div>
+            </div>
+            {/* <!-- confirm logout modal end --> */}
+
+            {/* <!-- Modal --> */}
+
+            <footer className="footer" style={{ zIndex: 5 }}>
+                <div className="menu-wrapper">
+                    <div className="footer-item flexCenter"
+                        data-bs-toggle="modal"
+                        data-bs-target="#historyModal"
+                    >
+                        <img src="/assets/icons/History.svg" alt="login" />
+                        <p className="font-20">ประวัติ</p>
+                    </div>
+                    <div
+                        className="footer-item flexCenter"
+                        data-bs-toggle="modal"
+                        data-bs-target="#promotionModal"
+                        data-bs-dismiss="modal"
+                    >
+                        <img src="/assets/icons/gift.svg" alt="login" />
+                        <p className="font-20">โปรโมชั่น</p>
+                    </div>
+                    <div
+                        className="footer-item flexCenter"
+                        data-bs-toggle="modal"
+                        data-bs-target="#depositWithdraw"
+                    >
+                        <img src="/assets/icons/return-money.svg" alt="login" />
+                        <p className="font-20">ฝาก-ถอน</p>
+                    </div>
+                    <div
+                        className="footer-item flexCenter"
+                        data-bs-toggle="modal"
+                        data-bs-target="#bagModal"
+                    >
+                        <img src="/assets/icons/money-bag.svg" alt="login" />
+                        <p className="font-20">กระเป๋า</p>
+                    </div>
+                    <a target='_blank' href={linkLine} className="footer-item flexCenter" style={{ textDecoration: "none" }} rel="noreferrer">
+                        <img src="/assets/images/contact-admin.svg" alt="login" />
+                        <p className="font-20">ติดต่อเรา</p>
+                    </a>
+                </div>
+            </footer>
+
+            <Modal show={show} style onHide={handleClose}>
+                <div className="modal-border">
+                    <div className="modal-content">
+                        <div className="modal-header-container">
+                            <div className="modal-header">
+                                <p className="modal-title" id="autoDeposit">ฝากออโต้</p>
+                            </div>
+                        </div>
+                        <div className="modal-body">
+                            <div className="detail-card-scb1">
+                                <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
+                                    <div className="left">
+                                        <p>{depositBankList && depositBankList?.s_fname_th}</p>
+                                        <p>{depositBankList && depositBankList?.s_account_name}</p>
+                                        <p>{depositBankList && depositBankList?.s_account_no}
+                                            <span>
+                                                <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div className="right">
+                                        <div className="bank">
+                                            <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon.split(".")[0]}</h3>
+                                            <div style={{ borderRadius: '100%', marginTop: -10 }}>
+                                                <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
+                                            </div>
+                                        </div>
+                                        <div style={{ marginLeft: 50 }}>
+                                            <div className="deposit-bank-title-pc">เปลี่ยนธนาคาร</div>
+                                            <img onClick={() => _getOptionBank()} onKeyDown={() => ''}
+                                                style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }} src="/assets/images/arrow-bottom.svg" alt="" />
+                                            <select
+                                                onChange={(e) => _getOptionBank2(e.target.value)}
+                                                className="deposit-bank-list-pc"
+                                                style={{ display: disableArrow === true ? "block" : "none" }}>
+                                                {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                                    <option key={bank?.index} value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>
+                                                ))}
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="button-validationt">
+                                    <div style={{ color: "white" }}>
+                                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}>
+                                <div> พบปัญหา <span>ติดต่อฝ่ายบริการลูกค้า</span></div>
+                            </div>
+                            {/* <div className="button-line">
+                                <div>
+                                    <img
+                                        src="/assets/icons/icon-line.svg"
+                                        style={{ width: 28, height: 28 }}
+                                        alt="line"
+                                    />
+                                    ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน
+                                </div>
+                            </div> */}
+                        </div>
+                    </div>
+                </div>
             </Modal>
+
         </div>
     )
 }

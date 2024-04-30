@@ -10,15 +10,14 @@ const LoginController = () => {
 
 	// ==================> handleLogin <=================
 	const handleLogin = async (username, password, isMobile, setLoading) => {
+		console.log("isMobile: ", isMobile)
 		try {
-			setLoading(true);
 			const { data } = await axios.post(`${Constant.SERVER_URL}/Authen/Login`, {
 				agentCode: Constant.AGEN_CODE,
 				username,
 				password,
 				ip: "1.2.3.4",
 			});
-
 			if (data.statusCode === 0) {
 				localStorage.setItem(Constant.LOGIN_TOKEN_DATA, data.data.token);
 				localStorage.setItem(
@@ -40,15 +39,18 @@ const LoginController = () => {
 					}),
 				);
 				if (isMobile === "MOBILE") {
-					setLoading(false);
+			setLoading(false);
 					history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
 				} else {
-					setLoading(false);
+			setLoading(false);
 					history.push(Constant.AFTER_LOGIN, data?.data);
 				}
+			} else {
+				setLoading(true);
 			}
 			return data;
 		} catch (error) {
+			setLoading(true);
 			console.log("🚀 ~ handleLogin ~ error:", error);
 		}
 	};
@@ -64,7 +66,6 @@ const LoginController = () => {
 		setLoading
 	) => {
 		try {
-			setLoading(true);
 			const _date = {
 				s_agent_code: Constant.AGEN_CODE,
 				s_phone: inputPhonenumber,
@@ -84,7 +85,6 @@ const LoginController = () => {
 				data: _date,
 			});
 			if (_resOne?.data?.statusCode === 0) {
-				setLoading(false);
 				const _resTwo = await axios({
 					method: "post",
 					url: `${Constant.SERVER_URL}/Member/Register/Confirm`,
@@ -99,7 +99,6 @@ const LoginController = () => {
 				});
 				console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data);
 				if (_resTwo?.data.statusCode === 0) {
-					setLoading(false);
 					const _resThree = await axios({
 						method: "post",
 						url: `${Constant.SERVER_URL}/Member/Balance`,
@@ -109,7 +108,6 @@ const LoginController = () => {
 						},
 					});
 					if (_resThree?.data.statusCode === 0) {
-						setLoading(false);
 						localStorage.setItem(
 							Constant.LOGIN_TOKEN_DATA,
 							_resTwo?.data?.data?.token,
@@ -120,10 +118,10 @@ const LoginController = () => {
 						);
 						if (isMobile === "MOBILE") {
 							setLoading(false);
-							history.push(Constant.AFTER_LOGIN_MOBILE, _resTwo?.data?.data);
 							_loginAfterRegister(
 								_resTwo?.data?.data?.s_username,
 								_resTwo?.data?.data?.s_password,
+								isMobile
 
 							);
 						} else {
@@ -131,8 +129,8 @@ const LoginController = () => {
 							_loginAfterRegister(
 								_resTwo?.data?.data?.s_username,
 								_resTwo?.data?.data?.s_password,
+								isMobile
 							);
-							history.push(Constant.AFTER_LOGIN, _resTwo?.data?.data);
 						}
 					}
 				}
@@ -140,23 +138,24 @@ const LoginController = () => {
 				return _resOne?.data;
 			}
 		} catch (error) {
+			setLoading(false);
 			console.log("🚀 ~ handleRegister ~ error:", error);
 		}
 	};
 
-	const _loginAfterRegister = async (username, password, isMobile, setLoading) => {
+	const _loginAfterRegister = async (username, password, isMobile) => {
 		try {
 			const _res = await axios({
 				method: "post",
 				url: `${Constant.SERVER_URL}/Authen/Login`,
 				data: {
 					agentCode: Constant.AGEN_CODE,
-					username: username, //"txnaa0003",
-					password: password, //"11111111",
-					ip: "1.2.3.4",
-				},
+					username: username,
+					password: password,
+					ip: "1.2.3.4"
+				}
 			});
-			if (_res?.data.statusCode === 0) {
+			if (_res?.data?.statusCode === 0) {
 				localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res.data.token);
 				localStorage.setItem(
 					Constant.LOGIN_USER_DATA,
@@ -177,11 +176,11 @@ const LoginController = () => {
 					}),
 				);
 				if (isMobile === "MOBILE") {
-					setLoading(false);
-					history.push(Constant.AFTER_LOGIN_MOBILE, _res?.data);
+					console.log("mobile: ", _res?.data)
+					history.push(Constant.AFTER_LOGIN_MOBILE, _res?.data?.data);
 				} else {
-					setLoading(false);
-					history.push(Constant.AFTER_LOGIN, _res?.data);
+					console.log("computer: ", _res?.data?.data)
+					history.push(Constant.AFTER_LOGIN, _res?.data?.data);
 				}
 				return null;
 			}

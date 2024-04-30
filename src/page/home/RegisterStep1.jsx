@@ -18,7 +18,7 @@ export default function RegisterStep1() {
     const [warningPassword, setWarningPassword] = useState("")
     const [warningFirstName, setWarningFirstName] = useState("")
     const [warningLastName, setWarningLastName] = useState("")
-    const [typePhone, setTypePhone] = useState("thai");
+    const [typePhone, setTypePhone] = useState("TH");
     const [placeholderText, setPlaceholderText] = useState("เบอร์โทรศัพท์ไทย");
     const [phoneCheck, setPhoneCheck] = useState("")
 
@@ -48,7 +48,7 @@ export default function RegisterStep1() {
         if (event.target.value === '' || re.test(event.target.value)) {
             setInputPhonenumber(event?.target?.value)
         }
-        if (event.target.value.length < 10 && typePhone === "thai") {
+        if (event.target.value.length < 10 && typePhone === "TH") {
             setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 10 หลัก");
         } else {
             setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
@@ -56,7 +56,7 @@ export default function RegisterStep1() {
     });
 
     const _selectTypePhone = (type) => {
-        if (type === "thai") {
+        if (type === "TH") {
             setPlaceholderText("เบอร์โทรศัพท์ไทย")
         } else {
             setPlaceholderText("เบอร์โทรศัพท์ลาว")
@@ -94,14 +94,14 @@ export default function RegisterStep1() {
                     <div className="phone-input">
                         <div className="input-container flexCenter">
                             <select onChange={(event) => _selectTypePhone(event.target?.value)} className="type-phone">
-                                <option value={"thai"}>ไทย</option>
-                                <option value={"lao"}>ลาว</option>
+                                <option value={"TH"}>TH</option>
+                                <option value={"LA"}>LA</option>
                             </select>
                             <input
                                 type="text"
                                 name="phone"
                                 id="phone"
-                                maxLength={typePhone === "thai" ? 10 : 13}
+                                maxLength={typePhone === "TH" ? 10 : 13}
                                 value={inputPhonenumber}
                                 placeholder={placeholderText}
                                 onChange={(event) => handleChangePhone(event)}
@@ -110,7 +110,7 @@ export default function RegisterStep1() {
                     </div>
                     <span style={{ color: "red" }} >
                         {inputPhonenumber !== "" ? "" : warningPhone}
-                        {inputPhonenumber !== "" ? typePhone === "thai" ?
+                        {inputPhonenumber !== "" ? typePhone === "TH" ?
                             (inputPhonenumber.length < 10 ? phoneCheck : "") :
                             (inputPhonenumber.length < 13 ? phoneCheck : "") : ""
                         }
@@ -161,7 +161,7 @@ export default function RegisterStep1() {
 
                 <button type='button' onClick={() => _clickNextStep()} className="next-step-button">ถัดไป</button>
 
-                <p style={{ marginTop: 8 }}>
+                <p style={{ marginTop: 8, textAlign: "center" }}>
                     คุณมีบัญชีอยู่แล้ว
                     <a href={Constant?.PAGE_LOGIN_MOBILE}>เข้าสู่ระบบ</a>
                 </p>
