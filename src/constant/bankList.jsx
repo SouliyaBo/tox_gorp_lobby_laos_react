@@ -86,7 +86,7 @@ export const BackList = [
     },
     {
         code: 20,
-        bankName: "ธนาคารการค้าต่างประเทศลาว",
-        backgroundColor: "#E60300"
+        bankName: "แอลดีบี ธนาคารพัฒนาลาว",
+        backgroundColor: "#0F8FD2"
     },
 ]

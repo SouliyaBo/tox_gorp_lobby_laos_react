@@ -5560,6 +5560,7 @@ button {
     font-weight: 600;
     color: #000;
     text-align: center;
+    text-decoration: none;
     margin-bottom: 15px;
 }
 .btn-cancel-confirm-logout {

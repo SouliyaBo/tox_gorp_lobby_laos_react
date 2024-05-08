@@ -50,6 +50,7 @@ export default function AfterLoginMobile() {
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
+        console.log("AAAAAA::: ", _data)
         if (_data) {
             setLogoWebsite(_data?.info?.configLobby?.s_logo)
             setLinkLine(_data?.info?.configLobby?.s_line)
@@ -66,7 +67,7 @@ export default function AfterLoginMobile() {
         setDeviceType(false)
         setDataSlider(history?.location?.state?.info?.promotionList);
         if (_data === undefined) {
-            history.push("/")
+            history.push(Constant?.HOME)
         }
     }, []);
 
@@ -2349,7 +2350,7 @@ export default function AfterLoginMobile() {
                                         <div>คุณต้องการออกจากระบบหรือไม่ ?</div>
                                     </div>
                                     <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                                        <button type="button" className="btn-confirm-logout" onClick={() => LogoutClearLocalStorage()}>ยืนยัน</button>
+                                        <a href="https://shun911.com" className="btn-confirm-logout" style={{ textDecoration: "none" }}>ยืนยัน</a>
                                         <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">ยกเลิก</button>
                                     </div>
                                 </div>

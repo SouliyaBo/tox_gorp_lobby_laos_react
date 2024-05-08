@@ -3,7 +3,7 @@ export default function Home() {
 
 	return (
 		<div>
-			<iframe src="https://test.shun808.com/slots/" title="landing page"></iframe>
+			<iframe src="https://wordpress.shun808.com/" title="landing page"></iframe>
 		</div>
 	);
 }

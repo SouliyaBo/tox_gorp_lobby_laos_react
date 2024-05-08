@@ -39,10 +39,10 @@ const LoginController = () => {
 					}),
 				);
 				if (isMobile === "MOBILE") {
-			setLoading(false);
+					setLoading(false);
 					history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
 				} else {
-			setLoading(false);
+					setLoading(false);
 					history.push(Constant.AFTER_LOGIN, data?.data);
 				}
 			} else {
@@ -54,6 +54,28 @@ const LoginController = () => {
 			console.log("🚀 ~ handleLogin ~ error:", error);
 		}
 	};
+	const loginPlayNow = async (username, password) => {
+			console.log("first: ", username)
+			console.log("second: ", password)
+        try {
+            let _res = await axios({
+                method: 'post',
+                url: `${Constant.SERVER_URL}/Authen/Login`,
+                data: {
+                    "agentCode": Constant?.AGENT_CODE,
+                    "username": username,
+                    "password": password,
+                    "ip": "1.2.3.4"
+                },
+			});
+			console.log("_res?.data.statusCode::: ", _res?.data)
+            if (_res?.data.statusCode === 0) {
+               history.push(Constant.AFTER_LOGIN, _res?.data?.data);
+            }
+        } catch (error) {
+            console.log("🚀 ~ const_login= ~ error:", error)
+        }
+    }
 	// ==================> handleRegister <=================
 	const handleRegister = async (
 		inputFirstname,
@@ -261,6 +283,7 @@ const LoginController = () => {
 		handleRegister,
 		loginWithToken,
 		ChangePassword,
+		loginPlayNow
 	};
 };
 export default LoginController;

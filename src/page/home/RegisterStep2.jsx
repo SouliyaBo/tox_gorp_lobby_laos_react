@@ -82,21 +82,19 @@ export default function RegisterStep2() {
     };
 
     const handleChangeBank = useCallback((event) => {
-        const re = /^[0-9\b]+$/;
-        if (event.target.value === "" || re.test(event.target.value)) {
-            setInputBank(event?.target?.value);
-        }
+        setInputBank(event?.target?.value);
+
     });
     return (
         <div>
             <main className="register-page flexCenter">
-                <img
-                    src="/assets/icons/home-icon.svg"
-                    id="mobile-home-button"
-                    alt="home-icon"
-                    onClick={() => history.push(Constant.HOME)}
-                    onKeyDown={() => ""}
-                />
+                <a href='https://wordpress.shun808.com/'>
+                    <img
+                        src="/assets/icons/home-icon.svg"
+                        id="mobile-home-button"
+                        alt="home-icon"
+                    />
+                </a>
                 <img
                     className="logo"
                     src="/assets/images/Logo.png"
@@ -288,7 +286,7 @@ export default function RegisterStep2() {
                             onClick={() => setBankCode(20)}
                             onKeyDown={() => ""}
                             className="bank-item"
-                            src="/assets/icons/login/bcel.png"
+                            src="/assets/images/bank/ldb.png"
                             id="bank1"
                             alt="icon"
                         />
@@ -322,8 +320,6 @@ export default function RegisterStep2() {
                                 name="bank"
                                 id="bank"
                                 type="text"
-                                maxlength={10}
-                                value={inputBank}
                                 placeholder="เลขบัญชีธนาคาร"
                                 onChange={(e) => handleChangeBank(e)}
                             />

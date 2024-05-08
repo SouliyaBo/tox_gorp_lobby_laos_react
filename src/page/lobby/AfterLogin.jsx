@@ -27,6 +27,7 @@ import { errorAdd, successAdd } from "../../helper/sweetalert";
 
 export default function AfterLogin() {
     const history = useHistory();
+    console.log("history======>", history?.location)
 
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -145,7 +146,7 @@ export default function AfterLogin() {
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
-        console.log("_data: ", _data?.info)
+        console.log("_data: ", _data)
 
         if (_data) {
             setLogoWebsite(_data?.info?.configLobby?.s_logo)
@@ -162,7 +163,7 @@ export default function AfterLogin() {
         }
         setDataSlide(history?.location?.state?.info?.promotionList);
         if (_data === undefined) {
-            history.push("/")
+            history.push(Constant?.HOME)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -3337,7 +3338,7 @@ export default function AfterLogin() {
                                     <div>คุณต้องการออกจากระบบหรือไม่ ?</div>
                                 </div>
                                 <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                                    <button type="button" className="btn-confirm-logout" onClick={() => LogoutClearLocalStorage()}>ยืนยัน</button>
+                                    <a href="https://wordpress.shun808.com/" className="btn-confirm-logout"> ยืนยัน</a>
                                     <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">ยกเลิก</button>
                                 </div>
                             </div>

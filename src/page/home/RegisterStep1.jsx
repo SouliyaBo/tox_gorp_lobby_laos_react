@@ -7,8 +7,6 @@ import Constant from "../../constant";
 export default function RegisterStep1() {
     const history = useHistory()
     const parsed = queryString.parse(history?.location?.search);
-
-
     const [inputPhonenumber, setInputPhonenumber] = useState("")
     const [inputPassword, setInputPassword] = useState("")
     const [inputFirstname, setInputFirstname] = useState("")
@@ -67,13 +65,14 @@ export default function RegisterStep1() {
     return (
         <div>
             <main className="register-page flexCenter">
-                <a href={Constant?.HOME}>
+                <a href='https://wordpress.shun808.com/'>
                     <img
                         src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"
                         alt="home-icon"
                     />
                 </a>
+
                 <img className="logo" src="/assets/images/Logo.png" alt="logo" />
 
                 <div className="progress-step-container flexCenter">

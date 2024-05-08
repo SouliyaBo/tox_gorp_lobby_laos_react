@@ -1,17 +1,30 @@
 import React, { useState, useEffect } from "react";
 import constant from "../../constant";
 import _LoginController from "../../api/login";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import Swal from 'sweetalert2'
+import Constant from "../../constant";
+import { EncriptBase64 } from '../../helper';
 
 export default function LoginPageMobile() {
     const history = useHistory();
+    const UseParams = useParams();
     const [userNameInput, setUserNameInput] = useState();
     const [passwordInput, setPasswordInput] = useState();
     const [messageCreate, setMessageCreate] = useState();
     const [deviceType, setDeviceType] = useState(false);
 
-    const { handleLogin } = _LoginController();
+    const { handleLogin, loginPlayNow } = _LoginController();
+    useEffect(() => {
+        if (UseParams?.token) {
+            let _res = EncriptBase64(UseParams?.token)
+            if (_res?.agentCode && _res?.username && _res?.password) {
+                console.log("RES: ", _res)
+                loginPlayNow(_res?.username, _res?.password)
+            }
+        }
+    }, [UseParams?.token])
+
     useEffect(() => {
         let hasTouchScreen = false;
         if ("maxTouchPoints" in navigator) {
@@ -72,9 +85,10 @@ export default function LoginPageMobile() {
     return (
         <div>
             <main className="login-page flexCenter">
-                <a href={constant?.HOME}>
+                <a href='https://wordpress.shun808.com/'>
                     <img
-                        src="../assets/icons/home-icon.svg"
+                        onClick={() => history.push(Constant.HOME)}
+                        src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"
                         alt="home-icon"
                     />
@@ -105,7 +119,7 @@ export default function LoginPageMobile() {
                 <div className="phone-input" style={{ marginTop: 18 }}>
                     {/* <small>กรุณากรอก รหัสผ่าน</small> */}
                     <div className="input-container flexCenter">
-                        <img src="../assets/icons/lock-alt.svg" alt="lock icon" />
+                        <img src="/assets/icons/lock-alt.svg" alt="lock icon" />
                         <label for="password" />
                         <input
                             name="password"
