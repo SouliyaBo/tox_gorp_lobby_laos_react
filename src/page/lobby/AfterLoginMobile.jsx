@@ -9,6 +9,7 @@ import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout
 import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
+import QRCode from 'qrcode.react';
 
 export default function AfterLoginMobile() {
     const history = useHistory();
@@ -46,6 +47,7 @@ export default function AfterLoginMobile() {
     const [percentageData, setPercentageData] = useState([]);
     const [logoWebsite, setLogoWebsite] = useState("");
     const [linkLine, setLinkLine] = useState("");
+    const [numberQRCode, setNumberQRCode] = useState("");
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -56,6 +58,7 @@ export default function AfterLoginMobile() {
             setLinkLine(_data?.info?.configLobby?.s_line)
             setDataFromLogin(_data);
             setDepositBankList(_data?.info?.bankDeposit[0])
+            getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
             const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
             setSliderData(slideArray)
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
@@ -107,6 +110,16 @@ export default function AfterLoginMobile() {
         return () => clearInterval(interval);
     }, [current]);
 
+    const _getOptionBankQR = (bankName) => {
+        getQRCode(bankName)
+    }
+
+    const getQRCode = async (accountNumber) => {
+        const _data = await axios.post(`${Constant.SERVER_URL}/genarate-qr-code/${Constant.AGENT_CODE}`, {
+            recipientAccountNum: accountNumber
+        });
+        setNumberQRCode(_data?.data?.data?.respData?.qrCode)
+    }
     const _getData = async () => {
         const _res = await axios({
             method: "post",
@@ -1112,15 +1125,15 @@ export default function AfterLoginMobile() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {/* <div style={{ cursor: 'pointer' }} data-bs-toggle="modal" data-bs-target="#leaveAdecimal"
+                                            <div style={{ cursor: 'pointer' }} data-bs-toggle="modal" data-bs-target="#leaveAdecimal"
                                                 data-bs-dismiss="modal">
                                                 <div className="type-of-withdrawal">
                                                     <div className="withdrawal">
-                                                        <img src="/assets/images/Leave a-decimal.svg" alt="kkk" />
-                                                        <div>ฝากทศนิยม</div>
+                                                        <img style={{ width: 30 }} src="/assets/images/qrpay.png" alt="kkk" />
+                                                        <div>QR Code</div>
                                                     </div>
                                                 </div>
-                                            </div> */}
+                                            </div>
                                             <div style={{ cursor: 'pointer' }} data-bs-toggle="modal" data-bs-target="#withdraw" data-bs-dismiss="modal">
                                                 <div className="type-of-withdrawal">
                                                     <div className="withdrawal">
@@ -1269,41 +1282,33 @@ export default function AfterLoginMobile() {
                                     <div className="modal-header">
                                         <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
                                             data-bs-target="#depositWithdraw" data-bs-dismiss="modal" />
-                                        <p className="modal-title" id="leaveAdecimal">ฝากทศนิยม</p>
+                                        <p className="modal-title" id="leaveAdecimal">QR Code</p>
                                         <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
                                             aria-label="Close" alt="" />
                                     </div>
                                 </div>
-                                <div className="modal-body">
-                                    <div style={{ padding: 20, marginTop: 20, fontSize: 13 }}>
-                                        <ul>
-                                            <li>ฝากขั้นต่ำ 1.00 บาท สูงสุด 2,000.00 บาท</li>
-                                        </ul>
+                                <div className="modal-body" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                    <div style={{ marginTop: 30, }}>
+                                        <select
+                                            onChange={(e) => _getOptionBankQR(e.target.value)}
+                                        >
+                                            {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                                <option key={bank?.index} value={bank?.s_account_no}>{bank?.s_fname_th}</option>
+                                            ))}
+
+                                        </select>
                                     </div>
-                                    <div style={{ width: "100%" }}>
-                                        <input type="text" className="text-amount-money" placeholder="กรอกจำนวนเงินที่ต้องการฝาก" />
-                                        <p style={{ color: "#ff0000" }}>กรุณากรอกข้อมูล</p>
+                                    <div style={{ width: 150, marginTop: 20, background: "#FFFF", padding: 12, borderRadius: 8, display: "flex", justifyContent: "center" }}>
+                                        <QRCode value={numberQRCode} />
                                     </div>
-                                    <div>
-                                        <div className="confirm-the-amount" style={{ cursor: "pointer" }} data-bs-toggle="modal"
-                                            data-bs-target="#leaveAdecimal1" data-bs-dismiss="modal">
-                                            <div>ยืนยันจำนวนเงิน</div>
+                                    <div style={{ marginTop: 20 }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <div>ซื่อธนาคาร: </div>
+                                            <div>{depositBankList && depositBankList?.s_fname_th}</div>
                                         </div>
-                                    </div>
-                                    <div style={{ textAlign: 'center', marginTop: 10 }}>
-                                        <div>
-                                            พบปัญหา
-                                            <span style={{
-                                                color: 'rgba(0, 252, 252, 1)',
-                                                textDecoration: 'underline',
-                                                cursor: 'pointer',
-                                            }}>ติดต่อฝ่ายบริการลูกค้า</span>
-                                        </div>
-                                    </div>
-                                    <div className="button-line" style={{ cursor: 'pointer', width: '95%', margin: '0 auto' }}>
-                                        <div>
-                                            <img src="/assets/icons/icon-line.svg" alt="line" /> ไลน์บอท /
-                                            แจ้งเตือนยอดฝาก - ถอน
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <div>เลขบัญชี:</div>
+                                            <div>{depositBankList && depositBankList?.s_account_no}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -2350,7 +2355,7 @@ export default function AfterLoginMobile() {
                                         <div>คุณต้องการออกจากระบบหรือไม่ ?</div>
                                     </div>
                                     <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                                        <a href="https://shun911.com" className="btn-confirm-logout" style={{ textDecoration: "none" }}>ยืนยัน</a>
+                                        <a href={Constant?.LINK_WORDPRESS} className="btn-confirm-logout" style={{ textDecoration: "none" }}>ยืนยัน</a>
                                         <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">ยกเลิก</button>
                                     </div>
                                 </div>

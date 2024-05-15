@@ -86,7 +86,37 @@ export const BackList = [
     },
     {
         code: 20,
-        bankName: "แอลดีบี ธนาคารพัฒนาลาว",
+        bankName: "JDB",
         backgroundColor: "#0F8FD2"
+    },
+    {
+        code: 21,
+        bankName: "LVB",
+        backgroundColor: "#0F8FD2"
+    },
+    {
+        code: 22,
+        bankName: "IDB",
+        backgroundColor: "#0F8FD2"
+    },
+    {
+        code: 23,
+        bankName: "STB",
+        backgroundColor: "#0F8FD2"
+    },
+    {
+        code: 24,
+        bankName: "APB",
+        backgroundColor: "#0F8FD2"
+    },
+    {
+        code: 25,
+        bankName: "LDB",
+        backgroundColor: "#0F8FD2"
+    },
+    {
+        code: 26,
+        bankName: "BCEL One",
+        backgroundColor: "#E71A26"
     },
 ]

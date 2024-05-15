@@ -43,8 +43,6 @@ export default function RegisterStep2() {
             setDeviceType("DESKTOP");
             // console.log("Desktop: ");
         }
-
-
     }, []);
 
     const CreateUser = async () => {
@@ -88,7 +86,7 @@ export default function RegisterStep2() {
     return (
         <div>
             <main className="register-page flexCenter">
-                <a href='https://wordpress.shun808.com/'>
+                <a href={Constant?.LINK_WORDPRESS}>
                     <img
                         src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"
@@ -97,7 +95,7 @@ export default function RegisterStep2() {
                 </a>
                 <img
                     className="logo"
-                    src="/assets/images/Logo.png"
+                    src={Constant?.LOGO_WEB}
                     alt="logo"
                 />
 
@@ -243,7 +241,7 @@ export default function RegisterStep2() {
                     </div>
                     <div style={{ opacity: bankCode === 15 ? 1 : 0.5 }} className={bankCode === 15 ? "active-bank" : ""}>
                         <img
-                            onClick={() => setBankCode(16)}
+                            onClick={() => setBankCode(15)}
                             onKeyDown={() => ""}
                             className="bank-item"
                             src="/assets/icons/icon-bank-active/ghb16.png"
@@ -253,7 +251,7 @@ export default function RegisterStep2() {
                     </div>
                     <div style={{ opacity: bankCode === 16 ? 1 : 0.5 }} className={bankCode === 16 ? "active-bank" : ""}>
                         <img
-                            onClick={() => setBankCode(17)}
+                            onClick={() => setBankCode(16)}
                             onKeyDown={() => ""}
                             className="bank-item"
                             src="/assets/icons/icon-bank-active/cimb17.png"
@@ -286,7 +284,67 @@ export default function RegisterStep2() {
                             onClick={() => setBankCode(20)}
                             onKeyDown={() => ""}
                             className="bank-item"
+                            src="/assets/images/bank/jdb.png"
+                            id="bank1"
+                            alt="icon"
+                        />
+                    </div>
+                    <div style={{ opacity: bankCode === 21 ? 1 : 0.5 }} className={bankCode === 21 ? "active-bank" : ""}>
+                        <img
+                            onClick={() => setBankCode(21)}
+                            onKeyDown={() => ""}
+                            className="bank-item"
+                            src="/assets/images/bank/lvb.png"
+                            id="bank1"
+                            alt="icon"
+                        />
+                    </div>
+                    <div style={{ opacity: bankCode === 22 ? 1 : 0.5 }} className={bankCode === 22 ? "active-bank" : ""}>
+                        <img
+                            onClick={() => setBankCode(22)}
+                            onKeyDown={() => ""}
+                            className="bank-item"
+                            src="/assets/images/bank/idb.png"
+                            id="bank1"
+                            alt="icon"
+                        />
+                    </div>
+                    <div style={{ opacity: bankCode === 23 ? 1 : 0.5 }} className={bankCode === 23 ? "active-bank" : ""}>
+                        <img
+                            onClick={() => setBankCode(23)}
+                            onKeyDown={() => ""}
+                            className="bank-item"
+                            src="/assets/images/bank/stb.png"
+                            id="bank1"
+                            alt="icon"
+                        />
+                    </div>
+                    <div style={{ opacity: bankCode === 24 ? 1 : 0.5 }} className={bankCode === 24 ? "active-bank" : ""}>
+                        <img
+                            onClick={() => setBankCode(24)}
+                            onKeyDown={() => ""}
+                            className="bank-item"
+                            src="/assets/images/bank/apb.png"
+                            id="bank1"
+                            alt="icon"
+                        />
+                    </div>
+                    <div style={{ opacity: bankCode === 25 ? 1 : 0.5 }} className={bankCode === 25 ? "active-bank" : ""}>
+                        <img
+                            onClick={() => setBankCode(25)}
+                            onKeyDown={() => ""}
+                            className="bank-item"
                             src="/assets/images/bank/ldb.png"
+                            id="bank1"
+                            alt="icon"
+                        />
+                    </div>
+                    <div style={{ opacity: bankCode === 26 ? 1 : 0.5 }} className={bankCode === 26 ? "active-bank" : ""}>
+                        <img
+                            onClick={() => setBankCode(26)}
+                            onKeyDown={() => ""}
+                            className="bank-item"
+                            src="/assets/images/bank/bcel.png"
                             id="bank1"
                             alt="icon"
                         />
@@ -297,8 +355,7 @@ export default function RegisterStep2() {
                         <div className="input-container flexCenter" style={{ marginTop: 10 }}>
                             <label for="phone" />
                             <select
-                                style={{ background: "transparent", border: 0, color: '#FFF' }}
-                                id="bank"
+                                id="customSelect"
                                 value={bankCode}
                                 placeholder="เลขบัญชีธนาคาร"
                                 onChange={(event) =>

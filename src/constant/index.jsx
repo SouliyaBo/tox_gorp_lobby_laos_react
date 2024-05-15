@@ -17,7 +17,8 @@ module.exports = {
 
 
 
-
+    LOGO_WEB: "/assets/images/Logo.png",
+    LINK_WORDPRESS: "https://wordpress.shun808.com",
     LOGIN_TOKEN_DATA: "TOX_LOBBY_TOKEN",
     LOGIN_USER_DATA: "TOX_LOBBY_DATA",
 

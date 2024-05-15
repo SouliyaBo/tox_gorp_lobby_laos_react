@@ -5620,4 +5620,34 @@ iframe {
   width: 100dvw;
   height: 100dvh;
   border: none;
+  display: flex;
+
 }
+
+#customSelect {
+    -webkit-appearance: none; /* Remove default arrow in WebKit browsers */
+    -moz-appearance: none;    /* Remove default arrow in Firefox */
+    /* appearance: none;        Remove default arrow in modern browsers */
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 0;
+    border-radius: 5px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px 10px;
+    outline: none;
+    cursor: pointer;
+    color: #FFF;
+}
+
+#customSelect option {
+    background-color: #433D3D; /* Change option background */
+    color: #FFF; /* Change option text color */
+}
+
+#customSelect:focus {
+    border-color: #007BFF; /* Change border color on focus */
+}
+

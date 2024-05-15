@@ -65,7 +65,7 @@ export default function RegisterStep1() {
     return (
         <div>
             <main className="register-page flexCenter">
-                <a href='https://wordpress.shun808.com/'>
+                <a href={Constant?.LINK_WORDPRESS}>
                     <img
                         src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"
@@ -73,7 +73,7 @@ export default function RegisterStep1() {
                     />
                 </a>
 
-                <img className="logo" src="/assets/images/Logo.png" alt="logo" />
+                <img className="logo" src={Constant?.LOGO_WEB} alt="logo" />
 
                 <div className="progress-step-container flexCenter">
                     <div className="progress-step flexCenter">

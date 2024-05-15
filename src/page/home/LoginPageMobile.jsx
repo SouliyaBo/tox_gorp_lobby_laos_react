@@ -85,7 +85,7 @@ export default function LoginPageMobile() {
     return (
         <div>
             <main className="login-page flexCenter">
-                <a href='https://wordpress.shun808.com/'>
+                <a href={Constant?.LINK_WORDPRESS}>
                     <img
                         onClick={() => history.push(Constant.HOME)}
                         src="/assets/icons/home-icon.svg"
@@ -95,7 +95,7 @@ export default function LoginPageMobile() {
                 </a>
                 <img
                     className="logo"
-                    src="/assets/images/Logo.png"
+                    src={Constant?.LOGO_WEB}
                     alt="banner"
                 />
 
