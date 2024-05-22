@@ -28,7 +28,7 @@ function RouterLink() {
         <Switch>
           <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE} component={LoginPageMobile} />
           <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE + "affiliate"} component={LoginPageMobile} />
-          <PublicRoute exact path={Const.PAGE_LOGIN_CAN_LOGIN_PLAY + "/:token"} component={LoginPageMobile} />
+          <PublicRoute exact path={Const.PAGE_LOGIN_CAN_LOGIN_PLAY + "/:token"} component={Home} />
           <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE} component={RegisterStep1} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP1} component={RegisterStep1} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP2} component={RegisterStep2} />

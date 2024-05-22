@@ -86,32 +86,32 @@ export const BackList = [
     },
     {
         code: 20,
-        bankName: "JDB",
-        backgroundColor: "#0F8FD2"
+        bankName: "Joint Development Bank",
+        backgroundColor: "#0A509B"
     },
     {
         code: 21,
-        bankName: "LVB",
-        backgroundColor: "#0F8FD2"
+        bankName: "Lao viet Bank",
+        backgroundColor: "#174598"
     },
     {
         code: 22,
-        bankName: "IDB",
-        backgroundColor: "#0F8FD2"
+        bankName: "IB Cool",
+        backgroundColor: "#47027A"
     },
     {
         code: 23,
-        bankName: "STB",
-        backgroundColor: "#0F8FD2"
+        bankName: "STB Bank",
+        backgroundColor: "#0903F7"
     },
     {
         code: 24,
-        bankName: "APB",
-        backgroundColor: "#0F8FD2"
+        bankName: "AGRICULTURAL PROMOTION BANK Co.,Ltd",
+        backgroundColor: "#28857A"
     },
     {
         code: 25,
-        bankName: "LDB",
+        bankName: "Lao Development Bank",
         backgroundColor: "#0F8FD2"
     },
     {

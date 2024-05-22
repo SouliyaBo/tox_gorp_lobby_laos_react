@@ -10,6 +10,7 @@ import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
 import QRCode from 'qrcode.react';
+import jsQR from 'jsqr';
 
 export default function AfterLoginMobile() {
     const history = useHistory();
@@ -33,7 +34,7 @@ export default function AfterLoginMobile() {
     const [show, setShow] = useState(false);
     const handleShow = () => setShow(true);
     const [nextSliderPage, setNextSliderPage] = useState(0)
-    const [dataSlider, setDataSlider] = useState(0)
+    const [dataPromotion, setDataPromotion] = useState(0)
     const [maxLevel, setMaxLevel] = useState();
     const [historyCashBack, setHistoryCashBack] = useState([]);
     const [codeCupon, setCodeCupon] = useState("");
@@ -48,6 +49,11 @@ export default function AfterLoginMobile() {
     const [logoWebsite, setLogoWebsite] = useState("");
     const [linkLine, setLinkLine] = useState("");
     const [numberQRCode, setNumberQRCode] = useState("");
+    const [file, setFile] = useState(null);
+    const [bankAgentCode, setBankAgentCode] = useState("");
+    const [ipAddress, setIpAddress] = useState('');
+    const [errorTextUploadSlip, setErrorTextUploadSlip] = useState('');
+    const [promotionCode, setPromotionCode] = useState('');
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -60,7 +66,8 @@ export default function AfterLoginMobile() {
             setDepositBankList(_data?.info?.bankDeposit[0])
             getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
             const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-            setSliderData(slideArray)
+            const newSlideArray = slideArray.filter(data => data.s_position === "page_wallet");
+            setSliderData(newSlideArray)
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
             if (color?.length > 0) {
                 setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
@@ -68,7 +75,7 @@ export default function AfterLoginMobile() {
 
         }
         setDeviceType(false)
-        setDataSlider(history?.location?.state?.info?.promotionList);
+        setDataPromotion(history?.location?.state?.info?.promotionList);
         if (_data === undefined) {
             history.push(Constant?.HOME)
         }
@@ -375,10 +382,10 @@ export default function AfterLoginMobile() {
     }
 
     const _newSl = (value) => {
-        if (dataSlider?.length > 0) {
+        if (dataPromotion?.length > 0) {
             if (value === "ADD") {
-                if (nextSliderPage === dataSlider.length - 1) {
-                    setNextSliderPage(dataSlider.length - 1)
+                if (nextSliderPage === dataPromotion.length - 1) {
+                    setNextSliderPage(dataPromotion.length - 1)
                 } else {
                     setNextSliderPage(nextSliderPage + 1)
                 }
@@ -500,7 +507,90 @@ export default function AfterLoginMobile() {
         }
         setPercentageData(data);
     }
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
 
+    const uploadFile = async () => {
+        if (!file) return;
+
+        const _URL = window.URL || window.webkitURL;
+        const url = _URL.createObjectURL(file);
+        console.log("A");
+        const imgData = await uploadSlip(url);
+        document.getElementById('fileslip').value = '';
+        if (imgData != null) {
+            try {
+                const response = await axios.post(`${Constant.SERVER_URL}/Deposit/Slip`, {
+                    actionBy: dataFromLogin?.username,
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                    qrcode: imgData.data,
+                    i_bank_agent: bankAgentCode,
+                    i_ip: ipAddress,
+                    s_prm_code: promotionCode,
+                });
+                console.log("response: ", response)
+                setErrorTextUploadSlip(response?.data?.statusDesc)
+                notify(response.data);
+            } catch (error) {
+                console.error("AAAA", error);
+            }
+        } else {
+            notify({ statusDesc: 'Failed to read QR code' });
+        }
+    };
+
+    const uploadSlip = async (url) => {
+        console.log("url: ", url)
+        let imgData = null;
+        const minScale = 0.75;
+        const maxScale = 5;
+        const step = 0.25;
+        let currentScale = minScale;
+        do {
+            imgData = await addImageProcess(url, currentScale);
+            currentScale += step;
+        } while (imgData === null && currentScale <= maxScale);
+
+        return imgData;
+    };
+
+    const addImageProcess = (src, scale) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.floor(img.width * scale);
+                canvas.height = Math.floor(img.height * scale);
+
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const pixels = imgData.data;
+                for (let i = 0; i < pixels.length; i += 4) {
+                    const lightness = parseInt((pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3);
+                    pixels[i] = lightness;
+                    pixels[i + 1] = lightness;
+                    pixels[i + 2] = lightness;
+                }
+                ctx.putImageData(imgData, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
+                resolve(code);
+            };
+            img.onerror = reject;
+            img.src = src;
+        });
+    };
+
+    const notify = (data) => {
+        console.log(data);
+    };
 
     return (
         <div>
@@ -762,12 +852,12 @@ export default function AfterLoginMobile() {
                                 <p>Username:</p>
                                 <p>{dataFromLogin?.username}</p>
                             </div>
-                            <div className="flexBetween">
+                            {/* <div className="flexBetween">
                                 <p>Phone :</p>
                                 <p>
                                     {dataFromLogin?.info?.s_phone}
                                 </p>
-                            </div>
+                            </div> */}
                             <div className="balance">
                                 <small>
                                     ยอดเงินคงเหลือ
@@ -883,7 +973,7 @@ export default function AfterLoginMobile() {
                                         fontSize: 13,
                                     }}
                                 >
-                                    ติดต่อพนักงาน
+                                    ติดต่อเรา
                                 </a>
                             </div>
                             <div
@@ -1244,9 +1334,11 @@ export default function AfterLoginMobile() {
                                     </div>
 
                                     <div>
-                                        <div className="button-validationt">
-                                            <div style={{ color: "white" }}>
-                                                กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                        <div data-bs-toggle="modal" data-bs-target="#slipVerify" >
+                                            <div className="btn-slip">
+                                                <div style={{ color: "white" }}>
+                                                    <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" /> แจ้งเงินไม่เข้า /แบบสลิป
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1260,12 +1352,12 @@ export default function AfterLoginMobile() {
                                             }}>ติดต่อฝ่ายบริการลูกค้า</span>
                                         </div>
                                     </div>
-                                    <div className="button-line" style={{ margin: "0 auto", width: "95%" }}>
+                                    {/* <div className="button-line" style={{ margin: "0 auto", width: "95%" }}>
                                         <div>
                                             <img src="/assets/icons/icon-line.svg" alt="line" /> ไลน์บอท /
                                             แจ้งเตือนยอดฝาก - ถอน
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -1508,36 +1600,26 @@ export default function AfterLoginMobile() {
                                         <p className="warning-text">
                                             *ใช้ในกรณีที่ธนาคารมีปัญหาหรือยอดฝากไม่เข้า*
                                         </p>
-                                        <div className="bank-selector">
-                                            <label for="name">เลือกธนาคารบัญชีฝาก</label>
-                                            <div className="flexCenter" style={{ gap: 8 }}>
-                                                <div className="flexCenter" style={{ width: "20%" }}>
-                                                    <img src="/assets/icons/icon-bank-default/Ellipse 10.svg" alt="bank icon" width="33" height="33" />
-                                                    {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-                                                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M12.5442 17.1414L6.28711 10.9062H18.8013L12.5442 17.1414Z" fill="#FF9900" />
-                                                    </svg>
-                                                </div>
-                                                <input style={{ width: "80%" }} type="text" name="name" id="name" placeholder="นาย ปปปปป ปปปปป" />
-                                            </div>
+                                        <select className="select-promotion" onChange={(event) => setBankAgentCode(event?.target?.value)}>
+                                            <option>เลือกธนาคาร</option>
+                                            {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                                <option key={bank?.index} value={bank?.i_bank}>{bank?.s_fname_th}</option>
+                                            ))}
+                                        </select>
+                                        <select className="select-promotion" onChange={(event) => setPromotionCode(event?.target?.value)}>
+                                            <option>เลือกโปรโมชั่น</option>
+                                            {dataPromotion?.length > 0 && dataPromotion?.map((promotion) => (
+                                                <option key={promotion?.index} value={promotion?.s_code}>{promotion?.s_promotion}</option>
+                                            ))}
+                                        </select>
+                                        <div>
+                                            <input id="fileslip" onChange={handleFileChange} style={{ background: "#FFF", color: "#000", width: "100%" }} type="file" />
                                         </div>
-
-                                        <div className="bank-input">
-                                            <label for="bank">เลือกธนาคารที่ทำรายการฝาก</label>
-                                            <input type="text" name="bank" placeholder="เลือกธนาคาร" />
-                                        </div>
-                                        <div className="bank-input">
-                                            <label for="bank">กรุณากรอกข้อมูล</label>
-                                            <input type="text" name="bank" placeholder="0" />
-                                            <small>กรอกจำนวนเงินตามสลิป</small>
-                                        </div>
-                                        <div className="bank-input">
-                                            <label for="bank">กรุณากรอกข้อมูล</label>
-                                            <input type="text" name="bank" placeholder="0" />
-                                            <small>วันที่ทำรายการฝาก</small>
-                                        </div>
-
-                                        <button type='button' className="button-warning">ยืนยันยอดฝาก</button>
+                                        <p style={{ color: "red" }}>{errorTextUploadSlip}</p>
+                                        <button type='button' style={{ width: 120 }} onClick={uploadFile} className="button-warning">
+                                            <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-send-50.png" alt="send" />
+                                            ส่งสลิป
+                                        </button>
                                         <p>พบปัญหา <a href="/">ติดต่อฝ่ายบริการลูกค้า</a></p>
                                     </div>
                                 </div>
@@ -1592,7 +1674,7 @@ export default function AfterLoginMobile() {
                                             {dataHistoryDeposit?.length > 0 && dataHistoryDeposit?.map((deposit) => (
                                                 <div className="history-list">
                                                     <div className="history-list-left">
-                                                        <label className="history-list-label">รายการถอน</label>
+                                                        <label className="history-list-label">รายการฝาก</label>
                                                         <p className="history-list-label">{deposit?.f_amount}</p>
                                                         <p className="history-list-label">หมายเหตุ : {deposit?.s_remark}</p>
                                                     </div>
@@ -1626,7 +1708,7 @@ export default function AfterLoginMobile() {
                                             {dataHistoryBonus?.length > 0 && dataHistoryBonus?.map((bonus) => (
                                                 <div className="history-list">
                                                     <div className="history-list-left">
-                                                        <label className="history-list-label">รายการถอน</label>
+                                                        <label className="history-list-label">รายการโบนัส</label>
                                                         <p className="history-list-label">{bonus?.f_amount}</p>
                                                         <p className="history-list-label">หมายเหตุ : {bonus?.s_remark}</p>
                                                     </div>
@@ -1666,9 +1748,9 @@ export default function AfterLoginMobile() {
                                                 <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: '#FFF', fontSize: 25 }} />
                                             </div>
                                             <div style={{ padding: 20 }}>
-                                                {dataSlider?.length > 0 && (
+                                                {dataPromotion?.length > 0 && (
                                                     <img
-                                                        src={`data:image/jpeg;base64,${dataSlider[nextSliderPage]?.s_source_img}`}
+                                                        src={`data:image/jpeg;base64,${dataPromotion[nextSliderPage]?.s_source_img}`}
                                                         className="promotion-modal-image"
                                                         alt=""
                                                         style={{ width: "100%", }}
@@ -1693,7 +1775,7 @@ export default function AfterLoginMobile() {
                                                     width: 100,
                                                 }}
                                                 onKeyDown={() => ""}
-                                                onClick={() => approverPromotion(dataSlider[nextSliderPage])}
+                                                onClick={() => approverPromotion(dataPromotion[nextSliderPage])}
                                             >รับโบนัส</button>
                                         </div>
                                     </div>

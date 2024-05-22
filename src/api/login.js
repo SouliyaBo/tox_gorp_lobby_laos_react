@@ -83,6 +83,7 @@ const LoginController = () => {
 		inputPhonenumber,
 		inputPassword,
 		inputBank,
+		iBank,
 		ref,
 		isMobile,
 		setLoading
@@ -92,7 +93,7 @@ const LoginController = () => {
 				s_agent_code: Constant.AGEN_CODE,
 				s_phone: inputPhonenumber,
 				s_password: inputPassword,
-				i_bank: "1", //scb =1
+				i_bank: iBank, //scb =1
 				s_account_no: inputBank,
 				s_channel: "GOOGLE",
 				s_line: "line@",
@@ -149,6 +150,7 @@ const LoginController = () => {
 
 							);
 						} else {
+							console.log("play backend")
 							setLoading(false);
 							_loginAfterRegister(
 								_resTwo?.data?.data?.s_username,

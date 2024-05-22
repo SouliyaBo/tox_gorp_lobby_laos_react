@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import jsQR from 'jsqr';
 import {
     faChevronCircleLeft,
     faChevronCircleRight,
@@ -25,10 +26,10 @@ import { BackList } from "../../constant/bankList";
 import _LoginController from "../../api/login";
 import { errorAdd, successAdd } from "../../helper/sweetalert";
 import QRCode from 'qrcode.react';
+import Roulette from "../../component/Roulette";
+
 export default function AfterLogin() {
     const history = useHistory();
-    console.log("history======>", history?.location)
-
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
@@ -37,7 +38,7 @@ export default function AfterLogin() {
     const [reMessage, setReMessage] = useState("");
     const [maxLevel, setmaxLevel] = useState();
     const [historyCashBack, setHistoryCashBack] = useState([]);
-    const [dataSlide, setDataSlide] = useState([]);
+    const [dataPromotion, setDataPromotion] = useState([]);
     const [disableArrow, setDisableArrow] = useState(false);
     const { ChangePassword } = _LoginController();
     const [dataFromLogin, setDataFromLogin] = useState({});
@@ -56,7 +57,6 @@ export default function AfterLogin() {
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
 
     const [oldPassword, setOldPassword] = useState("");
     const [NewPassword, setNewPassword] = useState("");
@@ -64,6 +64,14 @@ export default function AfterLogin() {
     const [logoWebsite, setLogoWebsite] = useState("");
     const [linkLine, setLinkLine] = useState("");
     const [numberQRCode, setNumberQRCode] = useState("");
+    const [file, setFile] = useState(null);
+    const [bankAgentCode, setBankAgentCode] = useState("");
+    const [errorTextUploadSlip, setErrorTextUploadSlip] = useState('');
+    const [promotionCode, setPromotionCode] = useState('');
+    const [dataSpinWheel, setDataSpinWheel] = useState([]);
+    const [outputSpin, setOutputSpin] = useState("");
+    const [limitSpinWheel, setLimitSpinWheel] = useState({});
+    const [currentPoint, setCurrentPoint] = useState({});
 
     useEffect(() => {
         let hasTouchScreen = false;
@@ -113,10 +121,10 @@ export default function AfterLogin() {
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrent(current === length - 1 ? 0 : current + 1);
-        }, 3000);
-        return () => clearInterval(interval);
+        // const interval = setInterval(() => {
+        //     setCurrent(current === length - 1 ? 0 : current + 1);
+        // }, 3000);
+        // return () => clearInterval(interval);
     }, [current]);
 
     const toggleSidebar = (event) => {
@@ -142,8 +150,6 @@ export default function AfterLogin() {
         }
     };
 
-
-
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
@@ -154,7 +160,8 @@ export default function AfterLogin() {
             setLinkLine(_data?.info?.configLobby?.s_line)
             setDataFromLogin(_data);
             const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-            setSliderData(slideArray)
+            const newSlideArray = slideArray.filter(data => data.s_position === "page_wallet");
+            setSliderData(newSlideArray)
             setDepositBankList(_data?.info?.bankDeposit[0])
             getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
@@ -163,18 +170,60 @@ export default function AfterLogin() {
             }
 
         }
-        setDataSlide(history?.location?.state?.info?.promotionList);
+        setDataPromotion(history?.location?.state?.info?.promotionList);
         if (_data === undefined) {
             history.push(Constant?.HOME)
         }
+        getSpinWheel();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+
+    // const [decryptedText, setDecryptedText] = useState('');
+    // console.log("decryptedText::::: ", decryptedText)
+
+    // const secretKey = 'tx@toxlb';
+    // const encryptedString = "WWQ5R254TndIeVN3TGZGcHVFRVVFdz09";
+    // const secretSuffix = "tx@toxlb";
+
+    // const handleDecrypt = () => {
+    //     const result = decrypt(encryptedString, secretKey, secretSuffix);
+    //     setDecryptedText(result);
+    // };
 
     const getQRCode = async (accountNumber) => {
         const _data = await axios.post(`${Constant.SERVER_URL}/genarate-qr-code/${Constant.AGENT_CODE}`, {
             recipientAccountNum: accountNumber
         });
         setNumberQRCode(_data?.data?.data?.respData?.qrCode)
+    }
+
+    const getSpinWheel = async () => {
+        let data = JSON.stringify({
+            "s_agent_code": Constant?.AGENT_CODE
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1/LuckyWheel/Inquiry?XDEBUG_SESSION_START=netbeans-xdebug',
+            headers: {
+                'authorization-agent': '{{AUTHEN-VALUE-AGENT}}',
+                'authorization-token': '{{AUTHEN-VALUE-TOKEN}}',
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+
+        axios.request(config)
+            .then((response) => {
+                console.log("spin", response.data.data);
+                setDataSpinWheel(response.data.data[0]?.eventItem)
+                setLimitSpinWheel(response.data.data[0])
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -351,6 +400,7 @@ export default function AfterLogin() {
             console.error("Error playing the game:", error);
         }
     };
+
     const _withdrawMoney = async () => {
         try {
             const _data = {
@@ -401,6 +451,7 @@ export default function AfterLogin() {
             console.error("Error playing the game:", error);
         }
     };
+
     const _copyLinkAffiliate = (link) => {
         navigator.clipboard.writeText(link);
         Swal.fire({
@@ -432,10 +483,10 @@ export default function AfterLogin() {
     const [nextSliderPage, setNextSliderPage] = useState(0);
 
     const _newSl = (value) => {
-        if (dataSlide?.length > 0) {
+        if (dataPromotion?.length > 0) {
             if (value === "ADD") {
-                if (nextSliderPage === dataSlide?.length - 1) {
-                    setNextSliderPage(dataSlide?.length - 1);
+                if (nextSliderPage === dataPromotion?.length - 1) {
+                    setNextSliderPage(dataPromotion?.length - 1);
                 } else {
                     setNextSliderPage(nextSliderPage + 1);
                 }
@@ -465,7 +516,7 @@ export default function AfterLogin() {
             if (_resAppover?.data?.statusCode === 0) {
                 successAdd("รายการสำเร็จ");
                 setTimeout(() => {
-                    handleShow();
+                    // handleShow();
                 }, 2000);
                 return;
             }
@@ -474,7 +525,6 @@ export default function AfterLogin() {
             errorAdd("รายการไม่สำเร็จ");
         }
     };
-
 
     const _resiveCashBack = async () => {
         try {
@@ -535,6 +585,7 @@ export default function AfterLogin() {
     const prevSlide = () => {
         setCurrent(current === 0 ? length - 1 : current - 1);
     };
+
     if (!Array.isArray(sliderData) || sliderData.length <= 0) {
         return null;
     }
@@ -547,6 +598,92 @@ export default function AfterLogin() {
         }
         setPercentageData(data);
     }
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+
+    const uploadFile = async () => {
+        if (!file) return;
+
+        const _URL = window.URL || window.webkitURL;
+        const url = _URL.createObjectURL(file);
+        console.log("A");
+        const imgData = await uploadSlip(url);
+        document.getElementById('fileslip').value = '';
+        if (imgData != null) {
+            try {
+                const response = await axios.post(`${Constant.SERVER_URL}/Deposit/Slip`, {
+                    actionBy: dataFromLogin?.username,
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                    qrcode: imgData.data,
+                    i_bank_agent: "47",
+                    i_ip: "1.2.3.4",
+                    s_prm_code: promotionCode,
+                });
+                console.log("response: ", response)
+                setErrorTextUploadSlip(response?.data?.statusDesc)
+                notify(response.data);
+            } catch (error) {
+                console.error("AAAA", error);
+            }
+        } else {
+            notify({ statusDesc: 'Failed to read QR code' });
+        }
+    };
+
+    const uploadSlip = async (url) => {
+        console.log("url: ", url)
+        let imgData = null;
+        const minScale = 0.75;
+        const maxScale = 5;
+        const step = 0.25;
+        let currentScale = minScale;
+        do {
+            imgData = await addImageProcess(url, currentScale);
+            currentScale += step;
+        } while (imgData === null && currentScale <= maxScale);
+
+        return imgData;
+    };
+
+    const addImageProcess = (src, scale) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.floor(img.width * scale);
+                canvas.height = Math.floor(img.height * scale);
+
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const pixels = imgData.data;
+                for (let i = 0; i < pixels.length; i += 4) {
+                    const lightness = parseInt((pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3);
+                    pixels[i] = lightness;
+                    pixels[i + 1] = lightness;
+                    pixels[i + 2] = lightness;
+                }
+                ctx.putImageData(imgData, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
+                resolve(code);
+            };
+            img.onerror = reject;
+            img.src = src;
+        });
+    };
+
+    const notify = (data) => {
+        console.log(data);
+    };
+
     return (
         <div>
             <header className="login-page-header">
@@ -592,7 +729,7 @@ export default function AfterLogin() {
                                 return (
                                     <div
                                         className={index === current ? 'slide1 active' : 'slide1'}
-                                        key={slide?.s_image}
+                                        key={index}
                                     >
                                         {index === current && (
                                             <img src={slide?.s_image ? `data:image/jpeg;base64,${slide?.s_image}` : '/assets/images/Cardgame/image 70.png'} alt='travel' style={{ width: '100%' }} />
@@ -752,10 +889,10 @@ export default function AfterLogin() {
                                 <p>Username:</p>
                                 <p>{dataFromLogin?.username}</p>
                             </div>
-                            <div className="flexBetween font-14">
+                            {/* <div className="flexBetween font-14">
                                 <p>Phone :</p>
                                 <p>{dataFromLogin?.info?.s_phone}</p>
-                            </div>
+                            </div> */}
                             <div className="balance">
                                 <small>ยอดเงินคงเหลือ</small>
                                 <p>{dataFromLogin?.balance?.amount}</p>
@@ -932,7 +1069,10 @@ export default function AfterLogin() {
                                             <div key={index}>
                                                 <div className="user">
                                                     <p className="username">Bank</p>
-                                                    <div>{item?.s_icon.split(".")[0]} <img src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" /></div>
+                                                    <div>
+                                                        {item?.s_icon.split(".")[0]}
+                                                        <img style={{ width: 50, height: 50 }} src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" />
+                                                    </div>
                                                 </div>
                                                 <br />
                                                 <div className="user">
@@ -1298,8 +1438,7 @@ export default function AfterLogin() {
                                                     marginLeft: 5,
                                                     // cursor: 'pointer',
                                                 }}
-                                            >ติดต่อฝ่ายบริการลูกค้า</span
-                                            >
+                                            >ติดต่อฝ่ายบริการลูกค้า</span>
                                         </div>
                                     </div>
                                     {/* <div className="button-line">
@@ -1388,10 +1527,10 @@ export default function AfterLogin() {
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <div className="button-validationt">
+                                    <div data-bs-toggle="modal" data-bs-target="#slipVerify" >
+                                        <div className="btn-slip">
                                             <div style={{ color: "white" }}>
-                                                กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                                <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" /> แจ้งเงินไม่เข้า /แบบสลิป
                                             </div>
                                         </div>
                                     </div>
@@ -1929,57 +2068,27 @@ export default function AfterLogin() {
                                     <p className="warning-text">
                                         *ใช้ในกรณีที่ธนาคารมีปัญหาหรือยอดฝากไม่เข้า*
                                     </p>
-                                    <div className="bank-selector">
-                                        <label for="name">เลือกธนาคารบัญชีฝาก</label>
-                                        <div className="flexCenter" style={{ gap: 8 }}>
-                                            <div className="flexCenter" style={{ width: '20%' }}>
-                                                <img
-                                                    src="/assets/icons/icon-bank-default/Ellipse 10.svg"
-                                                    alt="bank icon"
-                                                    width="33"
-                                                    height="33"
-                                                />
-                                                {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-                                                <svg
-                                                    width="26"
-                                                    height="26"
-                                                    viewBox="0 0 26 26"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path
-                                                        d="M12.5442 17.1414L6.28711 10.9062H18.8013L12.5442 17.1414Z"
-                                                        fill="#FF9900"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                style={{ width: '80%' }}
-                                                type="text"
-                                                name="name"
-                                                id="name"
-                                                placeholder="นาย ปปปปป ปปปปป"
-                                            />
-                                        </div>
-                                    </div>
 
-                                    <div className="bank-input">
-                                        <label for="bank">เลือกธนาคารที่ทำรายการฝาก</label>
-                                        <input type="text" name="bank" placeholder="เลือกธนาคาร" />
+                                    <select className="select-promotion" onChange={(event) => setBankAgentCode(event?.target?.value)}>
+                                        <option>เลือกธนาคาร</option>
+                                        {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                            <option key={bank?.index} value={bank?.i_bank}>{bank?.s_fname_th}</option>
+                                        ))}
+                                    </select>
+                                    <select className="select-promotion" onChange={(event) => setPromotionCode(event?.target?.value)}>
+                                        <option>เลือกโปรโมชั่น</option>
+                                        {dataPromotion?.length > 0 && dataPromotion?.map((promotion) => (
+                                            <option key={promotion?.index} value={promotion?.s_code}>{promotion?.s_promotion}</option>
+                                        ))}
+                                    </select>
+                                    <div>
+                                        <input id="fileslip" onChange={handleFileChange} style={{ background: "#FFF", color: "#000", width: "100%" }} type="file" />
                                     </div>
-                                    <div className="bank-input">
-                                        <label for="bank">กรุณากรอกข้อมูล</label>
-                                        <input type="text" name="bank" placeholder="0" />
-                                        <small>กรอกจำนวนเงินตามสลิป</small>
-                                    </div>
-                                    <div className="bank-input">
-                                        <label for="bank">กรุณากรอกข้อมูล</label>
-                                        <input type="text" name="bank" placeholder="0" />
-                                        <small>วันที่ทำรายการฝาก</small>
-                                    </div>
-
-                                    <button type='button' className="button-warning">ยืนยันยอดฝาก</button>
-                                    {/* biome-ignore lint/a11y/useValidAnchor: <explanation> */}
+                                    <p style={{ color: "red" }}>{errorTextUploadSlip}</p>
+                                    <button type='button' style={{ width: 120 }} onClick={uploadFile} className="button-warning">
+                                        <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-send-50.png" alt="send" />
+                                        ส่งสลิป
+                                    </button>
                                     <p>พบปัญหา <a style={{ color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</a></p>
                                 </div>
                             </div>
@@ -2119,7 +2228,7 @@ export default function AfterLogin() {
                                         {dataHistoryDeposit?.length > 0 && dataHistoryDeposit?.map((deposit, index) => (
                                             <div className="history-list" key={deposit?.index}>
                                                 <div className="history-list-left">
-                                                    <label className="history-list-label">รายการถอน</label>
+                                                    <label className="history-list-label">รายการฝาก</label>
                                                     <p className="history-list-label">{deposit?.f_amount}</p>
                                                     <p className="history-list-label">หมายเหตุ : {deposit?.s_remark}</p>
                                                 </div>
@@ -2155,7 +2264,7 @@ export default function AfterLogin() {
                                         {dataHistoryBonus?.length > 0 && dataHistoryBonus?.map((bonus, index) => (
                                             <div className="history-list" key={bonus?.index}>
                                                 <div className="history-list-left">
-                                                    <label className="history-list-label">รายการถอน</label>
+                                                    <label className="history-list-label">รายการโบนัส</label>
                                                     <p className="history-list-label">{bonus?.f_amount}</p>
                                                     <p className="history-list-label">หมายเหตุ : {bonus?.s_remark}</p>
                                                 </div>
@@ -2284,6 +2393,21 @@ export default function AfterLogin() {
                                             </div>
                                             <p className="bag-modal-menu-title">คืนยอดเสีย</p>
                                         </div>
+                                        <div
+                                            className="bag-modal-menu-item"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#spinnerModal"
+                                            data-bs-dismiss="modal"
+                                        >
+                                            <div className="bag-menu-img-container">
+                                                <img
+                                                    className="bag-menu-icon"
+                                                    src="/assets/images/icon-teasure.svg"
+                                                    alt=""
+                                                />
+                                            </div>
+                                            <p className="bag-modal-menu-title">กงล้อ </p>
+                                        </div>
 
                                     </div>
                                 </div>
@@ -2310,7 +2434,7 @@ export default function AfterLogin() {
                                     <p className="modal-title">โปรโมชั่น</p>
                                 </div>
                             </div>
-                            {/* dataSlide */}
+                            {/* dataPromotion */}
                             <div className="modal-body">
                                 <div className="promotion-modal-content">
                                     <div className="promotion-modal-body">
@@ -2319,9 +2443,9 @@ export default function AfterLogin() {
                                                 <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: '#FFF', fontSize: 25 }} />
                                             </div>
                                             <div style={{ padding: 20 }}>
-                                                {dataSlide?.length > 0 && (
+                                                {dataPromotion?.length > 0 && (
                                                     <img
-                                                        src={`data:image/jpeg;base64,${dataSlide[nextSliderPage]?.s_source_img}`}
+                                                        src={`data:image/jpeg;base64,${dataPromotion[nextSliderPage]?.s_source_img}`}
                                                         className="promotion-modal-image"
                                                         alt=""
                                                         style={{ width: "100%" }}
@@ -2334,11 +2458,11 @@ export default function AfterLogin() {
                                         </div>
                                         <hr />
                                         <div>
-                                            <div style={{ color: "#4CAF4F" }}>ฝาก {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.f_max_amount} รับ {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.f_percen}</div>
-                                            <div>จำกัด {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.i_per_day} ครั้ง/วัน</div>
+                                            <div style={{ color: "#4CAF4F" }}>ฝาก {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.f_max_amount} รับ {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.f_percen}</div>
+                                            <div>จำกัด {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.i_per_day} ครั้ง/วัน</div>
                                             <div style={{ color: "yellow" }}>รายละเอียด</div>
                                             <div>
-                                                {dataSlide?.length > 0 && dataSlide[nextSliderPage]?.s_detail}
+                                                {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.s_detail}
                                             </div>
                                         </div>
                                         <div style={{ height: 10 }} />
@@ -2355,7 +2479,7 @@ export default function AfterLogin() {
                                                     borderRadius: 6,
                                                     width: 100,
                                                 }}
-                                                onClick={() => apoverPromotion(dataSlide[nextSliderPage])}
+                                                onClick={() => apoverPromotion(dataPromotion[nextSliderPage])}
                                             >รับโบนัส</button>
                                         </div>
                                     </div>
@@ -2546,280 +2670,6 @@ export default function AfterLogin() {
             </div>
             {/* <!-- diamond modal end --> */}
 
-            {/* <!-- tournament modal --> */}
-            <div
-                className="modal fade"
-                id="tournamentModal"
-                tabindex="-1"
-                aria-labelledby="tournamentModalLabel"
-                aria-hidden="true"
-            >
-                <div className="modal-dialog">
-                    <div className="modal-border">
-                        <div className="modal-content">
-                            <div className="modal-header-container">
-                                <div className="modal-header">
-                                    <img
-                                        src="/assets/icons/icon-back-modal.svg"
-                                        className="modal-icon-back"
-                                        alt=""
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#bagModal"
-                                        data-bs-dismiss="modal"
-                                    />
-                                    <p className="modal-title">ทัวร์นาเมนท์</p>
-                                    <img
-                                        src="/assets/icons/icon-close-modal.svg"
-                                        className="modal-icon-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                        alt=""
-                                    />
-                                </div>
-                            </div>
-                            <div className="modal-body">
-                                <div className="tournament-modal-content">
-                                    <div className="top-recharge-select-container">
-                                        <div className="top-recharge-select">
-                                            <img
-                                                className="select-icon"
-                                                id="icon-top-play"
-                                                src="/assets/icons/icon-top-play.svg"
-                                                alt=""
-                                            />
-                                            <img
-                                                className="select-icon"
-                                                id="icon-top-recharge"
-                                                src="/assets/icons/icon-top-recharge.svg"
-                                                alt=""
-                                            />
-                                            <img
-                                                className="select-icon"
-                                                id="icon-top-lose"
-                                                src="/assets/icons/icon-top-lose.svg"
-                                                alt=""
-                                            />
-                                            <select
-                                                className="top-recharge-select-content"
-                                                id="top-rank-select"
-                                            >
-                                                <option value="top-play">ยอดเล่นสูงสุด 30 อันดับ</option>
-                                                <option value="top-recharge">
-                                                    ยอดเติมสูงสุด 30 อันดับ
-                                                </option>
-                                                <option value="top-lose">ยอดเสียสูงสุด 30 อันดับ</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <p className="top-rank">TOP RANK</p>
-                                    <div className="slide-rank">
-                                        <div className="slide-rank-item top1">
-                                            <img
-                                                className="rank-icon"
-                                                src="/assets/icons/icon-top1.svg"
-                                                alt=""
-                                            />
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/image-top1.svg"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">1,500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item top2">
-                                            <img
-                                                className="rank-icon"
-                                                src="/assets/icons/icon-top2.svg"
-                                                alt=""
-                                            />
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/image-top2.svg"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">1,200,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item top3">
-                                            <img
-                                                className="rank-icon"
-                                                src="/assets/icons/icon-top3.svg"
-                                                alt=""
-                                            />
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/image-top3.svg"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">1,000,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                        <div className="slide-rank-item">
-                                            <img
-                                                className="rank-profile"
-                                                src="/assets/images/st-vegas-logo.png"
-                                                alt=""
-                                            />
-                                            <p className="rank-item-text">ST14526641</p>
-                                            <p className="rank-item-text">095-xxx-xxxx</p>
-                                            <p className="rank-item-text">500,000 บาท</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="table-rank">
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">11</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">12</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">13</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">14</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">15</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">16</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">17</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">18</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">19</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                        <div className="table-rank-item">
-                                            <div className="no-rank">20</div>
-                                            <div className="rank-detail">
-                                                <div className="rank-phone">095-xxx-xxxx</div>
-                                                <div className="rank-detail-title">ยอด</div>
-                                                <div className="rank-money">351,353</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* <!-- tournament modal end --> */}
 
             {/* <!-- spinner modal --> */}
             <div
@@ -2854,32 +2704,19 @@ export default function AfterLogin() {
                             </div>
                             <div className="modal-body">
                                 <div className="spinner-modal-content">
-                                    <p className="spinner-modal-title">แต้มทั้งหมด : 0.00</p>
-                                    <p className="spinner-modal-subtitle">10 แต้ม หมุนกงล้อได้ 1 ครั้ง</p>
+                                    <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint?.currentPoint}</p>
                                     <div className="spinner-modal-body">
-                                        <img
-                                            className="spinner-modal-img"
-                                            src="/assets/images/image-spinner.svg"
-                                            alt=""
-                                        />
-                                        <button type="button" className="btn-spinner">หมุนกงล้อ</button>
-                                        <p className="spinner-modal-subtitle2">เครดิตกงล้อ : 0.00</p>
-                                        <input type="text" placeholder="จำนวนเงิน" className="input-box" />
-                                        <p className="spinner-modal-text-danger">
-                                            แลกเงินเข้าเครดิต ขั้นต่ำ 100.00
-                                        </p>
+                                        {dataSpinWheel.length > 0 &&
+                                            <Roulette
+                                                data={dataSpinWheel}
+                                                setOutputSpin={setOutputSpin}
+                                                username={dataFromLogin?.username}
+                                                setCurrentPoint={setCurrentPoint} />}
 
-                                        <button type="button" className="button-confirm-warning">
-                                            แลกเงินเข้าเครดิต
-                                        </button>
-                                        <div className="spinner-rule-container">
-                                            <p className="spinner-rule-text">อ่านกฎกติกา</p>
-                                            <img
-                                                className="spinner-icon-info"
-                                                src="/assets/icons/icon-info.svg"
-                                                alt=""
-                                            />
-                                        </div>
+                                        <p style={{ margin: 'none', marginTop: 10 }}>เครดิตกงล้อ : {outputSpin}</p>
+                                        <div style={{ fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
+                                        <p style={{ margin: 'none' }}>หมุนวงล้อได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว 3 ครั้ง</p>
+                                        <p style={{ margin: 'none' }}>ภายในวันสามารถใข้สิทธิได้ {limitSpinWheel?.i_per_day} ครั้ง</p>
                                     </div>
                                 </div>
                             </div>
@@ -2947,295 +2784,6 @@ export default function AfterLogin() {
                     </div>
                 </div>
             </div>
-
-            <div
-                className="modal fade"
-                id="earnMoneyDetailModal"
-                tabindex="-1"
-                aria-labelledby="earnMoneyDetailModalLabel"
-                aria-hidden="true"
-            >
-                <div className="modal-dialog">
-                    <div className="modal-border">
-                        <div className="modal-content">
-                            <div className="modal-header-container">
-                                <div className="modal-header">
-                                    <img
-                                        src="/assets/icons/icon-back-modal.svg"
-                                        className="modal-icon-back"
-                                        alt=""
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#bagModal"
-                                        data-bs-dismiss="modal"
-                                    />
-                                    <p className="modal-title">สร้างรายได้</p>
-                                    <img
-                                        src="/assets/icons/icon-close-modal.svg"
-                                        className="modal-icon-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                        alt=""
-                                    />
-                                </div>
-                            </div>
-                            <div className="modal-body">
-                                <div className="earn-modal-content">
-                                    <div className="earn-tab-container">
-                                        <div className="border-input-gold">
-                                            <div className="earn-tab">
-                                                <div id="earn-tab-overview" className="earn-tab-item active">
-                                                    ภาพรวม
-                                                </div>
-                                                <div className="border-input-gold earn-tab-item-2">
-                                                    <div id="earn-tab-income" className="earn-tab-item">
-                                                        รายได้
-                                                    </div>
-                                                </div>
-                                                <div id="earn-tab-withdraw-income" className="earn-tab-item">
-                                                    ถอนรายได้
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="earn-detail-data" id="earn-detail-overview">
-                                        <div className="filter-date">
-                                            <p className="filter-label">ภาพรวมวันที่</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
-                                        </div>
-
-                                        <div className="border-input-gold">
-                                            <div className="table-earn-date">
-                                                <div className="border-input-gold">
-                                                    <div className="th-earn-container">
-                                                        <span className="th-earn">วันที่</span>
-                                                        <span className="th-earn">สมัคร</span>
-                                                        <span className="th-earn">ฝากเงิน</span>
-                                                        <span className="th-earn">รายได้</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="tr-earn-container">
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="filter-date">
-                                            <p className="filter-label">ภาพรวมทั้งเดือน</p>
-                                            <select className="filter-date-input">
-                                                <option value="1">1</option>
-                                                <option value="2">2</option>
-                                                <option value="3">3</option>
-                                                <option value="4">4</option>
-                                                <option value="5">5</option>
-                                                <option value="6">6</option>
-                                                <option value="7">7</option>
-                                                <option value="8">8</option>
-                                                <option value="9">9</option>
-                                                <option value="10">10</option>
-                                                <option value="11">11</option>
-                                                <option value="12">12</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="border-input-gold">
-                                            <div className="table-earn-date">
-                                                <div className="border-input-gold">
-                                                    <div className="th-earn-container">
-                                                        <span className="th-earn">เดือน</span>
-                                                        <span className="th-earn">สมัคร</span>
-                                                        <span className="th-earn">ฝากเงิน</span>
-                                                        <span className="th-earn">รายได้</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="tr-earn-container">
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="earn-detail-data" id="earn-detail-income">
-                                        <div className="filter-date">
-                                            <p className="filter-label">ประวัติรายได้</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
-                                            <select className="filter-date-input">
-                                                <option value="">b</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="border-input-gold">
-                                            <div className="table-earn-date">
-                                                <div className="border-input-gold">
-                                                    <div className="th-earn-container">
-                                                        <span className="th-earn">วัน/เวลา</span>
-                                                        <span className="th-earn">ยูสเซอร์</span>
-                                                        <span className="th-earn">ระดับขั้น</span>
-                                                        <span className="th-earn">จำนวนเงิน</span>
-                                                        <span className="th-earn">ชนิด</span>
-                                                        <span className="th-earn">หมวด</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="tr-earn-container" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="earn-detail-data" id="earn-detail-withdraw-income">
-                                        <div className="border-input-gold">
-                                            <div className="form-withdraw-income">
-                                                <div className="form-withdraw-group">
-                                                    <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
-                                                    <input type="text" className="form-withdraw-input" />
-                                                </div>
-                                                <div className="form-withdraw-group">
-                                                    <label className="form-withdraw-label"
-                                                    >จำนวนเงินที่ต้องการถอน</label
-                                                    >
-                                                    <input
-                                                        type="text"
-                                                        placeholder="ถอนไม่มีขั้นต่ำ"
-                                                        className="form-withdraw-input"
-                                                    />
-                                                </div>
-
-                                                <button type="button" className="btn-withdraw-income">
-                                                    ถอนรายได้
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="filter-date">
-                                            <p className="filter-label">ประวัติรายได้</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
-                                        </div>
-
-                                        <div className="border-input-gold">
-                                            <div className="table-earn-date">
-                                                <div className="border-input-gold">
-                                                    <div className="th-earn-container">
-                                                        <span className="th-earn">วัน/เวลา</span>
-                                                        <span className="th-earn">ยูสเซอร์</span>
-                                                        <span className="th-earn">จำนวนเงิน</span>
-                                                        <span className="th-earn">สถานะ</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="tr-earn-container">
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">xcczsaw</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">รับแล้ว</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">xcczsaw</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">รับแล้ว</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">xcczsaw</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">รับแล้ว</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="read-earn-rule">
-                                        หากมีข้อสงสัยเพิ่มเติม
-                                        <a href="https://www.google.com/" target="_blank" rel="noreferrer"
-                                        >อ่านกฏกติกา</a
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* <!-- earn money modal end --> */}
 
             {/* <!-- change password modal --> */}
             <div
@@ -3483,9 +3031,13 @@ export default function AfterLogin() {
                                 </div>
                             </div>
                             <div>
-                                <div className="button-validationt">
-                                    <div style={{ color: "white" }}>
-                                        กรุณาใช้เลขบัญชีที่สมัครโอนเข้ามาเท่านั้น
+                                <div>
+                                    <div data-bs-toggle="modal" data-bs-target="#slipVerify" >
+                                        <div className="btn-slip">
+                                            <div style={{ color: "white" }}>
+                                                <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" /> แจ้งเงินไม่เข้า /แบบสลิป
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -1,6 +1,8 @@
 import Constant from "../constant";
 import { dataCradGame } from "./listCardGame";
 import moment from "moment";
+import CryptoJS from 'crypto-js';
+
 var Buffer = require("buffer/").Buffer;
 
 export const _clickTabDeposit = (tab, setTabs, setTabName) => {
@@ -28,15 +30,19 @@ export const FillerCategory = async (value, setCategoryGame) => {
 export const EncriptBase64 = (date) => {
   const tokens = date;
   const token = tokens.split("1a88");
+  console.log("token:: ", token)
   let _agentCode = token[0];
   let _username = token[1];
   let _password = token[2];
+  // let _bankCode = token[3];
   for (let i = 0; i < 3; i++) {
     _agentCode = Buffer.from(_agentCode, "base64").toString();
     _username = Buffer.from(_username, "base64").toString();
     _password = Buffer.from(_password, "base64").toString();
+    // _bankCode = Buffer.from(_bankCode, "base64").toString();
   }
   return {
+    // bankCode: _bankCode,
     agentCode: _agentCode,
     username: _username,
     password: _password,
@@ -49,6 +55,7 @@ export const DataLoginInRout = (data) => {
 };
 export const DataLocalStorage = () => {
   const user = JSON.parse(localStorage.getItem(Constant.LOGIN_USER_DATA));
+  console.log("useruser::")
   return user || undefined;
 };
 export const TokenLocalStorage = () => {
@@ -112,3 +119,48 @@ export const openUrlInNewWindow = (url) => {
     console.error('Failed to open URL in a new window.');
   }
 }
+
+
+export const decrypt = (string, secretKey, secretSuffix) => {
+  console.log("string: ", string)
+  console.log("secretKey: ", secretKey)
+  console.log("secretSuffix: ", secretSuffix)
+  const encryptMethod = 'AES-128-CBC';
+
+  // Create key and IV from secretKey and secretSuffix
+  const key = CryptoJS.enc.Hex.parse(CryptoJS.SHA256(secretKey).toString(CryptoJS.enc.Hex).substring(0, 32));
+  const iv = CryptoJS.enc.Hex.parse(CryptoJS.SHA256(secretSuffix).toString(CryptoJS.enc.Hex).substring(0, 32));
+  // Decode base64 string
+  const decodedString = CryptoJS.enc.Base64.parse(string);
+  console.log("decodedString: ", decodedString)
+  // Decrypt
+  const decrypted = CryptoJS.AES.decrypt({ ciphertext: decodedString }, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  console.log("decrypted:: ", decrypted?.sigBytes)
+  // Convert decrypted data to UTF-8 string
+  // Check if the decryption result is valid
+  if (decrypted.sigBytes > 0) {
+    console.log('SSSS')
+    // Convert decrypted data to UTF-8 string
+    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+    console.log("decryptedText::: ", decryptedText)
+    return decryptedText;
+  } else {
+    console.error('Decryption failed or resulted in an empty string.');
+    return '';
+  }
+
+};
+
+
+// function encrypt($string) {
+//   $output = false;
+//   $encrypt_method = "AES-128-CBC";
+//   $key = hash('sha256', $this -> secret_key);
+//   $suffix = substr(hash('sha256', $this -> secret_suffix), 0, 16);
+//   $output = base64_encode(openssl_encrypt($string, $encrypt_method, $key, 0, $suffix));
+//   return $output;
+// }

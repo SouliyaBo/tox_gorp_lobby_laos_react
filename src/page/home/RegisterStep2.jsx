@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useEffect } from "react";
 
 import { useHistory } from "react-router-dom";
@@ -52,7 +53,8 @@ export default function RegisterStep2() {
             history?.location?.state?.inputPhonenumber,
             history?.location?.state?.inputPassword,
             inputBank,
-            bankCode,
+            bankCode.toString(),
+            history?.location?.state?.inputRef,
             deviceType,
             (response) => {
                 if (response === false) {
@@ -81,8 +83,21 @@ export default function RegisterStep2() {
 
     const handleChangeBank = useCallback((event) => {
         setInputBank(event?.target?.value);
-
     });
+
+    const data = {
+        i_bank: "25",
+        i_channel: "134",
+        s_account_no: "0100001679047",
+        s_agent_code: "AG019",
+        s_channel: "GOOGLE",
+        s_channel_name: "AG019",
+        s_line: "line@",
+        s_password: "0833211222",
+        s_phone: "0833211222",
+        s_ref: undefined,
+        type_shorturl: true,
+    }
     return (
         <div>
             <main className="register-page flexCenter">
