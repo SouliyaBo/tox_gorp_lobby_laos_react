@@ -14,7 +14,7 @@ module.exports = {
     AFTER_LOGIN_MOBILE: "/lobby-mobile",
     GAME_LIST: "/game-list",
     GAME_LIST_MOBILE: "/game-list-mobile",
-
+    AFFILIATE: "/affiliate",
 
 
     LOGO_WEB: "/assets/images/Logo.png",

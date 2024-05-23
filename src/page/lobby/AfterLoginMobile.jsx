@@ -11,6 +11,7 @@ import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
 import QRCode from 'qrcode.react';
 import jsQR from 'jsqr';
+import Roulette from "../../component/Roulette";
 
 export default function AfterLoginMobile() {
     const history = useHistory();
@@ -54,6 +55,10 @@ export default function AfterLoginMobile() {
     const [ipAddress, setIpAddress] = useState('');
     const [errorTextUploadSlip, setErrorTextUploadSlip] = useState('');
     const [promotionCode, setPromotionCode] = useState('');
+    const [dataSpinWheel, setDataSpinWheel] = useState([]);
+    const [outputSpin, setOutputSpin] = useState("");
+    const [limitSpinWheel, setLimitSpinWheel] = useState({});
+    const [currentPoint, setCurrentPoint] = useState({});
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -75,12 +80,40 @@ export default function AfterLoginMobile() {
 
         }
         setDeviceType(false)
+        getSpinWheel();
         setDataPromotion(history?.location?.state?.info?.promotionList);
         if (_data === undefined) {
             history.push(Constant?.HOME)
         }
     }, []);
 
+    const getSpinWheel = async () => {
+        let data = JSON.stringify({
+            "s_agent_code": Constant?.AGENT_CODE
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1/LuckyWheel/Inquiry?XDEBUG_SESSION_START=netbeans-xdebug',
+            headers: {
+                'authorization-agent': '{{AUTHEN-VALUE-AGENT}}',
+                'authorization-token': '{{AUTHEN-VALUE-TOKEN}}',
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+
+        axios.request(config)
+            .then((response) => {
+                console.log("spin", response.data.data);
+                setDataSpinWheel(response.data.data[0]?.eventItem)
+                setLimitSpinWheel(response.data.data[0])
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
 
     useEffect(() => {
         const pageClickEvent = (e) => {
@@ -1869,14 +1902,24 @@ export default function AfterLoginMobile() {
                                                 </div>
                                                 <p className="bag-modal-menu-title">กรอกโค้ด</p>
                                             </div>
-
-
                                             <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#cashback"
                                                 data-bs-dismiss="modal">
                                                 <div className="bag-menu-img-container">
                                                     <img className="bag-menu-icon" src="/assets/icons/icon-back-cash.svg" alt="" />
                                                 </div>
                                                 <p className="bag-modal-menu-title">คืนยอดเสีย</p>
+                                            </div>
+                                            <div className="bag-modal-menu-item" data-bs-toggle="modal"
+                                                data-bs-target="#spinnerModal"
+                                                data-bs-dismiss="modal">
+                                                <div className="bag-menu-img-container">
+                                                    <img
+                                                        className="bag-menu-icon"
+                                                        src="/assets/images/icon-teasure.svg"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                                <p className="bag-modal-menu-title">กงล้อ</p>
                                             </div>
                                         </div>
                                     </div>
@@ -2241,26 +2284,19 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="spinner-modal-content">
-                                        <p className="spinner-modal-title">แต้มทั้งหมด : 0.00</p>
-                                        <p className="spinner-modal-subtitle">
-                                            10 แต้ม หมุนกงล้อได้ 1 ครั้ง
-                                        </p>
+                                        <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint?.currentPoint}</p>
                                         <div className="spinner-modal-body">
-                                            <img className="spinner-modal-img" src="/assets/images/image-spinner.svg" alt="" />
-                                            <button type="button" className="btn-spinner">หมุนกงล้อ</button>
-                                            <p className="spinner-modal-subtitle2">เครดิตกงล้อ : 0.00</p>
-                                            <input type="text" placeholder="จำนวนเงิน" className="input-box" />
-                                            <p className="spinner-modal-text-danger">
-                                                แลกเงินเข้าเครดิต ขั้นต่ำ 100.00
-                                            </p>
+                                            {dataSpinWheel.length > 0 &&
+                                                <Roulette
+                                                    data={dataSpinWheel}
+                                                    setOutputSpin={setOutputSpin}
+                                                    username={dataFromLogin?.username}
+                                                    setCurrentPoint={setCurrentPoint} />}
 
-                                            <button type="button" className="button-confirm-warning">
-                                                แลกเงินเข้าเครดิต
-                                            </button>
-                                            <div className="spinner-rule-container">
-                                                <p className="spinner-rule-text">อ่านกฎกติกา</p>
-                                                <img className="spinner-icon-info" src="/assets/icons/icon-info.svg" alt="" />
-                                            </div>
+                                            <p style={{ margin: 'none', marginTop: 10 }}>เครดิตกงล้อ : {outputSpin}</p>
+                                            <div style={{ fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
+                                            <p style={{ margin: 'none' }}>หมุนวงล้อได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว 3 ครั้ง</p>
+                                            <p style={{ margin: 'none' }}>ภายในวันสามารถใข้สิทธิได้ {limitSpinWheel?.i_per_day} ครั้ง</p>
                                         </div>
                                     </div>
                                 </div>

@@ -1,7 +1,6 @@
 import Constant from "../constant";
 import { dataCradGame } from "./listCardGame";
 import moment from "moment";
-import CryptoJS from 'crypto-js';
 
 var Buffer = require("buffer/").Buffer;
 
@@ -121,39 +120,7 @@ export const openUrlInNewWindow = (url) => {
 }
 
 
-export const decrypt = (string, secretKey, secretSuffix) => {
-  console.log("string: ", string)
-  console.log("secretKey: ", secretKey)
-  console.log("secretSuffix: ", secretSuffix)
-  const encryptMethod = 'AES-128-CBC';
 
-  // Create key and IV from secretKey and secretSuffix
-  const key = CryptoJS.enc.Hex.parse(CryptoJS.SHA256(secretKey).toString(CryptoJS.enc.Hex).substring(0, 32));
-  const iv = CryptoJS.enc.Hex.parse(CryptoJS.SHA256(secretSuffix).toString(CryptoJS.enc.Hex).substring(0, 32));
-  // Decode base64 string
-  const decodedString = CryptoJS.enc.Base64.parse(string);
-  console.log("decodedString: ", decodedString)
-  // Decrypt
-  const decrypted = CryptoJS.AES.decrypt({ ciphertext: decodedString }, key, {
-    iv: iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-  });
-  console.log("decrypted:: ", decrypted?.sigBytes)
-  // Convert decrypted data to UTF-8 string
-  // Check if the decryption result is valid
-  if (decrypted.sigBytes > 0) {
-    console.log('SSSS')
-    // Convert decrypted data to UTF-8 string
-    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-    console.log("decryptedText::: ", decryptedText)
-    return decryptedText;
-  } else {
-    console.error('Decryption failed or resulted in an empty string.');
-    return '';
-  }
-
-};
 
 
 // function encrypt($string) {

@@ -27,6 +27,8 @@ import _LoginController from "../../api/login";
 import { errorAdd, successAdd } from "../../helper/sweetalert";
 import QRCode from 'qrcode.react';
 import Roulette from "../../component/Roulette";
+// import crypto from 'crypto-js';
+
 
 export default function AfterLogin() {
     const history = useHistory();
@@ -121,10 +123,10 @@ export default function AfterLogin() {
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
-        // const interval = setInterval(() => {
-        //     setCurrent(current === length - 1 ? 0 : current + 1);
-        // }, 3000);
-        // return () => clearInterval(interval);
+        const interval = setInterval(() => {
+            setCurrent(current === length - 1 ? 0 : current + 1);
+        }, 3000);
+        return () => clearInterval(interval);
     }, [current]);
 
     const toggleSidebar = (event) => {
@@ -175,21 +177,30 @@ export default function AfterLogin() {
             history.push(Constant?.HOME)
         }
         getSpinWheel();
+        // handleClick();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
-    // const [decryptedText, setDecryptedText] = useState('');
-    // console.log("decryptedText::::: ", decryptedText)
+    const secretKey = 'tx@toxlb';
+    const secretSuffix = "tx@toxlb";
 
-    // const secretKey = 'tx@toxlb';
-    // const encryptedString = "WWQ5R254TndIeVN3TGZGcHVFRVVFdz09";
-    // const secretSuffix = "tx@toxlb";
+    // const encrypt123 = (string) => {
+    //     const encryptMethod = "aes-128-cbc";
+    //     const key = crypto.createHash('sha256').update(secretKey).digest('hex').substr(0, 32);
+    //     const suffix = crypto.createHash('sha256').update(secretSuffix).digest('hex').substr(0, 16);
+    //     const iv = Buffer.from(suffix, 'utf-8');
+    //     const cipher = crypto.createCipheriv(encryptMethod, Buffer.from(key, 'hex'), iv);
+    //     let encrypted = cipher.update(string, 'utf8', 'base64');
+    //     encrypted += cipher.final('base64');
+    //     return encrypted;
+    // }
 
-    // const handleDecrypt = () => {
-    //     const result = decrypt(encryptedString, secretKey, secretSuffix);
-    //     setDecryptedText(result);
-    // };
+    // const handleClick = () => {
+    //     const output = encrypt123("WWQ5R254TndIeVN3TGZGcHVFRVVFdz09");
+    //     console.log(output);
+    // }
+
 
     const getQRCode = async (accountNumber) => {
         const _data = await axios.post(`${Constant.SERVER_URL}/genarate-qr-code/${Constant.AGENT_CODE}`, {
