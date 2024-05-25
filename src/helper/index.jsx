@@ -54,7 +54,6 @@ export const DataLoginInRout = (data) => {
 };
 export const DataLocalStorage = () => {
   const user = JSON.parse(localStorage.getItem(Constant.LOGIN_USER_DATA));
-  console.log("useruser::")
   return user || undefined;
 };
 export const TokenLocalStorage = () => {
@@ -119,7 +118,36 @@ export const openUrlInNewWindow = (url) => {
   }
 }
 
-
+export const convertBankCode = (bankCode) => {
+  let res = "";
+  switch (bankCode) {
+    case 26:
+      res = "BCEL";
+      break;
+    case 25:
+      res = "LDB";
+      break;
+    case 24:
+      res = "APB";
+      break;
+    case 23:
+      res = "STB";
+      break;
+    case 22:
+      res = "IDB";
+      break;
+    case 21:
+      res = "LVB";
+      break;
+    case 20:
+      res = "JDB";
+      break;
+    default:
+      res = "";
+      break;
+  }
+  return res;
+};
 
 
 

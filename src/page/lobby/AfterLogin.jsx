@@ -27,7 +27,8 @@ import _LoginController from "../../api/login";
 import { errorAdd, successAdd } from "../../helper/sweetalert";
 import QRCode from 'qrcode.react';
 import Roulette from "../../component/Roulette";
-// import crypto from 'crypto-js';
+import CryptoJS from 'crypto-js';
+
 
 
 export default function AfterLogin() {
@@ -177,29 +178,8 @@ export default function AfterLogin() {
             history.push(Constant?.HOME)
         }
         getSpinWheel();
-        // handleClick();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-
-    const secretKey = 'tx@toxlb';
-    const secretSuffix = "tx@toxlb";
-
-    // const encrypt123 = (string) => {
-    //     const encryptMethod = "aes-128-cbc";
-    //     const key = crypto.createHash('sha256').update(secretKey).digest('hex').substr(0, 32);
-    //     const suffix = crypto.createHash('sha256').update(secretSuffix).digest('hex').substr(0, 16);
-    //     const iv = Buffer.from(suffix, 'utf-8');
-    //     const cipher = crypto.createCipheriv(encryptMethod, Buffer.from(key, 'hex'), iv);
-    //     let encrypted = cipher.update(string, 'utf8', 'base64');
-    //     encrypted += cipher.final('base64');
-    //     return encrypted;
-    // }
-
-    // const handleClick = () => {
-    //     const output = encrypt123("WWQ5R254TndIeVN3TGZGcHVFRVVFdz09");
-    //     console.log(output);
-    // }
 
 
     const getQRCode = async (accountNumber) => {
@@ -228,7 +208,6 @@ export default function AfterLogin() {
 
         axios.request(config)
             .then((response) => {
-                console.log("spin", response.data.data);
                 setDataSpinWheel(response.data.data[0]?.eventItem)
                 setLimitSpinWheel(response.data.data[0])
             })
@@ -237,7 +216,6 @@ export default function AfterLogin() {
             });
     }
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         _clickCategoryGame("SLOT");
         if (dataFromLogin) {
@@ -629,7 +607,7 @@ export default function AfterLogin() {
                     s_agent_code: dataFromLogin?.agent,
                     s_username: dataFromLogin?.username,
                     qrcode: imgData.data,
-                    i_bank_agent: "47",
+                    i_bank_agent: bankAgentCode,
                     i_ip: "1.2.3.4",
                     s_prm_code: promotionCode,
                 });
@@ -694,6 +672,34 @@ export default function AfterLogin() {
     const notify = (data) => {
         console.log(data);
     };
+
+    const _getBankAgentCode = (event) => {
+
+        let data = JSON.stringify({
+            "data": event
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: `${Constant.SERVER_URL}/Decrypt`,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+
+        axios.request(config)
+            .then((response) => {
+                setBankAgentCode(response.data.decrypt)
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+
+    }
 
     return (
         <div>
@@ -2080,10 +2086,10 @@ export default function AfterLogin() {
                                         *ใช้ในกรณีที่ธนาคารมีปัญหาหรือยอดฝากไม่เข้า*
                                     </p>
 
-                                    <select className="select-promotion" onChange={(event) => setBankAgentCode(event?.target?.value)}>
+                                    <select className="select-promotion" onChange={(event) => _getBankAgentCode(event?.target?.value)}>
                                         <option>เลือกธนาคาร</option>
                                         {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                                            <option key={bank?.index} value={bank?.i_bank}>{bank?.s_fname_th}</option>
+                                            <option key={bank?.index} value={bank?.id}>{bank?.s_fname_th}</option>
                                         ))}
                                     </select>
                                     <select className="select-promotion" onChange={(event) => setPromotionCode(event?.target?.value)}>

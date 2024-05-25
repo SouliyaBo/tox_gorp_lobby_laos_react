@@ -2,10 +2,12 @@
 import React, { useState, useCallback, useEffect } from "react";
 
 import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
+import { convertBankCode } from "../../helper";
 import Swal from 'sweetalert2'
 export default function RegisterStep2() {
     const history = useHistory();
@@ -16,6 +18,7 @@ export default function RegisterStep2() {
     const [bankCode, setBankCode] = useState(0);
     const [messageCreate, setMessageCreate] = useState();
     const [deviceType, setDeviceType] = useState(false);
+    const [textWarning, setTextWarning] = useState(false);
 
     useEffect(() => {
         let hasTouchScreen = false;
@@ -46,9 +49,10 @@ export default function RegisterStep2() {
         }
     }, []);
 
-    const CreateUser = async () => {
+    const CreateUser = async (nameInBank) => {
+        console.log("nameInBank:: ", nameInBank)
         const _res = await handleRegister(
-            history?.location?.state?.inputFirstname,
+            nameInBank,
             history?.location?.state?.inputLastname,
             history?.location?.state?.inputPhonenumber,
             history?.location?.state?.inputPassword,
@@ -82,21 +86,42 @@ export default function RegisterStep2() {
     };
 
     const handleChangeBank = useCallback((event) => {
+        console.log("first: ", event?.target?.value)
         setInputBank(event?.target?.value);
     });
 
-    const data = {
-        i_bank: "25",
-        i_channel: "134",
-        s_account_no: "0100001679047",
-        s_agent_code: "AG019",
-        s_channel: "GOOGLE",
-        s_channel_name: "AG019",
-        s_line: "line@",
-        s_password: "0833211222",
-        s_phone: "0833211222",
-        s_ref: undefined,
-        type_shorturl: true,
+    const checkBank = () => {
+        const bankCodeText = convertBankCode(bankCode);
+        let data = JSON.stringify({
+            "bankCode": bankCodeText, // bankCode
+            "recipientAcctNo": inputBank // "015120001557906001"
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1/check-number-account',
+            headers: {
+                'User-Agent': 'Dart/3.1 (dart:io)',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'close',
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+        //
+        axios.request(config)
+            .then((response) => {
+                if (response.data.data.respDesc !== "Success") {
+                    setTextWarning("ไม่มีเลขบัญชีนี้ในธนาคาร")
+                    console.log(response.data.data);
+                } else {
+                    CreateUser(response.data.data.receipient)
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
     return (
         <div>
@@ -399,6 +424,7 @@ export default function RegisterStep2() {
                     </div>
                 </div>
 
+                <div style={{ padding: 10, color: "red" }}>{textWarning}</div>
                 <div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
 
                 <button
@@ -406,7 +432,8 @@ export default function RegisterStep2() {
                     className="next-step-button"
                     // data-bs-toggle="modal"
                     // data-bs-target="#successRegisterModal"
-                    onClick={() => CreateUser()}
+                    // onClick={() => CreateUser()}
+                    onClick={() => checkBank()}
                 >
                     ยืนยัน สมัครสมาชิก
                 </button>
