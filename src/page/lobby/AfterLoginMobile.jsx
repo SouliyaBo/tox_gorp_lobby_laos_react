@@ -1634,7 +1634,7 @@ export default function AfterLoginMobile() {
                                             *ใช้ในกรณีที่ธนาคารมีปัญหาหรือยอดฝากไม่เข้า*
                                         </p>
                                         <select className="select-promotion" onChange={(event) => setBankAgentCode(event?.target?.value)}>
-                                            <option>เลือกธนาคาร</option>
+                                                
                                             {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
                                                 <option key={bank?.index} value={bank?.i_bank}>{bank?.s_fname_th}</option>
                                             ))}
