@@ -37,7 +37,9 @@ export default function AfterLogin() {
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
+    const [tapAffiliate, setTapAffiliate] = useState("ภาพรวม");
     const [tabName, setTabName] = useState("tab-deposit");
+    const [tabNameAffiliate, setTabNameAffiliate] = useState("overview");
     const [reMessage, setReMessage] = useState("");
     const [maxLevel, setmaxLevel] = useState();
     const [historyCashBack, setHistoryCashBack] = useState([]);
@@ -150,6 +152,17 @@ export default function AfterLogin() {
             setTabs("ประวัติถอน");
         } else {
             setTabs("ประวัติโบนัส");
+        }
+    };
+    const _tabAffiliate = (tabAffiliate) => {
+        console.log("tabAffiliate:: ", tabAffiliate)
+        setTabNameAffiliate(tabAffiliate);
+        if (tabAffiliate === "overview") {
+            setTapAffiliate("ภาพรวม");
+        } else if (tabAffiliate === "income") {
+            setTapAffiliate("รายได้");
+        } else {
+            setTapAffiliate("ถอนรายได้");
         }
     };
 
@@ -2379,6 +2392,22 @@ export default function AfterLogin() {
                                         </div>
                                         <div
                                             className="bag-modal-menu-item"
+                                            id="earn-modal-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#earnMoneyDetailModal"
+                                            data-bs-dismiss="modal"
+                                        >
+                                            <div className="bag-menu-img-container">
+                                                <img
+                                                    className="bag-menu-icon"
+                                                    src="/assets/icons/icon-earn-money.svg"
+                                                    alt=""
+                                                />
+                                            </div>
+                                            <p className="bag-modal-menu-title">สร้างfffรายได้</p>
+                                        </div>
+                                        <div
+                                            className="bag-modal-menu-item"
                                             id="code-modal-btn"
                                             data-bs-toggle="modal"
                                             data-bs-target="#codeModal"
@@ -2801,6 +2830,296 @@ export default function AfterLogin() {
                 </div>
             </div>
 
+
+            {/*<------\\ history Affiliate //--------> */}
+            <div
+                className="modal fade"
+                id="earnMoneyDetailModal"
+                tabindex="-1"
+                aria-labelledby="earnMoneyDetailModalLabel"
+                aria-hidden="true"
+            >
+                <div className="modal-dialog">
+                    <div className="modal-border" style={{ width: 490 }}>
+                        <div className="modal-content">
+                            <div className="modal-header-container">
+                                <div className="modal-header">
+                                    <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
+                                        data-bs-target="#bagModal" data-bs-dismiss="modal" />
+                                    <p className="modal-title">ส่วนแบ่ง Affiliate</p>
+                                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
+                                        aria-label="Close" alt="" />
+                                </div>
+                            </div>
+                            <div className="modal-body">
+                                <div className="earn-modal-content">
+                                    <div className="earn-tab-container">
+                                        <div className="border-input-gold">
+                                            <div className="earn-tab">
+                                                <div
+                                                    onClick={() => _tabAffiliate("overview")}
+                                                    onKeyDown={() => ""}
+                                                    className={
+                                                        tabNameAffiliate === "overview" ?
+                                                            "earn-tab-item active" :
+                                                            "earn-tab-item"}>
+                                                    ภาพรวม
+                                                </div>
+                                                <div className="border-input-gold earn-tab-item-2"
+                                                    onClick={() => _tabAffiliate("income")}
+                                                    onKeyDown={() => ""}
+                                                >
+                                                    <div className={
+                                                        tabNameAffiliate === "income" ?
+                                                            "earn-tab-item active" :
+                                                            "earn-tab-item"}>
+                                                        รายได้
+                                                    </div>
+                                                </div>
+                                                <div onClick={() => _tabAffiliate("withdraw-income")}
+                                                    onKeyDown={() => ""}
+                                                    className={
+                                                        tabNameAffiliate ===
+                                                            "withdraw-income" ?
+                                                            "earn-tab-item active" :
+                                                            "earn-tab-item"}>
+                                                    ถอนรายได้
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }} >
+                                        <div className="filter-date">
+                                            <p className="filter-label">ภาพรวมวันที่</p>
+                                            <input className="filter-date-input" type="date" name="" id="" />
+                                        </div>
+
+                                        <div className="border-input-gold">
+                                            <div className="table-earn-date">
+                                                <div className="border-input-gold">
+                                                    <div className="th-earn-container">
+                                                        <span className="th-earn">วันที่</span>
+                                                        <span className="th-earn">สมัคร</span>
+                                                        <span className="th-earn">ฝากเงิน</span>
+                                                        <span className="th-earn">รายได้</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="tr-earn-container">
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">110</span>
+                                                        <span className="td-earn">40</span>
+                                                        <span className="td-earn">11,668</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="filter-date">
+                                            <p className="filter-label">ภาพรวมทั้งเดือน</p>
+                                            <select className="filter-date-input">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                                <option value="9">9</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="border-input-gold">
+                                            <div className="table-earn-date">
+                                                <div className="border-input-gold">
+                                                    <div className="th-earn-container">
+                                                        <span className="th-earn">เดือน</span>
+                                                        <span className="th-earn">สมัคร</span>
+                                                        <span className="th-earn">ฝากเงิน</span>
+                                                        <span className="th-earn">รายได้</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="tr-earn-container">
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">January</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">1,336</span>
+                                                        <span className="td-earn">83,550</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">January</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">1,336</span>
+                                                        <span className="td-earn">83,550</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">January</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">1,336</span>
+                                                        <span className="td-earn">83,550</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">January</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">1,336</span>
+                                                        <span className="td-earn">83,550</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">January</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">1,336</span>
+                                                        <span className="td-earn">83,550</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">January</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">1,336</span>
+                                                        <span className="td-earn">83,550</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="earn-detail-data" style={{ display: tabNameAffiliate === "income" ? "block" : "none" }}>
+                                        <div className="filter-date">
+                                            <p className="filter-label">ประวัติรายได้</p>
+                                            <div style={{ float: "right", display: "flex" }}>
+                                                <input className="filter-date-input" type="month" name="" id="" />
+                                                <input className="filter-date-input" type="month" name="" id="" />
+                                            </div>
+                                        </div>
+
+                                        <div className="border-input-gold">
+                                            <div className="table-earn-date">
+                                                <div className="border-input-gold">
+                                                    <div className="th-earn-container">
+                                                        <span className="th-earn">วัน/เวลา</span>
+                                                        <span className="th-earn">ยูสเซอร์</span>
+                                                        <span className="th-earn">ระดับขั้น</span>
+                                                        <span className="th-earn">จำนวนเงิน</span>
+                                                        <span className="th-earn">ชนิด</span>
+                                                        <span className="th-earn">หมวด</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="tr-earn-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="earn-detail-data" style={{ display: tabNameAffiliate === "withdraw-income" ? "block" : "none" }}>
+                                        <div className="border-input-gold">
+                                            <div className="form-withdraw-income">
+                                                <div className="form-withdraw-group">
+                                                    <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
+                                                    <input type="text" className="form-withdraw-input" />
+                                                </div>
+                                                <div className="form-withdraw-group">
+                                                    <label className="form-withdraw-label">จำนวนเงินที่ต้องการถอน</label>
+                                                    <input type="text" placeholder="ถอนไม่มีขั้นต่ำ" className="form-withdraw-input" />
+                                                </div>
+
+                                                <button type="button" className="btn-withdraw-income">
+                                                    ถอนรายได้
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="filter-date">
+                                            <p className="filter-label">ประวัติรายได้</p>
+                                            <input className="filter-date-input" type="date" name="" id="" />
+                                        </div>
+
+                                        <div className="border-input-gold">
+                                            <div className="table-earn-date">
+                                                <div className="border-input-gold">
+                                                    <div className="th-earn-container">
+                                                        <span className="th-earn">วัน/เวลา</span>
+                                                        <span className="th-earn">ยูสเซอร์</span>
+                                                        <span className="th-earn">จำนวนเงิน</span>
+                                                        <span className="th-earn">สถานะ</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="tr-earn-container">
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">xcczsaw</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">รับแล้ว</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">xcczsaw</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">รับแล้ว</span>
+                                                    </div>
+                                                    <div className="tr-earn">
+                                                        <span className="td-earn">1/01/66</span>
+                                                        <span className="td-earn">xcczsaw</span>
+                                                        <span className="td-earn">10,120</span>
+                                                        <span className="td-earn">รับแล้ว</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="read-earn-rule">
+                                        หากมีข้อสงสัยเพิ่มเติม
+                                        <a href="https://www.google.com/" target="_blank" rel="noreferrer">อ่านกฏกติกา</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/*<------\\ history Affiliate //--------> */}
+
             {/* <!-- change password modal --> */}
             <div
                 className="modal fade"
@@ -3075,6 +3394,6 @@ export default function AfterLogin() {
                 </div>
             </Modal>
 
-        </div>
+        </div >
     )
 }
