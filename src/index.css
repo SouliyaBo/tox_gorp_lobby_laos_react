@@ -3177,12 +3177,15 @@ p {
     gap: 20px;
   }
 
+  .modal .modal-content .modal-body .earn-modal-content .earn-detail-data .filter-date {
+    margin-bottom: 12px;
+  }
   .modal .modal-content .modal-body .earn-modal-content .earn-detail-data .filter-date .filter-label {
     font-size: 16px;
   }
 
   .modal .modal-content .modal-body .earn-modal-content .earn-detail-data .filter-date .filter-date-input {
-    height: 40px;
+    height: 38px;
     width: 140px;
     padding: 8px;
   }

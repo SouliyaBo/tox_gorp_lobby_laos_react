@@ -20,6 +20,7 @@ import {
     FillerCategory,
     LogoutClearLocalStorage,
     OpenNewTabWithHTML,
+    formatMontYear
 } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
@@ -27,8 +28,6 @@ import _LoginController from "../../api/login";
 import { errorAdd, successAdd } from "../../helper/sweetalert";
 import QRCode from 'qrcode.react';
 import Roulette from "../../component/Roulette";
-import CryptoJS from 'crypto-js';
-
 
 
 export default function AfterLogin() {
@@ -77,7 +76,14 @@ export default function AfterLogin() {
     const [outputSpin, setOutputSpin] = useState("");
     const [limitSpinWheel, setLimitSpinWheel] = useState({});
     const [currentPoint, setCurrentPoint] = useState({});
+    const [dataOverview, setDataOverview] = useState([]);
+    const [dataOverviewYears, setDataOverviewYears] = useState([]);
+    const [dataIncome, setDataIncome] = useState([]);
+    const [dataHistoryAffiliate, setDataHistoryAffiliate] = useState([]);
 
+    const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
+    const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
+    const [years, setYears] = useState([]);
     useEffect(() => {
         let hasTouchScreen = false;
         if ("maxTouchPoints" in navigator) {
@@ -154,17 +160,6 @@ export default function AfterLogin() {
             setTabs("ประวัติโบนัส");
         }
     };
-    const _tabAffiliate = (tabAffiliate) => {
-        console.log("tabAffiliate:: ", tabAffiliate)
-        setTabNameAffiliate(tabAffiliate);
-        if (tabAffiliate === "overview") {
-            setTapAffiliate("ภาพรวม");
-        } else if (tabAffiliate === "income") {
-            setTapAffiliate("รายได้");
-        } else {
-            setTapAffiliate("ถอนรายได้");
-        }
-    };
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -191,6 +186,12 @@ export default function AfterLogin() {
             history.push(Constant?.HOME)
         }
         getSpinWheel();
+        const currentYear = new Date().getFullYear();
+        const yearArray = [];
+        for (let year = 2020; year <= currentYear; year++) {
+            yearArray.push(year);
+        }
+        setYears(yearArray);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -712,6 +713,114 @@ export default function AfterLogin() {
             });
 
 
+    }
+
+    const _tabAffiliate = (tabAffiliate) => {
+        console.log("tabAffiliate:: ", tabAffiliate)
+        setTabNameAffiliate(tabAffiliate);
+        if (tabAffiliate === "overview") {
+            _getRegister()
+            setTapAffiliate("ภาพรวม");
+        } else if (tabAffiliate === "income") {
+            _getIncome(incomeDateStart, incomeDateEnd)
+            setTapAffiliate("รายได้");
+        } else {
+            setTapAffiliate("ถอนรายได้");
+            _getHistory()
+        }
+    };
+
+    const _getRegister = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Register`,
+            data: {
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
+                d_date: "2023-09",
+                page_start: 0
+            },
+        });
+        console.log("_res::: ", _res?.data)
+        if (_res?.data?.statusCode === 0) {
+            setDataOverview(_res?.data?.data?.list)
+        }
+    }
+
+    const _selectYear = (event) => {
+        _getRegisterByYear(event)
+    }
+
+    const _getRegisterByYear = async (year) => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Inquiry/RegisterByYear`,
+            data: {
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
+                d_date: year,
+                page_start: 0
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataOverviewYears(_res?.data?.data)
+        }
+    }
+
+    const _getIncome = async (dateStart, dateEnd) => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Income`,
+            data: {
+                s_agent_code: "AG002", //Constant?.AGENT_CODE,
+                s_username: "txaaa0002", // dataFromLogin?.username,
+                d_start: dateStart,
+                d_end: dateEnd,
+                page_start: 0
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataIncome(_res?.data?.data?.list)
+        }
+    }
+    const _getIncomeDateStart = (event) => {
+        setIncomeDateStart(event?.target?.value)
+        _getIncome(event?.target?.value, incomeDateEnd)
+    }
+    const _getIncomeDateEnd = (event) => {
+        setIncomeDateEnd(event?.target?.value)
+        _getIncome(incomeDateStart, event?.target?.value)
+    }
+
+    const _getHistory = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/History`,
+            data: {
+                s_agent_code: "AG002",
+                s_username: "txaaa0002"
+            },
+        });
+        console.log("_res::>> ", _res)
+        if (_res?.data?.statusCode === 0) {
+            setDataHistoryAffiliate(_res?.data?.data)
+        }
+    }
+    const _getReceiveAffiliate = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Receive`,
+            data: {
+                s_agent_code: "AG002",
+                s_username: "txaaa0002",
+                f_amount: 1,
+                actionBy: "ADM"
+            },
+        });
+        console.log("_res::>> ", _res)
+        if (_res?.data?.statusCode === 0) {
+            setDataHistoryAffiliate(_res?.data?.data)
+        }
     }
 
     return (
@@ -2401,11 +2510,11 @@ export default function AfterLogin() {
                                             <div className="bag-menu-img-container">
                                                 <img
                                                     className="bag-menu-icon"
-                                                    src="/assets/icons/icon-earn-money.svg"
+                                                    src="/assets/images/affiliate-image.svg"
                                                     alt=""
                                                 />
                                             </div>
-                                            <p className="bag-modal-menu-title">สร้างfffรายได้</p>
+                                            <p className="bag-modal-menu-title">ถอน Affiliate</p>
                                         </div>
                                         <div
                                             className="bag-modal-menu-item"
@@ -2831,7 +2940,6 @@ export default function AfterLogin() {
                 </div>
             </div>
 
-
             {/*<------\\ history Affiliate //--------> */}
             <div
                 className="modal fade"
@@ -2893,7 +3001,7 @@ export default function AfterLogin() {
                                     <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }} >
                                         <div className="filter-date">
                                             <p className="filter-label">ภาพรวมวันที่</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
+                                            <input className="filter-date-input" type="month" name="" id="" />
                                         </div>
 
                                         <div className="border-input-gold">
@@ -2908,67 +3016,25 @@ export default function AfterLogin() {
                                                 </div>
 
                                                 <div className="tr-earn-container">
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">110</span>
-                                                        <span className="td-earn">40</span>
-                                                        <span className="td-earn">11,668</span>
-                                                    </div>
+                                                    {dataOverview.length > 0 && dataOverview?.map((item, index) => (
+                                                        <div className="tr-earn">
+                                                            <span className="td-earn">1/01/66</span>
+                                                            <span className="td-earn">110</span>
+                                                            <span className="td-earn">40</span>
+                                                            <span className="td-earn">11,668</span>
+                                                        </div>
+                                                    ))}
+
                                                 </div>
                                             </div>
                                         </div>
-
+                                        <br />
                                         <div className="filter-date">
                                             <p className="filter-label">ภาพรวมทั้งเดือน</p>
-                                            <select className="filter-date-input">
-                                                <option value="1">1</option>
-                                                <option value="2">2</option>
-                                                <option value="3">3</option>
-                                                <option value="4">4</option>
-                                                <option value="5">5</option>
-                                                <option value="6">6</option>
-                                                <option value="7">7</option>
-                                                <option value="8">8</option>
-                                                <option value="9">9</option>
-                                                <option value="10">10</option>
-                                                <option value="11">11</option>
-                                                <option value="12">12</option>
+                                            <select className="filter-date-input" onChange={(event) => _selectYear(event?.target?.value)}>
+                                                {years.map(year => (
+                                                    <option key={year} value={year}>{year}</option>
+                                                ))}
                                             </select>
                                         </div>
 
@@ -2984,42 +3050,14 @@ export default function AfterLogin() {
                                                 </div>
 
                                                 <div className="tr-earn-container">
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">January</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">1,336</span>
-                                                        <span className="td-earn">83,550</span>
-                                                    </div>
+                                                    {dataOverviewYears?.length > 0 && dataOverviewYears?.map((item, index) => (
+                                                        <div className="tr-earn">
+                                                            <span className="td-earn">{item?.month}</span>
+                                                            <span className="td-earn">{item?.regisCount}</span>
+                                                            <span className="td-earn">{item?.f_affiliate_credit}</span>
+                                                            <span className="td-earn">{item?.deposit}</span>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         </div>
@@ -3029,25 +3067,35 @@ export default function AfterLogin() {
                                         <div className="filter-date">
                                             <p className="filter-label">ประวัติรายได้</p>
                                             <div style={{ float: "right", display: "flex" }}>
-                                                <input className="filter-date-input" type="month" name="" id="" />
-                                                <input className="filter-date-input" type="month" name="" id="" />
+                                                <input
+                                                    className="filter-date-input"
+                                                    value={incomeDateStart}
+                                                    onChange={(event) => _getIncomeDateStart(event)}
+                                                    type="month" name="" id="" />
+                                                <input
+                                                    className="filter-date-input"
+                                                    value={incomeDateEnd}
+                                                    onChange={(event) => _getIncomeDateEnd(event)}
+                                                    type="month" name="" id="" />
                                             </div>
                                         </div>
-
                                         <div className="border-input-gold">
                                             <div className="table-earn-date">
                                                 <div className="border-input-gold">
                                                     <div className="th-earn-container">
-                                                        <span className="th-earn">วัน/เวลา</span>
-                                                        <span className="th-earn">ยูสเซอร์</span>
-                                                        <span className="th-earn">ระดับขั้น</span>
+                                                        <span className="th-earn">รอบบิล</span>
                                                         <span className="th-earn">จำนวนเงิน</span>
-                                                        <span className="th-earn">ชนิด</span>
-                                                        <span className="th-earn">หมวด</span>
                                                     </div>
                                                 </div>
 
-                                                <div className="tr-earn-container"></div>
+                                                <div className="tr-earn-container">
+                                                    {dataIncome?.length > 0 && dataIncome?.map((item, index) => (
+                                                        <div className="tr-earn" key={index}>
+                                                            <span className="td-earn">{item?.d_date}</span>
+                                                            <span className="td-earn">{item?.f_affiliate}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -3057,21 +3105,21 @@ export default function AfterLogin() {
                                             <div className="form-withdraw-income">
                                                 <div className="form-withdraw-group">
                                                     <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
-                                                    <input type="text" className="form-withdraw-input" />
+                                                    <input type="text" value={dataFromLogin?.balance?.amount} className="form-withdraw-input" />
                                                 </div>
-                                                <div className="form-withdraw-group">
+                                                {/* <div className="form-withdraw-group">
                                                     <label className="form-withdraw-label">จำนวนเงินที่ต้องการถอน</label>
                                                     <input type="text" placeholder="ถอนไม่มีขั้นต่ำ" className="form-withdraw-input" />
-                                                </div>
+                                                </div> */}
 
-                                                <button type="button" className="btn-withdraw-income">
+                                                <button type="button" onClick={() => _getReceiveAffiliate()} className="btn-withdraw-income">
                                                     ถอนรายได้
                                                 </button>
                                             </div>
                                         </div>
+                                        <br />
                                         <div className="filter-date">
                                             <p className="filter-label">ประวัติรายได้</p>
-                                            <input className="filter-date-input" type="date" name="" id="" />
                                         </div>
 
                                         <div className="border-input-gold">
@@ -3079,31 +3127,18 @@ export default function AfterLogin() {
                                                 <div className="border-input-gold">
                                                     <div className="th-earn-container">
                                                         <span className="th-earn">วัน/เวลา</span>
-                                                        <span className="th-earn">ยูสเซอร์</span>
                                                         <span className="th-earn">จำนวนเงิน</span>
-                                                        <span className="th-earn">สถานะ</span>
                                                     </div>
                                                 </div>
 
                                                 <div className="tr-earn-container">
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">xcczsaw</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">รับแล้ว</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">xcczsaw</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">รับแล้ว</span>
-                                                    </div>
-                                                    <div className="tr-earn">
-                                                        <span className="td-earn">1/01/66</span>
-                                                        <span className="td-earn">xcczsaw</span>
-                                                        <span className="td-earn">10,120</span>
-                                                        <span className="td-earn">รับแล้ว</span>
-                                                    </div>
+                                                    {dataHistoryAffiliate?.length > 0 && dataHistoryAffiliate?.map((item, index) => (
+                                                        <div className="tr-earn">
+                                                            <span className="td-earn">{item?.d_create}</span>
+                                                            <span className="td-earn">{item?.f_amount}</span>
+                                                        </div>
+                                                    ))}
+
                                                 </div>
                                             </div>
                                         </div>
