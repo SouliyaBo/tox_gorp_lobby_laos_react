@@ -3183,6 +3183,7 @@ p {
 
   .modal .modal-content .modal-body .earn-modal-content .earn-detail-data .filter-date .filter-date-input {
     height: 40px;
+    width: 140px;
     padding: 8px;
   }
 
