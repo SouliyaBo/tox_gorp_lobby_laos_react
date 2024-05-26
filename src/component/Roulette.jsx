@@ -19,7 +19,6 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
             setOutputSpin(rouletteData[prizeNumber].completeOption)
             if (rouletteData !== "")
                 randomPrice(rouletteData[prizeNumber].codeEvent);
-            console.log("first", rouletteData)
         }
     }, [mustSpin]);
 
@@ -57,7 +56,6 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
             .then((response) => {
                 if (response.data.statusCode === 0) {
                     setCurrentPoint(response.data?.data)
-                    console.log("response", response.data);
                 } else {
                     setErrorText(response.data.statusDesc);
                 }

@@ -625,6 +625,33 @@ export default function AfterLoginMobile() {
         console.log(data);
     };
 
+
+    const _getBankAgentCode = (event) => {
+
+        let data = JSON.stringify({ "data": event });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: `${Constant.SERVER_URL}/Decrypt`,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+
+        axios.request(config)
+            .then((response) => {
+                setBankAgentCode(response.data.decrypt)
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+
+    }
+
     return (
         <div>
             <main className="after-login-mobile-page">
@@ -1083,7 +1110,9 @@ export default function AfterLoginMobile() {
                                             <div>
                                                 <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
                                                     <p className="username">Bank</p>
-                                                    <div>{item?.s_icon.split(".")[0]} <img src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" /></div>
+                                                    <div>{item?.s_icon.split(".")[0]}
+                                                        <img src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" style={{ width: 30, height: 30 }} className="result" />
+                                                    </div>
                                                 </div>
                                                 <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
                                                     <p className="username">Account Number</p>
@@ -1633,8 +1662,8 @@ export default function AfterLoginMobile() {
                                         <p className="warning-text">
                                             *ใช้ในกรณีที่ธนาคารมีปัญหาหรือยอดฝากไม่เข้า*
                                         </p>
-                                        <select className="select-promotion" onChange={(event) => setBankAgentCode(event?.target?.value)}>
-                                                
+                                        <select className="select-promotion" onChange={(event) => _getBankAgentCode(event?.target?.value)}>
+                                            <option>เลือกธนาคาร</option>
                                             {dataFromLogin?.info?.bankDeposit?.length > 0 && dataFromLogin?.info?.bankDeposit?.map((bank) => (
                                                 <option key={bank?.index} value={bank?.i_bank}>{bank?.s_fname_th}</option>
                                             ))}

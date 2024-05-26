@@ -34,6 +34,17 @@ export let dataCradGame = {
       "s_lobby_flg": "N",
       "s_lobby_url": "/assets/images/cradCategoryGame/8.png",
       "s_endpoint_access": "/PP/LIVE/LoginRequest"
+    },
+    {
+      "s_type": "CASINO",
+      "s_pbrand_code": "EVOLUTION",
+      "s_brand_code": "B041",
+      "s_brand_name": "Evolution",
+      "s_status": "A",
+      "s_status_agent": "A",
+      "s_lobby_flg": "N",
+      "s_lobby_url": "/assets/images/cradCategoryGame/18.png",
+      "s_endpoint_access": "/EVO/LoginRequest"
     }
   ],
   "SLOT": [
