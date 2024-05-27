@@ -81,9 +81,11 @@ export default function AfterLogin() {
     const [dataIncome, setDataIncome] = useState([]);
     const [dataHistoryAffiliate, setDataHistoryAffiliate] = useState([]);
 
+    const [overviewDate, setOverviewDate] = useState(formatMontYear(new Date()));
     const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
     const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
     const [years, setYears] = useState([]);
+
     useEffect(() => {
         let hasTouchScreen = false;
         if ("maxTouchPoints" in navigator) {
@@ -3001,7 +3003,7 @@ export default function AfterLogin() {
                                     <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }} >
                                         <div className="filter-date">
                                             <p className="filter-label">ภาพรวมวันที่</p>
-                                            <input className="filter-date-input" type="month" name="" id="" />
+                                            <input className="filter-date-input" value={overviewDate} type="month" name="" id="" />
                                         </div>
 
                                         <div className="border-input-gold">

@@ -52,6 +52,13 @@ export default function RegisterStep1() {
             setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
         }
     });
+    const handleChangePassword = useCallback((event) => {
+        if (event.target.value.length < 4) {
+            setWarningPassword("กรุณากรอกรหัสผ่านให้ครบ 4 ตัว");
+        }
+        setInputPassword(event?.target?.value)
+
+    });
 
     const _selectTypePhone = (type) => {
         if (type === "TH") {
@@ -123,7 +130,8 @@ export default function RegisterStep1() {
                                 id="password"
                                 type="password"
                                 placeholder="รหัสผ่าน"
-                                onChange={(e) => setInputPassword(e?.target?.value)}
+                                value={inputPassword}
+                                onChange={(e) => handleChangePassword(e)}
                             />
                         </div>
                     </div>

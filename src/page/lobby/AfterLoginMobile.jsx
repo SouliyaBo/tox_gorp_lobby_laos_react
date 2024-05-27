@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage } from "../../helper"
+import { CheckLevelCashBack, FillerCategory, OpenNewTabWithHTML, DataLoginInRout, LogoutClearLocalStorage, formatMontYear } from "../../helper"
 import Constant, { AGENT_CODE } from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
@@ -20,6 +20,8 @@ export default function AfterLoginMobile() {
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
     const [tabName, setTabName] = useState("tab-deposit");
+    const [tabNameAffiliate, setTabNameAffiliate] = useState("overview");
+
     const [dataFromLogin, setDataFromLogin] = useState({});
     const [dataGameType, setDataGameType] = useState("SLOT");
     const [dataGameList, setDataGameList] = useState();
@@ -59,7 +61,15 @@ export default function AfterLoginMobile() {
     const [outputSpin, setOutputSpin] = useState("");
     const [limitSpinWheel, setLimitSpinWheel] = useState({});
     const [currentPoint, setCurrentPoint] = useState({});
+    const [dataOverview, setDataOverview] = useState([]);
+    const [dataOverviewYears, setDataOverviewYears] = useState([]);
+    const [dataIncome, setDataIncome] = useState([]);
+    const [dataHistoryAffiliate, setDataHistoryAffiliate] = useState([]);
 
+    const [overviewDate, setOverviewDate] = useState(formatMontYear(new Date()));
+    const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
+    const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
+    const [years, setYears] = useState([]);
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
@@ -85,6 +95,12 @@ export default function AfterLoginMobile() {
         if (_data === undefined) {
             history.push(Constant?.HOME)
         }
+        const currentYear = new Date().getFullYear();
+        const yearArray = [];
+        for (let year = 2020; year <= currentYear; year++) {
+            yearArray.push(year);
+        }
+        setYears(yearArray);
     }, []);
 
     const getSpinWheel = async () => {
@@ -652,6 +668,110 @@ export default function AfterLoginMobile() {
 
     }
 
+    const _tabAffiliate = (tabAffiliate) => {
+        console.log("tabAffiliate:: ", tabAffiliate)
+        setTabNameAffiliate(tabAffiliate);
+        if (tabAffiliate === "overview") {
+            _getRegister()
+        } else if (tabAffiliate === "income") {
+            _getIncome(incomeDateStart, incomeDateEnd)
+        } else {
+            _getHistory()
+        }
+    };
+
+    const _getRegister = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Register`,
+            data: {
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
+                d_date: "2023-09",
+                page_start: 0
+            },
+        });
+        console.log("_res::: ", _res?.data)
+        if (_res?.data?.statusCode === 0) {
+            setDataOverview(_res?.data?.data?.list)
+        }
+    }
+
+    const _selectYear = (event) => {
+        _getRegisterByYear(event)
+    }
+
+    const _getRegisterByYear = async (year) => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Inquiry/RegisterByYear`,
+            data: {
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
+                d_date: year,
+                page_start: 0
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataOverviewYears(_res?.data?.data)
+        }
+    }
+
+    const _getIncome = async (dateStart, dateEnd) => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Income`,
+            data: {
+                s_agent_code: "AG002", //Constant?.AGENT_CODE,
+                s_username: "txaaa0002", // dataFromLogin?.username,
+                d_start: dateStart,
+                d_end: dateEnd,
+                page_start: 0
+            },
+        });
+        if (_res?.data?.statusCode === 0) {
+            setDataIncome(_res?.data?.data?.list)
+        }
+    }
+    const _getIncomeDateStart = (event) => {
+        setIncomeDateStart(event?.target?.value)
+        _getIncome(event?.target?.value, incomeDateEnd)
+    }
+    const _getIncomeDateEnd = (event) => {
+        setIncomeDateEnd(event?.target?.value)
+        _getIncome(incomeDateStart, event?.target?.value)
+    }
+
+    const _getHistory = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/History`,
+            data: {
+                s_agent_code: "AG002",
+                s_username: "txaaa0002"
+            },
+        });
+        console.log("_res::>> ", _res)
+        if (_res?.data?.statusCode === 0) {
+            setDataHistoryAffiliate(_res?.data?.data)
+        }
+    }
+    const _getReceiveAffiliate = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/Affiliate/Receive`,
+            data: {
+                s_agent_code: "AG002",
+                s_username: "txaaa0002",
+                f_amount: 1,
+                actionBy: "ADM"
+            },
+        });
+        console.log("_res::>> ", _res)
+        if (_res?.data?.statusCode === 0) {
+            setDataHistoryAffiliate(_res?.data?.data)
+        }
+    }
     return (
         <div>
             <main className="after-login-mobile-page">
@@ -1924,6 +2044,13 @@ export default function AfterLoginMobile() {
                                                 </div>
                                                 <p className="bag-modal-menu-title">สร้างรายได้</p>
                                             </div>
+                                            <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#earnMoneyDetailModal"
+                                                data-bs-dismiss="modal">
+                                                <div className="bag-menu-img-container">
+                                                    <img className="bag-menu-icon" src="/assets/images/affiliate-image.svg" alt="" />
+                                                </div>
+                                                <p className="bag-modal-menu-title">ถอน <span style={{ fontSize: 10 }}>Affiliate</span></p>
+                                            </div>
                                             <div className="bag-modal-menu-item" id="code-modal-btn" data-bs-toggle="modal" data-bs-target="#codeModal"
                                                 data-bs-dismiss="modal">
                                                 <div className="bag-menu-img-container">
@@ -2021,25 +2148,43 @@ export default function AfterLoginMobile() {
                                         <div className="earn-tab-container">
                                             <div className="border-input-gold">
                                                 <div className="earn-tab">
-                                                    <div id="earn-tab-overview" className="earn-tab-item active">
+                                                    <div onClick={() => _tabAffiliate("overview")}
+                                                        onKeyDown={() => ""}
+                                                        className={
+                                                            tabNameAffiliate === "overview" ?
+                                                                "earn-tab-item active" :
+                                                                "earn-tab-item"}>
                                                         ภาพรวม
                                                     </div>
-                                                    <div className="border-input-gold earn-tab-item-2">
-                                                        <div id="earn-tab-income" className="earn-tab-item">
+                                                    <div className="border-input-gold earn-tab-item-2"
+                                                        onClick={() => _tabAffiliate("income")}
+                                                        onKeyDown={() => ""}>
+                                                        <div
+                                                            className={
+                                                                tabNameAffiliate === "income" ?
+                                                                    "earn-tab-item active" :
+                                                                    "earn-tab-item"
+                                                            }>
                                                             รายได้
                                                         </div>
                                                     </div>
-                                                    <div id="earn-tab-withdraw-income" className="earn-tab-item">
+                                                    <div onClick={() => _tabAffiliate("withdraw-income")}
+                                                        onKeyDown={() => ""}
+                                                        className={
+                                                            tabNameAffiliate ===
+                                                                "withdraw-income" ?
+                                                                "earn-tab-item active" :
+                                                                "earn-tab-item"}>
                                                         ถอนรายได้
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="earn-detail-data" id="earn-detail-overview">
+                                        <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
                                             <div className="filter-date">
                                                 <p className="filter-label">ภาพรวมวันที่</p>
-                                                <input className="filter-date-input" type="date" name="" id="" />
+                                                <input className="filter-date-input" value={overviewDate} type="month" name="" id="" />
                                             </div>
 
                                             <div className="border-input-gold">
@@ -2054,67 +2199,24 @@ export default function AfterLoginMobile() {
                                                     </div>
 
                                                     <div className="tr-earn-container">
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">110</span>
-                                                            <span className="td-earn">40</span>
-                                                            <span className="td-earn">11,668</span>
-                                                        </div>
+                                                        {dataOverview.length > 0 && dataOverview?.map((item, index) => (
+                                                            <div className="tr-earn">
+                                                                <span className="td-earn">1/01/66</span>
+                                                                <span className="td-earn">110</span>
+                                                                <span className="td-earn">40</span>
+                                                                <span className="td-earn">11,668</span>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            <br />
                                             <div className="filter-date">
                                                 <p className="filter-label">ภาพรวมทั้งเดือน</p>
-                                                <select className="filter-date-input">
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                    <option value="3">3</option>
-                                                    <option value="4">4</option>
-                                                    <option value="5">5</option>
-                                                    <option value="6">6</option>
-                                                    <option value="7">7</option>
-                                                    <option value="8">8</option>
-                                                    <option value="9">9</option>
-                                                    <option value="10">10</option>
-                                                    <option value="11">11</option>
-                                                    <option value="12">12</option>
+                                                <select className="filter-date-input" onChange={(event) => _selectYear(event?.target?.value)}>
+                                                    {years.map(year => (
+                                                        <option key={year} value={year}>{year}</option>
+                                                    ))}
                                                 </select>
                                             </div>
 
@@ -2130,128 +2232,98 @@ export default function AfterLoginMobile() {
                                                     </div>
 
                                                     <div className="tr-earn-container">
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">January</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">1,336</span>
-                                                            <span className="td-earn">83,550</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">January</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">1,336</span>
-                                                            <span className="td-earn">83,550</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">January</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">1,336</span>
-                                                            <span className="td-earn">83,550</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">January</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">1,336</span>
-                                                            <span className="td-earn">83,550</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">January</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">1,336</span>
-                                                            <span className="td-earn">83,550</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">January</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">1,336</span>
-                                                            <span className="td-earn">83,550</span>
-                                                        </div>
+                                                        {dataOverviewYears?.length > 0 && dataOverviewYears?.map((item, index) => (
+                                                            <div className="tr-earn">
+                                                                <span className="td-earn">{item?.month}</span>
+                                                                <span className="td-earn">{item?.regisCount}</span>
+                                                                <span className="td-earn">{item?.f_affiliate_credit}</span>
+                                                                <span className="td-earn">{item?.deposit}</span>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="earn-detail-data" id="earn-detail-income">
+                                        <div className="earn-detail-data" style={{ display: tabNameAffiliate === "income" ? "block" : "none" }}>
                                             <div className="filter-date">
                                                 <p className="filter-label" style={{ fontSize: 12 }}>
                                                     ประวัติรายได้
                                                 </p>
-                                                <input className="filter-date-input" type="date" name="" id="" style={{ width: 89 }} />
-                                                <select className="filter-date-input" style={{ width: 89 }}>
-                                                    <option value="">.</option>
-                                                </select>
+                                                <div style={{ float: "right", display: "flex" }}>
+                                                    <input
+                                                        className="filter-date-input"
+                                                        value={incomeDateStart}
+                                                        onChange={(event) => _getIncomeDateStart(event)}
+                                                        type="month" name="" id="" />
+                                                    <input
+                                                        className="filter-date-input"
+                                                        value={incomeDateEnd}
+                                                        onChange={(event) => _getIncomeDateEnd(event)}
+                                                        type="month" name="" id="" />
+                                                </div>
                                             </div>
 
                                             <div className="border-input-gold">
                                                 <div className="table-earn-date">
                                                     <div className="border-input-gold">
                                                         <div className="th-earn-container">
-                                                            <span className="th-earn">วัน/เวลา</span>
-                                                            <span className="th-earn">ยูสเซอร์</span>
-                                                            <span className="th-earn">ระดับขั้น</span>
+                                                            <span className="th-earn">รอบบิล</span>
                                                             <span className="th-earn">จำนวนเงิน</span>
-                                                            <span className="th-earn">ชนิด</span>
-                                                            <span className="th-earn">หมวด</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="tr-earn-container" />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="earn-detail-data" id="earn-detail-withdraw-income">
-                                            <div className="border-input-gold">
-                                                <div className="form-withdraw-income">
-                                                    <div className="form-withdraw-group">
-                                                        <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
-                                                        <input type="text" className="form-withdraw-input" />
-                                                    </div>
-                                                    <div className="form-withdraw-group">
-                                                        <label className="form-withdraw-label">จำนวนเงินที่ต้องการถอน</label>
-                                                        <input type="text" placeholder="ถอนไม่มีขั้นต่ำ" className="form-withdraw-input" />
-                                                    </div>
-
-                                                    <button type="button" className="btn-withdraw-income">
-                                                        ถอนรายได้
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="filter-date">
-                                                <p className="filter-label">ประวัติรายได้</p>
-                                                <input className="filter-date-input" type="date" name="" id="" />
-                                            </div>
-
-                                            <div className="border-input-gold">
-                                                <div className="table-earn-date">
-                                                    <div className="border-input-gold">
-                                                        <div className="th-earn-container">
-                                                            <span className="th-earn">วัน/เวลา</span>
-                                                            <span className="th-earn">ยูสเซอร์</span>
-                                                            <span className="th-earn">จำนวนเงิน</span>
-                                                            <span className="th-earn">สถานะ</span>
                                                         </div>
                                                     </div>
 
                                                     <div className="tr-earn-container">
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">xcczsaw</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">รับแล้ว</span>
+                                                        {dataIncome?.length > 0 && dataIncome?.map((item, index) => (
+                                                            <div className="tr-earn" key={index}>
+                                                                <span className="td-earn">{item?.d_date}</span>
+                                                                <span className="td-earn">{item?.f_affiliate}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="earn-detail-data" style={{ display: tabNameAffiliate === "withdraw-income" ? "block" : "none" }}>
+                                            <div className="border-input-gold">
+                                                <div className="form-withdraw-income">
+                                                    <div className="form-withdraw-group">
+                                                        <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
+                                                        <input type="text" value={dataFromLogin?.balance?.amount} className="form-withdraw-input" />
+                                                    </div>
+                                                    {/* <div className="form-withdraw-group">
+                                                    <label className="form-withdraw-label">จำนวนเงินที่ต้องการถอน</label>
+                                                    <input type="text" placeholder="ถอนไม่มีขั้นต่ำ" className="form-withdraw-input" />
+                                                </div> */}
+
+                                                    <button type="button" onClick={() => _getReceiveAffiliate()} className="btn-withdraw-income">
+                                                        ถอนรายได้
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div className="filter-date">
+                                                <p className="filter-label">ประวัติรายได้</p>
+                                            </div>
+
+                                            <div className="border-input-gold">
+                                                <div className="table-earn-date">
+                                                    <div className="border-input-gold">
+                                                        <div className="th-earn-container">
+                                                            <span className="th-earn">วัน/เวลา</span>
+                                                            <span className="th-earn">จำนวนเงิน</span>
                                                         </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">xcczsaw</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">รับแล้ว</span>
-                                                        </div>
-                                                        <div className="tr-earn">
-                                                            <span className="td-earn">1/01/66</span>
-                                                            <span className="td-earn">xcczsaw</span>
-                                                            <span className="td-earn">10,120</span>
-                                                            <span className="td-earn">รับแล้ว</span>
-                                                        </div>
+                                                    </div>
+
+                                                    <div className="tr-earn-container">
+                                                        {dataHistoryAffiliate?.length > 0 && dataHistoryAffiliate?.map((item, index) => (
+                                                            <div className="tr-earn">
+                                                                <span className="td-earn">{item?.d_create}</span>
+                                                                <span className="td-earn">{item?.f_amount}</span>
+                                                            </div>
+                                                        ))}
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -2314,17 +2386,16 @@ export default function AfterLoginMobile() {
                                 <div className="modal-body">
                                     <div className="spinner-modal-content">
                                         <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint?.currentPoint}</p>
-                                        <div className="spinner-modal-body">
+                                        <div className="spinner-modal-body" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             {dataSpinWheel.length > 0 &&
                                                 <Roulette
                                                     data={dataSpinWheel}
                                                     setOutputSpin={setOutputSpin}
                                                     username={dataFromLogin?.username}
                                                     setCurrentPoint={setCurrentPoint} />}
-
                                             <p style={{ margin: 'none', marginTop: 10 }}>เครดิตกงล้อ : {outputSpin}</p>
                                             <div style={{ fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
-                                            <p style={{ margin: 'none' }}>หมุนวงล้อได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว 3 ครั้ง</p>
+                                            <p style={{ margin: 'none' }}>หมุนได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว 3 ครั้ง</p>
                                             <p style={{ margin: 'none' }}>ภายในวันสามารถใข้สิทธิได้ {limitSpinWheel?.i_per_day} ครั้ง</p>
                                         </div>
                                     </div>

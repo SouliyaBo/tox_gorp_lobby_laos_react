@@ -83,6 +83,7 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
                     textDistance={55}
                     pointerProps={rouletteData}
                     fontSize={[16]}
+                    disableInitialAnimation={false}
                     backgroundColors={[
                         "#3f297e",
                         "#175fa9",
@@ -102,7 +103,7 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
                     }}
                 />
                 <button type="button" className="btn-spinner" onClick={handleSpinClick}>หมุนกงล้อ</button>
-                <div style={{ color: "red", marginTop: 10 }}>{errorText}</div>
+                {/* <div style={{ color: "red", marginTop: 10 }}>{errorText}</div> */}
             </div>
         </>
     );

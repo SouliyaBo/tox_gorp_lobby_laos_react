@@ -7067,6 +7067,7 @@ p {
 .earn-modal-content .earn-detail-data .filter-date .filter-date-input {
   min-width: 80px;
   padding: 2px;
+  font-size: 11px;
   border: 0;
   border-radius: 5px;
 }

@@ -424,8 +424,8 @@ export default function RegisterStep2() {
                     </div>
                 </div>
 
-                <div style={{ padding: 10, color: "red" }}>{textWarning}</div>
-                <div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
+                <div style={{ padding: 10, color: "red" }}>{textWarning} {"และ " + messageCreate}</div>
+                {/* <div style={{ padding: 10, color: "red" }}>{messageCreate}</div> */}
 
                 <button
                     type="button"
