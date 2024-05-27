@@ -743,7 +743,6 @@ export default function AfterLogin() {
                 page_start: 0
             },
         });
-        console.log("_res::: ", _res?.data)
         if (_res?.data?.statusCode === 0) {
             setDataOverview(_res?.data?.data?.list)
         }
@@ -774,8 +773,8 @@ export default function AfterLogin() {
             method: "post",
             url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Income`,
             data: {
-                s_agent_code: "AG002", //Constant?.AGENT_CODE,
-                s_username: "txaaa0002", // dataFromLogin?.username,
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
                 d_start: dateStart,
                 d_end: dateEnd,
                 page_start: 0
@@ -799,27 +798,25 @@ export default function AfterLogin() {
             method: "post",
             url: `${Constant.SERVER_URL}/Affiliate/History`,
             data: {
-                s_agent_code: "AG002",
-                s_username: "txaaa0002"
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
             },
         });
-        console.log("_res::>> ", _res)
         if (_res?.data?.statusCode === 0) {
             setDataHistoryAffiliate(_res?.data?.data)
         }
     }
-    const _getReceiveAffiliate = async () => {
+    const _getReceiveAffiliate = async (amount) => {
         const _res = await axios({
             method: "post",
             url: `${Constant.SERVER_URL}/Affiliate/Receive`,
             data: {
-                s_agent_code: "AG002",
-                s_username: "txaaa0002",
-                f_amount: 1,
+                s_agent_code: Constant?.AGENT_CODE,
+                s_username: dataFromLogin?.username,
+                f_amount: amount,
                 actionBy: "ADM"
             },
         });
-        console.log("_res::>> ", _res)
         if (_res?.data?.statusCode === 0) {
             setDataHistoryAffiliate(_res?.data?.data)
         }
@@ -3107,14 +3104,14 @@ export default function AfterLogin() {
                                             <div className="form-withdraw-income">
                                                 <div className="form-withdraw-group">
                                                     <label className="form-withdraw-label">รายได้ปัจจุบัน</label>
-                                                    <input type="text" value={dataFromLogin?.balance?.amount} className="form-withdraw-input" />
+                                                    <input type="text" value={dataFromLogin?.balance?.affiliate} className="form-withdraw-input" />
                                                 </div>
                                                 {/* <div className="form-withdraw-group">
                                                     <label className="form-withdraw-label">จำนวนเงินที่ต้องการถอน</label>
                                                     <input type="text" placeholder="ถอนไม่มีขั้นต่ำ" className="form-withdraw-input" />
                                                 </div> */}
 
-                                                <button type="button" onClick={() => _getReceiveAffiliate()} className="btn-withdraw-income">
+                                                <button type="button" onClick={() => _getReceiveAffiliate(dataFromLogin?.balance?.affiliate)} className="btn-withdraw-income">
                                                     ถอนรายได้
                                                 </button>
                                             </div>
