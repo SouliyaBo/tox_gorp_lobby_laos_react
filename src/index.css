@@ -43,7 +43,7 @@
 
 body {
   background: #000000;
-  display: flex;
+  /* display: flex; */
   align-items: center;
   width: 100dvw;
   height: 100%;
@@ -7667,15 +7667,12 @@ iframe {
 }
 
 #customSelect option {
-  background-color: #433D3D;
-  /* Change option background */
+  background-color: red !important;
   color: #FFF;
-  /* Change option text color */
 }
 
 #customSelect:focus {
-  border-color: #007BFF;
-  /* Change border color on focus */
+  border-color: #007BFF !important;
 }
 
 .select-promotion {

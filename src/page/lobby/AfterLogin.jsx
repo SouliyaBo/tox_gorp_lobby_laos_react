@@ -4,34 +4,24 @@ import axios from "axios";
 import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import jsQR from 'jsqr';
-import {
-    faChevronCircleLeft,
-    faChevronCircleRight,
-    faHeart,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronCircleLeft, faChevronCircleRight, faHeart, } from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router-dom";
 import { Modal } from "react-bootstrap";
-
 import "react-slideshow-image/dist/styles.css";
 import "react-slideshow-image/dist/styles.css";
-import {
-    CheckLevelCashBack,
-    DataLoginInRout,
-    FillerCategory,
-    LogoutClearLocalStorage,
-    OpenNewTabWithHTML,
-    formatMontYear
-} from "../../helper";
+import { CheckLevelCashBack, DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML, formatMontYear, formateDateToken } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
 import _LoginController from "../../api/login";
 import { errorAdd, successAdd } from "../../helper/sweetalert";
 import QRCode from 'qrcode.react';
 import Roulette from "../../component/Roulette";
+import moment from "moment";
 
 
 export default function AfterLogin() {
     const history = useHistory();
+    const user = localStorage.getItem(Constant?.LOGIN_TOKEN_DATA);
     const sidebarUseRef = useRef(null);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
@@ -86,6 +76,38 @@ export default function AfterLogin() {
     const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
     const [years, setYears] = useState([]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
+        const _data = DataLoginInRout(history?.location?.state);
+        // console.log("_data: ", _data)
+        if (_data) {
+            setLogoWebsite(_data?.info?.configLobby?.s_logo)
+            setLinkLine(_data?.info?.configLobby?.s_line)
+            setDataFromLogin(_data);
+            const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
+            const newSlideArray = slideArray.filter(data => data.s_position === "page_wallet");
+            setSliderData(newSlideArray)
+            setDepositBankList(_data?.info?.bankDeposit[0])
+            getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
+            const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
+            if (color?.length > 0) {
+                setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
+            }
+
+        }
+        setDataPromotion(history?.location?.state?.info?.promotionList);
+        if (_data === undefined) {
+            history.push(Constant?.HOME)
+        }
+        getSpinWheel();
+        const currentYear = new Date().getFullYear();
+        const yearArray = [];
+        for (let year = 2020; year <= currentYear; year++) {
+            yearArray.push(year);
+        }
+        setYears(yearArray);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     useEffect(() => {
         let hasTouchScreen = false;
         if ("maxTouchPoints" in navigator) {
@@ -140,6 +162,39 @@ export default function AfterLogin() {
         return () => clearInterval(interval);
     }, [current]);
 
+    useEffect(() => {
+        if (user !== null) {
+            // _checkToken(user);
+            _checkToken();
+        }
+    }, [user])
+
+    useEffect(() => {
+        _clickCategoryGame("SLOT");
+        if (dataFromLogin) {
+            _getData();
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataFromLogin]);
+
+    const _checkToken = async (token) => {
+        try {
+            const _res = await axios({
+                method: "get",
+                url: `${Constant.SERVER_URL}/Authen/CheckTokenLogin/eWVEOXhSV2g2N0t1c2thdjRnOUMwYmt6ZHVpdzY3MGR6M2JFNjByVmQ5MD0=`,
+            });
+            if (_res?.data?.data) {
+                console.log("TokenDate: ", _res?.data?.data?.d_session_expire)
+                const presentTime = new Date();
+                const futureTime = new Date(_res?.data?.data?.d_session_expire)
+                if (presentTime > futureTime) {
+                    history.push("/")
+                }
+            }
+        } catch (error) { }
+
+    }
     const toggleSidebar = (event) => {
         event.stopPropagation();
         setSidebarVisible(true);
@@ -162,41 +217,6 @@ export default function AfterLogin() {
             setTabs("ประวัติโบนัส");
         }
     };
-
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    useEffect(() => {
-        const _data = DataLoginInRout(history?.location?.state);
-        console.log("_data: ", _data)
-
-        if (_data) {
-            setLogoWebsite(_data?.info?.configLobby?.s_logo)
-            setLinkLine(_data?.info?.configLobby?.s_line)
-            setDataFromLogin(_data);
-            const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-            const newSlideArray = slideArray.filter(data => data.s_position === "page_wallet");
-            setSliderData(newSlideArray)
-            setDepositBankList(_data?.info?.bankDeposit[0])
-            getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
-            const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
-            if (color?.length > 0) {
-                setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor })
-            }
-
-        }
-        setDataPromotion(history?.location?.state?.info?.promotionList);
-        if (_data === undefined) {
-            history.push(Constant?.HOME)
-        }
-        getSpinWheel();
-        const currentYear = new Date().getFullYear();
-        const yearArray = [];
-        for (let year = 2020; year <= currentYear; year++) {
-            yearArray.push(year);
-        }
-        setYears(yearArray);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
 
     const getQRCode = async (accountNumber) => {
         const _data = await axios.post(`${Constant.SERVER_URL}/genarate-qr-code/${Constant.AGENT_CODE}`, {
@@ -232,14 +252,6 @@ export default function AfterLogin() {
             });
     }
 
-    useEffect(() => {
-        _clickCategoryGame("SLOT");
-        if (dataFromLogin) {
-            _getData();
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dataFromLogin]);
 
     const _getData = async () => {
         const _res = await axios({
@@ -613,7 +625,6 @@ export default function AfterLogin() {
 
         const _URL = window.URL || window.webkitURL;
         const url = _URL.createObjectURL(file);
-        console.log("A");
         const imgData = await uploadSlip(url);
         document.getElementById('fileslip').value = '';
         if (imgData != null) {
@@ -631,7 +642,6 @@ export default function AfterLogin() {
                 setErrorTextUploadSlip(response?.data?.statusDesc)
                 notify(response.data);
             } catch (error) {
-                console.error("AAAA", error);
             }
         } else {
             notify({ statusDesc: 'Failed to read QR code' });
@@ -718,7 +728,6 @@ export default function AfterLogin() {
     }
 
     const _tabAffiliate = (tabAffiliate) => {
-        console.log("tabAffiliate:: ", tabAffiliate)
         setTabNameAffiliate(tabAffiliate);
         if (tabAffiliate === "overview") {
             _getRegister()

@@ -70,6 +70,15 @@ const LoginController = () => {
 			});
 			console.log("_res?.data.statusCode::: ", _res?.data)
 			if (_res?.data.statusCode === 0) {
+				localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
+				localStorage.setItem(
+					Constant.LOGIN_USER_DATA,
+					JSON.stringify({
+						agent: _res?.data?.data?.agent,
+						username: _res?.data?.data?.username,
+						balance: _res?.data?.data?.balance,
+					}),
+				);
 				history.push(Constant.AFTER_LOGIN, _res?.data?.data);
 			}
 		} catch (error) {
@@ -88,6 +97,7 @@ const LoginController = () => {
 		isMobile,
 		setLoading
 	) => {
+		console.log("inputFirstname: ", inputFirstname)
 		try {
 			const _date = {
 				s_agent_code: Constant.AGEN_CODE,

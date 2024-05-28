@@ -103,6 +103,10 @@ export const formatDateTimeDDMMYYYY = (today) => {
   const todays = moment(today).format("DD/MM/YYYY hh:mm");
   return todays;
 };
+export const formateDateToken = (today) => {
+  const todays = moment(today).format("DD/MM/YYYY hh:mm");
+  return todays;
+};
 export const formatMontYear = (today) => {
   const todays = moment(today).format("YYYY-MM");
   return todays;
@@ -147,7 +151,7 @@ export const convertBankCode = (bankCode) => {
       res = "JDB";
       break;
     default:
-      res = "";
+      res = "NOT_BANK_LAOS";
       break;
   }
   return res;
