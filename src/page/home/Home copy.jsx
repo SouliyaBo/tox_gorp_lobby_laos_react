@@ -7,7 +7,6 @@ import _LoginController from "../../api/login";
 import constant from "../../constant";
 import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
-import Swal from 'sweetalert2'
 import Sidebar from "../../component/Sidebar";
 import { _clickTabDeposit, } from "../../helper"
 import { BackList } from "../../constant/bankList";
@@ -141,23 +140,23 @@ export default function Home() {
 		const _res = await handleLogin(userNameInput, passwordInput, "PC",
 			(response) => {
 				if (response === false) {
-					Swal.fire({
-						icon: 'success',
-						title: "สำเร็จ",
-						showConfirmButton: false,
-						timer: 2000,
-						background: '#242424', // Change to the color you want
-						color: '#fff',
-					});
+					// Swal.fire({
+					// 	icon: 'success',
+					// 	title: "สำเร็จ",
+					// 	showConfirmButton: false,
+					// 	timer: 2000,
+					// 	background: '#242424', // Change to the color you want
+					// 	color: '#fff',
+					// });
 				} else {
-					Swal.fire({
-						icon: 'error',
-						title: "ทำรายการไม่สำเร็จ",
-						showConfirmButton: false,
-						timer: 2000,
-						background: '#242424',
-						color: '#fff',
-					});
+					// Swal.fire({
+					// 	icon: 'error',
+					// 	title: "ทำรายการไม่สำเร็จ",
+					// 	showConfirmButton: false,
+					// 	timer: 2000,
+					// 	background: '#242424',
+					// 	color: '#fff',
+					// });
 				}
 			});
 		if (_res) setMessageCreate(_res?.statusDesc);
@@ -176,24 +175,24 @@ export default function Home() {
 			deviceType,
 			(response) => {
 				if (response === false) {
-					Swal.fire({
-						icon: 'success',
-						title: "ทำรายการสำเร็จ",
-						showConfirmButton: false,
-						timer: 2000,
-						background: '#242424',
-						color: '#fff',
-					});
+					// Swal.fire({
+					// 	icon: 'success',
+					// 	title: "ทำรายการสำเร็จ",
+					// 	showConfirmButton: false,
+					// 	timer: 2000,
+					// 	background: '#242424',
+					// 	color: '#fff',
+					// });
 				} else {
 					console.log("AAAA", response)
-					Swal.fire({
-						icon: 'success',
-						title: "ทำรายการไม่สำเร็จ",
-						showConfirmButton: false,
-						timer: 2000,
-						background: '#242424',
-						color: '#fff',
-					});
+					// Swal.fire({
+					// 	icon: 'success',
+					// 	title: "ทำรายการไม่สำเร็จ",
+					// 	showConfirmButton: false,
+					// 	timer: 2000,
+					// 	background: '#242424',
+					// 	color: '#fff',
+					// });
 				}
 			}
 		);

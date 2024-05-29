@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import jsQR from 'jsqr';
 import { faChevronCircleLeft, faChevronCircleRight, faHeart, } from "@fortawesome/free-solid-svg-icons";
@@ -9,15 +8,15 @@ import { useHistory } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import "react-slideshow-image/dist/styles.css";
 import "react-slideshow-image/dist/styles.css";
-import { CheckLevelCashBack, DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML, formatMontYear, formateDateToken } from "../../helper";
+import { CheckLevelCashBack, DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML, formatMontYear } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
 import _LoginController from "../../api/login";
-import { errorAdd, successAdd } from "../../helper/sweetalert";
+// import { customizeToast } from "../../helper/toast";
 import QRCode from 'qrcode.react';
 import Roulette from "../../component/Roulette";
-import moment from "moment";
-
+// import { ToastContainer, toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 export default function AfterLogin() {
     const history = useHistory();
@@ -26,7 +25,6 @@ export default function AfterLogin() {
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarAnimation, setSidebarAnimation] = useState(true);
     const [tabs, setTabs] = useState("ประวัติฝาก");
-    const [tapAffiliate, setTapAffiliate] = useState("ภาพรวม");
     const [tabName, setTabName] = useState("tab-deposit");
     const [tabNameAffiliate, setTabNameAffiliate] = useState("overview");
     const [reMessage, setReMessage] = useState("");
@@ -51,6 +49,7 @@ export default function AfterLogin() {
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     const [oldPassword, setOldPassword] = useState("");
     const [NewPassword, setNewPassword] = useState("");
@@ -60,26 +59,28 @@ export default function AfterLogin() {
     const [numberQRCode, setNumberQRCode] = useState("");
     const [file, setFile] = useState(null);
     const [bankAgentCode, setBankAgentCode] = useState("");
-    const [errorTextUploadSlip, setErrorTextUploadSlip] = useState('');
     const [promotionCode, setPromotionCode] = useState('');
     const [dataSpinWheel, setDataSpinWheel] = useState([]);
     const [outputSpin, setOutputSpin] = useState("");
     const [limitSpinWheel, setLimitSpinWheel] = useState({});
     const [currentPoint, setCurrentPoint] = useState({});
+    const [notCurrentPoint, setNotCurrentPoint] = useState(0);
     const [dataOverview, setDataOverview] = useState([]);
     const [dataOverviewYears, setDataOverviewYears] = useState([]);
     const [dataIncome, setDataIncome] = useState([]);
     const [dataHistoryAffiliate, setDataHistoryAffiliate] = useState([]);
+    const [codeCupon, setCodeCupon] = useState("");
 
     const [overviewDate, setOverviewDate] = useState(formatMontYear(new Date()));
     const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
     const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
     const [years, setYears] = useState([]);
+    const [animationRefresh, setAnimationRefresh] = useState(false);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
-        // console.log("_data: ", _data)
+        console.log("_data: ", _data)
         if (_data) {
             setLogoWebsite(_data?.info?.configLobby?.s_logo)
             setLinkLine(_data?.info?.configLobby?.s_line)
@@ -87,6 +88,7 @@ export default function AfterLogin() {
             const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
             const newSlideArray = slideArray.filter(data => data.s_position === "page_wallet");
             setSliderData(newSlideArray)
+            setCurrentPoint(_data?.balance?.cevent)
             setDepositBankList(_data?.info?.bankDeposit[0])
             getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
             const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th)
@@ -153,6 +155,12 @@ export default function AfterLogin() {
             window.removeEventListener("click", pageClickEvent);
         };
     }, [sidebarVisible]);
+    useEffect(() => {
+        if (outputSpin) {
+            _getData();
+            toast.success("ได้รับ" + outputSpin)
+        }
+    }, [outputSpin])
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -164,7 +172,6 @@ export default function AfterLogin() {
 
     useEffect(() => {
         if (user !== null) {
-            // _checkToken(user);
             _checkToken();
         }
     }, [user])
@@ -174,7 +181,6 @@ export default function AfterLogin() {
         if (dataFromLogin) {
             _getData();
         }
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataFromLogin]);
 
@@ -185,7 +191,6 @@ export default function AfterLogin() {
                 url: `${Constant.SERVER_URL}/Authen/CheckTokenLogin/eWVEOXhSV2g2N0t1c2thdjRnOUMwYmt6ZHVpdzY3MGR6M2JFNjByVmQ5MD0=`,
             });
             if (_res?.data?.data) {
-                console.log("TokenDate: ", _res?.data?.data?.d_session_expire)
                 const presentTime = new Date();
                 const futureTime = new Date(_res?.data?.data?.d_session_expire)
                 if (presentTime > futureTime) {
@@ -252,47 +257,53 @@ export default function AfterLogin() {
             });
     }
 
-
     const _getData = async () => {
-        const _res = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Member/Balance`,
-            data: {
-                s_agent_code: dataFromLogin?.agent,
-                s_username: dataFromLogin?.username,
-            },
-        });
-        if (_res?.data?.statusCode === 0) {
-            setDataUser(_res?.data?.data);
-        }
-        const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
-        if (_level) setmaxLevel(_level);
-        const _resHistoryCashBack = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Cashback/History`,
-            data: {
-                s_agent_code: dataFromLogin?.agent,
-                s_username: dataFromLogin?.username,
-            },
-        });
+        try {
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Member/Balance`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                },
+            });
+            if (_res?.data?.statusCode === 0) {
+                setDataUser(_res?.data?.data);
+                setCurrentPoint(_res?.data?.data?.cevent)
+                setAnimationRefresh(false)
+            }
+            const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
+            if (_level) setmaxLevel(_level);
+            const _resHistoryCashBack = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Cashback/History`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                },
+            });
 
-        if (_resHistoryCashBack?.data?.statusCode === 0) {
-            setHistoryCashBack(_resHistoryCashBack?.data?.data);
-        }
-        const _resHistoryMoney = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Member/History/Finance`,
-            data: {
-                s_agent_code: AGENT_CODE,
-                s_username: dataFromLogin?.username,
-            },
-        });
+            if (_resHistoryCashBack?.data?.statusCode === 0) {
+                setHistoryCashBack(_resHistoryCashBack?.data?.data);
+            }
+            const _resHistoryMoney = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Member/History/Finance`,
+                data: {
+                    s_agent_code: AGENT_CODE,
+                    s_username: dataFromLogin?.username,
+                },
+            });
 
-        if (_resHistoryMoney?.data?.statusCode === 0) {
-            setDataHistoryDeposit(_resHistoryMoney?.data?.data?.deposit);
-            setDataHistoryBonus(_resHistoryMoney?.data?.data?.bonus);
-            setDataHistoryWithdraw(_resHistoryMoney?.data?.data?.withdraw);
+            if (_resHistoryMoney?.data?.statusCode === 0) {
+                setDataHistoryDeposit(_resHistoryMoney?.data?.data?.deposit);
+                setDataHistoryBonus(_resHistoryMoney?.data?.data?.bonus);
+                setDataHistoryWithdraw(_resHistoryMoney?.data?.data?.withdraw);
+            }
+        } catch (error) {
+
         }
+
     };
 
     const _clickCategoryGame = async (value) => {
@@ -435,17 +446,10 @@ export default function AfterLogin() {
                 data: _data,
             });
             if (_res?.data?.statusCode === 0) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "ทำรายการสำเร็จ",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    background: '#242424', // Change to the color you want
-                    color: '#fff',
-                });
+                toast.success('ทำรายการสำเร็จ!')
                 _getData();
             } else {
-                setReMessage(_res?.data?.statusDesc);
+                toast.error(_res?.data?.statusDesc)
             }
         } catch (error) { }
     };
@@ -471,16 +475,9 @@ export default function AfterLogin() {
 
     const _copyLinkAffiliate = (link) => {
         navigator.clipboard.writeText(link);
-        Swal.fire({
-            icon: 'success',
-            title: "คัดลอกลิ้งสำเร็จ",
-            showConfirmButton: false,
-            timer: 2000,
-            background: '#242424', // Change to the color you want
-            color: '#fff',
-        });
+        toast.success('คัดลอกลิ้งสำเร็จ!');
     };
-    const [codeCupon, setCodeCupon] = useState("");
+
     const _addCupon = async () => {
         try {
             const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
@@ -490,7 +487,7 @@ export default function AfterLogin() {
                 actionBy: "ADM",
             });
             if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc);
+                toast.error(_data?.data?.statusDesc)
             }
         } catch (error) {
             console.error("Error playing the game:", error);
@@ -531,19 +528,19 @@ export default function AfterLogin() {
                 },
             );
             if (_resAppover?.data?.statusCode === 0) {
-                successAdd("รายการสำเร็จ");
+                toast.success('ทำรายการสำเร็จ!');
                 setTimeout(() => {
-                    // handleShow();
+                    handleShow();
                 }, 2000);
                 return;
             }
-            errorAdd(_resAppover?.data?.statusDesc);
+            toast.error(_resAppover?.data?.statusDesc);
         } catch (error) {
-            errorAdd("รายการไม่สำเร็จ");
+            toast.error('ทำรายการไม่สำเร็จ');
         }
     };
 
-    const _resiveCashBack = async () => {
+    const _receiveCashBack = async () => {
         try {
             const _res = await axios({
                 method: "post",
@@ -556,9 +553,10 @@ export default function AfterLogin() {
                 },
             });
             if (_res?.data) {
-                setReMessage(_res?.data?.statusDesc);
+                toast.error(_res?.data?.statusDesc)
             }
             if (_res?.data?.statusCode === 0) {
+                toast.success(_res?.data?.statusDesc)
                 _getData();
             }
         } catch (error) {
@@ -583,14 +581,7 @@ export default function AfterLogin() {
     }
     const _copyAccountNo = (accountNo) => {
         navigator.clipboard.writeText(accountNo);
-        Swal.fire({
-            icon: 'success',
-            title: "คัดลอกลิ้งสำเร็จ",
-            showConfirmButton: false,
-            timer: 2000,
-            background: '#242424', // Change to the color you want
-            color: '#fff',
-        });
+        toast.success('คัดลอกลิ้งสำเร็จ!')
     };
 
     const length = sliderData.length;
@@ -638,18 +629,13 @@ export default function AfterLogin() {
                     i_ip: "1.2.3.4",
                     s_prm_code: promotionCode,
                 });
-                console.log("response: ", response)
-                setErrorTextUploadSlip(response?.data?.statusDesc)
-                notify(response.data);
+                toast.error(response?.data?.statusDesc);
             } catch (error) {
             }
-        } else {
-            notify({ statusDesc: 'Failed to read QR code' });
-        }
+        } else { }
     };
 
     const uploadSlip = async (url) => {
-        console.log("url: ", url)
         let imgData = null;
         const minScale = 0.75;
         const maxScale = 5;
@@ -695,10 +681,6 @@ export default function AfterLogin() {
         });
     };
 
-    const notify = (data) => {
-        console.log(data);
-    };
-
     const _getBankAgentCode = (event) => {
 
         let data = JSON.stringify({
@@ -718,7 +700,6 @@ export default function AfterLogin() {
         axios.request(config)
             .then((response) => {
                 setBankAgentCode(response.data.decrypt)
-                console.log(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -731,12 +712,9 @@ export default function AfterLogin() {
         setTabNameAffiliate(tabAffiliate);
         if (tabAffiliate === "overview") {
             _getRegister()
-            setTapAffiliate("ภาพรวม");
         } else if (tabAffiliate === "income") {
             _getIncome(incomeDateStart, incomeDateEnd)
-            setTapAffiliate("รายได้");
         } else {
-            setTapAffiliate("ถอนรายได้");
             _getHistory()
         }
     };
@@ -793,10 +771,12 @@ export default function AfterLogin() {
             setDataIncome(_res?.data?.data?.list)
         }
     }
+
     const _getIncomeDateStart = (event) => {
         setIncomeDateStart(event?.target?.value)
         _getIncome(event?.target?.value, incomeDateEnd)
     }
+
     const _getIncomeDateEnd = (event) => {
         setIncomeDateEnd(event?.target?.value)
         _getIncome(incomeDateStart, event?.target?.value)
@@ -815,6 +795,7 @@ export default function AfterLogin() {
             setDataHistoryAffiliate(_res?.data?.data)
         }
     }
+
     const _getReceiveAffiliate = async (amount) => {
         const _res = await axios({
             method: "post",
@@ -828,7 +809,16 @@ export default function AfterLogin() {
         });
         if (_res?.data?.statusCode === 0) {
             setDataHistoryAffiliate(_res?.data?.data)
+        } else {
+            toast.error(_res?.data?.statusDesc);
+
         }
+    }
+
+    const refreshBalance = (e) => {
+        e.stopPropagation()
+        setAnimationRefresh(true)
+        _getData();
     }
 
     return (
@@ -848,6 +838,12 @@ export default function AfterLogin() {
                         <img src="/assets/images/gif/border-card-bank.gif" alt="coin" />
                         {dataUser?.amount}
                     </div>
+                    <img
+                        src="/assets/images/icons8-refresh-30.png"
+                        onClick={(e) => refreshBalance(e)} alt="fresh"
+                        className={animationRefresh === true ? "refresh-balance" : ""}
+                        style={{ width: 20, height: 20, cursor: "pointer", marginLeft: 10 }}
+                    />
                 </div>
                 <div className="middle">
                     <img
@@ -1041,8 +1037,11 @@ export default function AfterLogin() {
                                 <p>{dataFromLogin?.info?.s_phone}</p>
                             </div> */}
                             <div className="balance">
-                                <small>ยอดเงินคงเหลือ</small>
-                                <p>{dataFromLogin?.balance?.amount}</p>
+                                <small>ยอดเงินคงเหลือ <span>
+                                    <img src="/assets/images/icons8-refresh-30.png" onClick={(e) => refreshBalance(e)} alt="fresh" className={animationRefresh === true ? "refresh-balance" : ""} style={{ width: 20, height: 20, cursor: "pointer" }} />
+                                </span>
+                                </small>
+                                <p>{dataUser?.amount}</p>
                             </div>
 
                             <div className="flexBetween" style={{ gap: 13 }}>
@@ -1407,7 +1406,7 @@ export default function AfterLogin() {
                                             <div className="loss">{dataFromLogin?.balance?.cashback}</div>
                                             <div style={{ textAlign: "center", fontSize: 14 }} >อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
                                             <div className="btn">
-                                                <button type='button' className="receive-credit" onClick={() => _resiveCashBack()}>รับเข้าเครดิต</button>
+                                                <button type='button' className="receive-credit" onClick={() => _receiveCashBack()}>รับเข้าเครดิต</button>
                                             </div>
                                             <div style={{ textAlign: "center", color: "red" }}>{reMessage}</div>
                                         </div>
@@ -1643,7 +1642,7 @@ export default function AfterLogin() {
                                                 <p>{depositBankList && depositBankList?.s_account_name}</p>
                                                 <p>{depositBankList && depositBankList?.s_account_no}
                                                     <span>
-                                                        <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
+                                                        <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
                                                     </span>
                                                 </p>
                                             </div>
@@ -1944,10 +1943,8 @@ export default function AfterLogin() {
                                         <input type="text" value={dataUser?.amount} disabled={true} />
                                     </div>
 
-                                    <div style={{ color: "red" }}>{reMessage}</div>
-
-                                    <div className="button-warning" data-bs-dismiss={reMessage === "มีรายการแจ้งถอนค้างอยู่ในระบบ" ? "not-modal" : "modal"} onClick={() => _withdrawMoney()} onKeyDown={() => ''}> ถอนเงิน</div>
-
+                                    <div className="button-warning"
+                                        onClick={() => _withdrawMoney()} onKeyDown={() => ''}> ถอนเงิน</div>
                                     <p style={{ display: "flex" }}>พบปัญหา
                                         <div style={{ marginLeft: "5px", color: "red" }}>ติดต่อฝ่ายบริการลูกค้า</div>
                                     </p>
@@ -2231,7 +2228,6 @@ export default function AfterLogin() {
                                     <div>
                                         <input id="fileslip" onChange={handleFileChange} style={{ background: "#FFF", color: "#000", width: "100%" }} type="file" />
                                     </div>
-                                    <p style={{ color: "red" }}>{errorTextUploadSlip}</p>
                                     <button type='button' style={{ width: 120 }} onClick={uploadFile} className="button-warning">
                                         <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-send-50.png" alt="send" />
                                         ส่งสลิป
@@ -2694,8 +2690,6 @@ export default function AfterLogin() {
                                         className="input-box"
                                         onChange={(e) => setCodeCupon(e.target.value)}
                                     />
-                                    <div style={{ color: 'red', textAlign: 'center' }}>{reMessage}</div>
-
                                     <button type="button" className="button-warning" onClick={() => _addCupon()}>ยืนยัน</button>
                                 </div>
                             </div>
@@ -2867,18 +2861,19 @@ export default function AfterLogin() {
                             </div>
                             <div className="modal-body">
                                 <div className="spinner-modal-content">
-                                    <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint?.currentPoint}</p>
+                                    <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint}</p>
                                     <div className="spinner-modal-body">
                                         {dataSpinWheel.length > 0 &&
                                             <Roulette
                                                 data={dataSpinWheel}
                                                 setOutputSpin={setOutputSpin}
                                                 username={dataFromLogin?.username}
-                                                setCurrentPoint={setCurrentPoint} />}
+                                                setCurrentPoint={setCurrentPoint}
+                                                setNotCurrentPoint={setNotCurrentPoint}
+                                            />}
 
-                                        <p style={{ margin: 'none', marginTop: 10 }}>เครดิตกงล้อ : {outputSpin}</p>
                                         <div style={{ fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
-                                        <p style={{ margin: 'none' }}>หมุนวงล้อได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว 3 ครั้ง</p>
+                                        <p style={{ margin: 'none' }}>หมุนวงล้อได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว {notCurrentPoint} ครั้ง</p>
                                         <p style={{ margin: 'none' }}>ภายในวันสามารถใข้สิทธิได้ {limitSpinWheel?.i_per_day} ครั้ง</p>
                                     </div>
                                 </div>
@@ -2933,7 +2928,7 @@ export default function AfterLogin() {
 
                                             <div className="link-shared-btn-group">
                                                 <div className="border-input-gold border-btn">
-                                                    <button type="button" className="btn-copy-link" data-bs-dismiss="modal" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}>
+                                                    <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}>
                                                         คัดลอกลิ้งค์
                                                     </button>
                                                 </div>
@@ -3381,7 +3376,7 @@ export default function AfterLogin() {
                                         <p>{depositBankList && depositBankList?.s_account_name}</p>
                                         <p>{depositBankList && depositBankList?.s_account_no}
                                             <span>
-                                                <img src="/assets/images/icon-coppy.svg" data-bs-dismiss="modal" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
+                                                <img src="/assets/images/icon-coppy.svg" onClick={() => _copyAccountNo(depositBankList?.s_account_no)} alt="" style={{ width: 30, height: 30, marginBottom: -3 }} />
                                             </span>
                                         </p>
                                     </div>
@@ -3409,17 +3404,6 @@ export default function AfterLogin() {
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <div>
-                                    <div data-bs-toggle="modal" data-bs-target="#slipVerify" >
-                                        <div className="btn-slip">
-                                            <div style={{ color: "white" }}>
-                                                <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" /> แจ้งเงินไม่เข้า /แบบสลิป
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}>
                                 <div> พบปัญหา <span>ติดต่อฝ่ายบริการลูกค้า</span></div>
                             </div>
@@ -3437,6 +3421,7 @@ export default function AfterLogin() {
                     </div>
                 </div>
             </Modal>
+            {/* <ToastContainer position="top-right" autoClose={2000} /> */}
 
         </div >
     )

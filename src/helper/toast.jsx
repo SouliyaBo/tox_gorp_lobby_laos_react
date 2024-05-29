@@ -1,11 +1,11 @@
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 
-export const customizeToast = (type, title) => {
+export const customizeToast = (type, title, autocloseDelay) => {
+    console.log("type", type)
     let notify
-
     switch (type) {
         case "success":
-            notify = toast.success(title);
+            notify = toast.success(title, { autoClose: autocloseDelay });
             break;
         case "error":
             notify = toast.error(title);

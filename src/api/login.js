@@ -1,5 +1,4 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 import { useHistory } from "react-router-dom";
 import Constant from "../constant";
 import { EncriptBase64 } from "../helper";

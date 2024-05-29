@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Wheel } from "react-custom-roulette";
 import Constant, { AGENT_CODE } from "../constant";
 import axios from "axios";
+import toast from 'react-hot-toast';
 
-const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
+const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurrentPoint }) => {
     const [mustSpin, setMustSpin] = useState(false);
     const [prizeNumber, setPrizeNumber] = useState(0);
     const [rouletteData, setRouletteData] = useState(data);
-    const [errorText, setErrorText] = useState("");
 
     const handleSpinClick = () => {
         const newPrizeNumber = Math.floor(Math.random() * data.length);
@@ -15,8 +15,8 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
         setMustSpin(true);
     };
     useEffect(() => {
-        if (!mustSpin) {
-            setOutputSpin(rouletteData[prizeNumber].completeOption)
+        if (mustSpin === true) {
+            setOutputSpin("")
             if (rouletteData !== "")
                 randomPrice(rouletteData[prizeNumber].codeEvent);
         }
@@ -33,38 +33,25 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
         setRouletteData(addShortString);
     }, [data]);
 
-    const randomPrice = (eventCode) => {
-        let data = JSON.stringify({
-            "s_username": username,
-            "s_agent_code": AGENT_CODE,
-            "eventCode": eventCode
-        });
-
-        let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: `${Constant?.SERVER_URL}/LuckyWheel/RandomPrize?XDEBUG_SESSION_START=netbeans-xdebug`,
-            headers: {
-                'authorization-agent': '{{AUTHEN-VALUE-AGENT}}',
-                'authorization-token': '{{AUTHEN-VALUE-TOKEN}}',
-                'Content-Type': 'application/json'
+    const randomPrice = async (eventCode) => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/LuckyWheel/RandomPrize`,
+            data: {
+                "s_username": username,
+                "s_agent_code": AGENT_CODE,
+                "eventCode": eventCode
             },
-            data: data
-        };
-
-        axios.request(config)
-            .then((response) => {
-                if (response.data.statusCode === 0) {
-                    setCurrentPoint(response.data?.data)
-                } else {
-                    setErrorText(response.data.statusDesc);
-                }
-            })
-            .catch((error) => {
-
-                console.log("error", error);
-            });
-
+        });
+        if (_res.data.statusCode === 0) {
+            setCurrentPoint(_res?.data?.data?.currentPoint)
+            setNotCurrentPoint(_res?.data?.data?.day)
+            setTimeout(() => {
+                setOutputSpin(rouletteData[prizeNumber].completeOption)
+            }, 4000);
+        } else {
+            toast.error(_res.data.statusDesc)
+        }
     }
     return (
         <>
@@ -103,7 +90,6 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint }) => {
                     }}
                 />
                 <button type="button" className="btn-spinner" onClick={handleSpinClick}>หมุนกงล้อ</button>
-                {/* <div style={{ color: "red", marginTop: 10 }}>{errorText}</div> */}
             </div>
         </>
     );

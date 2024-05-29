@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import Swal from 'sweetalert2'
 import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faChevronCircleRight, faChevronCircleLeft } from "@fortawesome/free-solid-svg-icons";
@@ -360,14 +359,14 @@ export default function AfterLoginMobile() {
                 data: _data,
             });
             if (_res?.data?.statusCode === 0) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "ทำรายการสำเร็จ",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    background: '#242424', // Change to the color you want
-                    color: '#fff',
-                });
+                // Swal.fire({
+                //     icon: 'success',
+                //     title: "ทำรายการสำเร็จ",
+                //     showConfirmButton: false,
+                //     timer: 2000,
+                //     background: '#242424', // Change to the color you want
+                //     color: '#fff',
+                // });
                 _getData()
             } else {
                 setReMessage(_res?.data?.statusDesc)
@@ -404,28 +403,28 @@ export default function AfterLoginMobile() {
                 actionBy: "ADM"
             })
             if (_resAppover?.data?.statusCode === 0) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "ทำรายการสำเร็จ",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    background: '#242424', // Change to the color you want
-                    color: '#fff',
-                });
+                // Swal.fire({
+                //     icon: 'success',
+                //     title: "ทำรายการสำเร็จ",
+                //     showConfirmButton: false,
+                //     timer: 2000,
+                //     background: '#242424', // Change to the color you want
+                //     color: '#fff',
+                // });
                 setTimeout(() => {
                     handleShow()
                 }, 2000);
                 return
             }
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: "รายการไม่สำเร็จ",
-                showConfirmButton: false,
-                timer: 2000,
-                background: '#242424', // Change to the color you want
-                color: '#fff',
-            });
+            // Swal.fire({
+            //     icon: 'error',
+            //     title: "รายการไม่สำเร็จ",
+            //     showConfirmButton: false,
+            //     timer: 2000,
+            //     background: '#242424', // Change to the color you want
+            //     color: '#fff',
+            // });
         }
 
     }
@@ -449,27 +448,27 @@ export default function AfterLoginMobile() {
     }
     const _copyLinkAffiliate = (link) => {
 
-        Swal.fire({
-            icon: 'success',
-            title: "คัดลอกลิ้งสำเร็จ",
-            showConfirmButton: false,
-            timer: 2000,
-            background: '#242424',
-            color: '#fff',
-        });
+        // Swal.fire({
+        //     icon: 'success',
+        //     title: "คัดลอกลิ้งสำเร็จ",
+        //     showConfirmButton: false,
+        //     timer: 2000,
+        //     background: '#242424',
+        //     color: '#fff',
+        // });
         navigator?.clipboard.writeText(link);
 
     };
     const _copyAccountNo = (accountNo) => {
         navigator.clipboard.writeText(accountNo);
-        Swal.fire({
-            icon: 'success',
-            title: "คัดลอกสำเร็จ",
-            showConfirmButton: false,
-            timer: 2000,
-            background: '#242424',
-            color: '#fff',
-        });
+        // Swal.fire({
+        //     icon: 'success',
+        //     title: "คัดลอกสำเร็จ",
+        //     showConfirmButton: false,
+        //     timer: 2000,
+        //     background: '#242424',
+        //     color: '#fff',
+        // });
     };
 
     const _receiveCashBack = async () => {
@@ -521,7 +520,6 @@ export default function AfterLoginMobile() {
             setTabs("ประวัติโบนัส");
         }
     };
-
 
     const length = sliderData.length;
 
@@ -581,12 +579,11 @@ export default function AfterLoginMobile() {
                 });
                 console.log("response: ", response)
                 setErrorTextUploadSlip(response?.data?.statusDesc)
-                notify(response.data);
             } catch (error) {
                 console.error("AAAA", error);
             }
         } else {
-            notify({ statusDesc: 'Failed to read QR code' });
+            console.log('Failed to read QR code');
         }
     };
 
@@ -636,11 +633,6 @@ export default function AfterLoginMobile() {
             img.src = src;
         });
     };
-
-    const notify = (data) => {
-        console.log(data);
-    };
-
 
     const _getBankAgentCode = (event) => {
 

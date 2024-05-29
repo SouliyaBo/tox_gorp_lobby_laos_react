@@ -3,7 +3,12 @@
         "Crad",
         "fileslip",
         "filte",
-        "qrcode"
+        "fontawesome",
+        "fortawesome",
+        "jsqr",
+        "qrcode",
+        "sweetalert",
+        "toastify"
     ]
 }
 
