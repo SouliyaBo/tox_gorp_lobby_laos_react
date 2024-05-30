@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from "react";
 
 import { useHistory } from "react-router-dom";
 import axios from "axios";
-
+import Swal from 'sweetalert2'
 import Constant from "../../constant";
 import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
@@ -62,23 +62,23 @@ export default function RegisterStep2() {
             deviceType,
             (response) => {
                 if (response === false) {
-                    // Swal.fire({
-                    //     icon: 'success',
-                    //     title: "สำเร็จ",
-                    //     showConfirmButton: false,
-                    //     timer: 2000,
-                    //     background: '#242424', // Change to the color you want
-                    //     color: '#fff',
-                    // });
+                    Swal.fire({
+                        icon: 'success',
+                        title: "สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424', // Change to the color you want
+                        color: '#fff',
+                    });
                 } else {
-                    // Swal.fire({
-                    //     icon: 'error',
-                    //     title: "ทำรายการไม่สำเร็จ",
-                    //     showConfirmButton: false,
-                    //     timer: 2000,
-                    //     background: '#242424',
-                    //     color: '#fff',
-                    // });
+                    Swal.fire({
+                        icon: 'error',
+                        title: "ทำรายการไม่สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424',
+                        color: '#fff',
+                    });
                 }
             }
         );

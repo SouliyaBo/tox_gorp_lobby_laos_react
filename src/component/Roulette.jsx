@@ -89,6 +89,7 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurren
                         setMustSpin(false);
                     }}
                 />
+                <br />
                 <button type="button" className="btn-spinner" onClick={handleSpinClick}>หมุนกงล้อ</button>
             </div>
         </>

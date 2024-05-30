@@ -4,7 +4,7 @@ import _LoginController from "../../api/login";
 import { useHistory, useParams } from "react-router-dom";
 import Constant from "../../constant";
 import { EncriptBase64 } from '../../helper';
-
+import Swal from 'sweetalert2'
 export default function LoginPageMobile() {
     const history = useHistory();
     const UseParams = useParams();
@@ -59,23 +59,23 @@ export default function LoginPageMobile() {
         const _res = await handleLogin(userNameInput, passwordInput, deviceType,
             (response) => {
                 if (response === false) {
-                    // Swal.fire({
-                    //     icon: 'success',
-                    //     title: "สำเร็จ",
-                    //     showConfirmButton: false,
-                    //     timer: 2000,
-                    //     background: '#242424', // Change to the color you want
-                    //     color: '#fff',
-                    // });
+                    Swal.fire({
+                        icon: 'success',
+                        title: "สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424', // Change to the color you want
+                        color: '#fff',
+                    });
                 } else {
-                    // Swal.fire({
-                    //     icon: 'error',
-                    //     title: "ทำรายการไม่สำเร็จ",
-                    //     showConfirmButton: false,
-                    //     timer: 2000,
-                    //     background: '#242424',
-                    //     color: '#fff',
-                    // });
+                    Swal.fire({
+                        icon: 'error',
+                        title: "ทำรายการไม่สำเร็จ",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#242424',
+                        color: '#fff',
+                    });
                 }
             });
         if (_res) setMessageCreate(_res?.statusDesc);

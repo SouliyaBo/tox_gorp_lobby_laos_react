@@ -11,7 +11,7 @@ import { BackList } from "../../constant/bankList";
 import QRCode from 'qrcode.react';
 import jsQR from 'jsqr';
 import Roulette from "../../component/Roulette";
-
+import toast, { Toaster } from 'react-hot-toast';
 export default function AfterLoginMobile() {
     const history = useHistory();
     const sidebarUseRef = useRef(null);
@@ -54,7 +54,6 @@ export default function AfterLoginMobile() {
     const [file, setFile] = useState(null);
     const [bankAgentCode, setBankAgentCode] = useState("");
     const [ipAddress, setIpAddress] = useState('');
-    const [errorTextUploadSlip, setErrorTextUploadSlip] = useState('');
     const [promotionCode, setPromotionCode] = useState('');
     const [dataSpinWheel, setDataSpinWheel] = useState([]);
     const [outputSpin, setOutputSpin] = useState("");
@@ -69,6 +68,9 @@ export default function AfterLoginMobile() {
     const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
     const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
     const [years, setYears] = useState([]);
+    const [notCurrentPoint, setNotCurrentPoint] = useState(0);
+    const [animationRefresh, setAnimationRefresh] = useState(false);
+
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         const _data = DataLoginInRout(history?.location?.state);
@@ -78,6 +80,7 @@ export default function AfterLoginMobile() {
             setLinkLine(_data?.info?.configLobby?.s_line)
             setDataFromLogin(_data);
             setDepositBankList(_data?.info?.bankDeposit[0])
+            setCurrentPoint(_data?.balance?.cevent)
             getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
             const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
             const newSlideArray = slideArray.filter(data => data.s_position === "page_wallet");
@@ -102,6 +105,13 @@ export default function AfterLoginMobile() {
         setYears(yearArray);
     }, []);
 
+    useEffect(() => {
+        if (outputSpin) {
+            _getData();
+            toast.success("ได้รับ" + outputSpin)
+        }
+    }, [outputSpin])
+
     const getSpinWheel = async () => {
         let data = JSON.stringify({
             "s_agent_code": Constant?.AGENT_CODE
@@ -110,7 +120,7 @@ export default function AfterLoginMobile() {
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1/LuckyWheel/Inquiry?XDEBUG_SESSION_START=netbeans-xdebug',
+            url: `${Constant.SERVER_URL}/LuckyWheel/Inquiry?XDEBUG_SESSION_START=netbeans-xdebug`,
             headers: {
                 'authorization-agent': '{{AUTHEN-VALUE-AGENT}}',
                 'authorization-token': '{{AUTHEN-VALUE-TOKEN}}',
@@ -121,7 +131,6 @@ export default function AfterLoginMobile() {
 
         axios.request(config)
             .then((response) => {
-                console.log("spin", response.data.data);
                 setDataSpinWheel(response.data.data[0]?.eventItem)
                 setLimitSpinWheel(response.data.data[0])
             })
@@ -154,7 +163,6 @@ export default function AfterLoginMobile() {
     useEffect(() => {
         _clickCategoryGame("SLOT");
         _getData();
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataFromLogin]);
 
@@ -176,45 +184,50 @@ export default function AfterLoginMobile() {
         setNumberQRCode(_data?.data?.data?.respData?.qrCode)
     }
     const _getData = async () => {
-        const _res = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Member/Balance`,
-            data: {
-                s_agent_code: dataFromLogin?.agent,
-                s_username: dataFromLogin?.username,
-            },
-        });
+        try {
+            const _res = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Member/Balance`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                },
+            });
 
-        if (_res?.data?.statusCode === 0) {
-            setDataUser(_res?.data?.data);
-        }
-        const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
-        if (_level) setMaxLevel(_level);
-        const _resHistoryCashBack = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Cashback/History`,
-            data: {
-                s_agent_code: dataFromLogin?.agent,
-                s_username: dataFromLogin?.username,
-            },
-        });
-        if (_resHistoryCashBack?.data?.statusCode === 0) {
-            setHistoryCashBack(_resHistoryCashBack?.data?.data);
-        }
-        const _resHistoryMoney = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/Member/History/Finance`,
-            data: {
-                s_agent_code: dataFromLogin?.agent,
-                s_username: dataFromLogin?.username,
-            },
-        });
+            if (_res?.data?.statusCode === 0) {
+                setDataUser(_res?.data?.data);
+            }
+            const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
+            if (_level) setMaxLevel(_level);
+            const _resHistoryCashBack = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Cashback/History`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                },
+            });
+            if (_resHistoryCashBack?.data?.statusCode === 0) {
+                setHistoryCashBack(_resHistoryCashBack?.data?.data);
+            }
+            const _resHistoryMoney = await axios({
+                method: "post",
+                url: `${Constant.SERVER_URL}/Member/History/Finance`,
+                data: {
+                    s_agent_code: dataFromLogin?.agent,
+                    s_username: dataFromLogin?.username,
+                },
+            });
 
-        if (_resHistoryMoney?.data?.statusCode === 0) {
-            setDataHistoryDeposit(_resHistoryMoney?.data?.data?.deposit);
-            setDataHistoryBonus(_resHistoryMoney?.data?.data?.bonus);
-            setDataHistoryWithdraw(_resHistoryMoney?.data?.data?.withdraw);
+            if (_resHistoryMoney?.data?.statusCode === 0) {
+                setDataHistoryDeposit(_resHistoryMoney?.data?.data?.deposit);
+                setDataHistoryBonus(_resHistoryMoney?.data?.data?.bonus);
+                setDataHistoryWithdraw(_resHistoryMoney?.data?.data?.withdraw);
+            }
+        } catch (error) {
+
         }
+
     };
     const toggleSidebar = (event) => {
         event.stopPropagation();
@@ -382,11 +395,10 @@ export default function AfterLoginMobile() {
                 return
             }
             const _data = await ChangePassword(NewPassword, oldPassword)
-            if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc)
-                if (_data?.data.statusCode === 0) {
-                    LogoutClearLocalStorage()
-                }
+            if (_data?.data.statusCode === 0) {
+                toast.success(_data?.data?.statusDesc);
+            } else {
+                toast.error(_data?.data?.statusDesc + "!");
             }
         } catch (error) {
             console.error("Error playing the game:", error);
@@ -403,28 +415,14 @@ export default function AfterLoginMobile() {
                 actionBy: "ADM"
             })
             if (_resAppover?.data?.statusCode === 0) {
-                // Swal.fire({
-                //     icon: 'success',
-                //     title: "ทำรายการสำเร็จ",
-                //     showConfirmButton: false,
-                //     timer: 2000,
-                //     background: '#242424', // Change to the color you want
-                //     color: '#fff',
-                // });
+                toast.success('ทำรายการสำเร็จ!');
                 setTimeout(() => {
                     handleShow()
                 }, 2000);
                 return
             }
         } catch (error) {
-            // Swal.fire({
-            //     icon: 'error',
-            //     title: "รายการไม่สำเร็จ",
-            //     showConfirmButton: false,
-            //     timer: 2000,
-            //     background: '#242424', // Change to the color you want
-            //     color: '#fff',
-            // });
+            toast.error('ทำรายการไม่สำเร็จ');
         }
 
     }
@@ -447,28 +445,13 @@ export default function AfterLoginMobile() {
         }
     }
     const _copyLinkAffiliate = (link) => {
-
-        // Swal.fire({
-        //     icon: 'success',
-        //     title: "คัดลอกลิ้งสำเร็จ",
-        //     showConfirmButton: false,
-        //     timer: 2000,
-        //     background: '#242424',
-        //     color: '#fff',
-        // });
         navigator?.clipboard.writeText(link);
+        toast.success('คัดลอกลิ้งสำเร็จ!');
 
     };
     const _copyAccountNo = (accountNo) => {
         navigator.clipboard.writeText(accountNo);
-        // Swal.fire({
-        //     icon: 'success',
-        //     title: "คัดลอกสำเร็จ",
-        //     showConfirmButton: false,
-        //     timer: 2000,
-        //     background: '#242424',
-        //     color: '#fff',
-        // });
+        toast.success('คัดลอกลิ้งสำเร็จ!');
     };
 
     const _receiveCashBack = async () => {
@@ -484,9 +467,10 @@ export default function AfterLoginMobile() {
                 },
             });
             if (_res?.data) {
-                setReMessage(_res?.data?.statusDesc);
+                toast.error(_res?.data?.statusDesc)
             }
             if (_res?.data?.statusCode === 0) {
+                toast.success(_res?.data?.statusDesc)
                 _getData();
             }
         } catch (error) {
@@ -502,8 +486,12 @@ export default function AfterLoginMobile() {
                 s_code: codeCupon,
                 actionBy: "ADM",
             });
-            if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc);
+            if (_data?.data?.statusCode === 0) {
+                toast.success(_data?.data?.statusDesc);
+                // handleCloseCupong()
+            } else {
+                // setCupong(true)
+                toast.error(_data?.data?.statusDesc)
             }
         } catch (error) {
             console.error("Error playing the game:", error);
@@ -574,16 +562,13 @@ export default function AfterLoginMobile() {
                     s_username: dataFromLogin?.username,
                     qrcode: imgData.data,
                     i_bank_agent: bankAgentCode,
-                    i_ip: ipAddress,
+                    i_ip: '1.2.3.4',
                     s_prm_code: promotionCode,
                 });
-                console.log("response: ", response)
-                setErrorTextUploadSlip(response?.data?.statusDesc)
+                toast.error(response?.data?.statusDesc);
             } catch (error) {
-                console.error("AAAA", error);
             }
         } else {
-            console.log('Failed to read QR code');
         }
     };
 
@@ -661,7 +646,6 @@ export default function AfterLoginMobile() {
     }
 
     const _tabAffiliate = (tabAffiliate) => {
-        console.log("tabAffiliate:: ", tabAffiliate)
         setTabNameAffiliate(tabAffiliate);
         if (tabAffiliate === "overview") {
             _getRegister()
@@ -683,7 +667,6 @@ export default function AfterLoginMobile() {
                 page_start: 0
             },
         });
-        console.log("_res::: ", _res?.data)
         if (_res?.data?.statusCode === 0) {
             setDataOverview(_res?.data?.data?.list)
         }
@@ -743,7 +726,6 @@ export default function AfterLoginMobile() {
                 s_username: dataFromLogin?.username,
             },
         });
-        console.log("_res::>> ", _res)
         if (_res?.data?.statusCode === 0) {
             setDataHistoryAffiliate(_res?.data?.data)
         }
@@ -759,10 +741,17 @@ export default function AfterLoginMobile() {
                 actionBy: "ADM"
             },
         });
-        console.log("_res::>> ", _res)
         if (_res?.data?.statusCode === 0) {
             setDataHistoryAffiliate(_res?.data?.data)
+            toast.success(_res?.data?.statusDesc);
+        } else {
+            toast.error(_res?.data?.statusDesc);
         }
+    }
+    const refreshBalance = (e) => {
+        e.stopPropagation()
+        setAnimationRefresh(true)
+        _getData();
     }
     return (
         <div>
@@ -787,6 +776,12 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="balance-text">
                                     <p>{dataUser?.amount}</p>
+                                    <img
+                                        src="/assets/images/icons8-refresh-48.png"
+                                        onClick={(e) => refreshBalance(e)} alt="fresh"
+                                        className={animationRefresh === true ? "refresh-balance" : ""}
+                                        style={{ width: 20, height: 20, cursor: "pointer", marginLeft: 10 }}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -1033,8 +1028,11 @@ export default function AfterLoginMobile() {
                             <div className="balance">
                                 <small>
                                     ยอดเงินคงเหลือ
+                                    <span style={{ marginLeft: 8 }}>
+                                        <img src="/assets/images/icons8-refresh-30.png" onClick={(e) => refreshBalance(e)} alt="fresh" className={animationRefresh === true ? "refresh-balance" : ""} style={{ width: 20, height: 20, cursor: "pointer" }} />
+                                    </span>
                                 </small>
-                                <p>{dataFromLogin?.balance?.amount}</p>
+                                <p>{dataUser?.amount}</p>
                             </div>
 
                             <div
@@ -1222,7 +1220,7 @@ export default function AfterLoginMobile() {
                                             <div>
                                                 <div className="user" style={{ display: "flex", justifyContent: "space-between" }}>
                                                     <p className="username">Bank</p>
-                                                    <div>{item?.s_icon.split(".")[0]}
+                                                    <div style={{ textTransform: "uppercase" }}>{item?.s_icon.split(".")[0]}
                                                         <img src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" style={{ width: 30, height: 30 }} className="result" />
                                                     </div>
                                                 </div>
@@ -1789,7 +1787,6 @@ export default function AfterLoginMobile() {
                                         <div>
                                             <input id="fileslip" onChange={handleFileChange} style={{ background: "#FFF", color: "#000", width: "100%" }} type="file" />
                                         </div>
-                                        <p style={{ color: "red" }}>{errorTextUploadSlip}</p>
                                         <button type='button' style={{ width: 120 }} onClick={uploadFile} className="button-warning">
                                             <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-send-50.png" alt="send" />
                                             ส่งสลิป
@@ -1989,8 +1986,9 @@ export default function AfterLoginMobile() {
                                         <div className="border-input-gold">
                                             <input type="password" placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง" className="input-for-border-gold" onChange={(e) => setNewPasswordVery(e.target.value)} />
                                         </div>
+                                        <div style={{ textAlign: 'center', color: 'red' }}>{reMessage}</div>
 
-                                        <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _ChangePassword()}>ยืนยัน</button>
+                                        <button type="button" className="button-warning" onClick={() => _ChangePassword()}>ยืนยัน</button>
                                     </div>
                                 </div>
                             </div>
@@ -2106,7 +2104,7 @@ export default function AfterLoginMobile() {
 
                                                 <div className="link-shared-btn-group">
                                                     <div className="border-input-gold border-btn">
-                                                        <button type="button" className="btn-copy-link" data-bs-dismiss="modal" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)} onKeyDown={() => ""}>
+                                                        <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)} onKeyDown={() => ""}>
                                                             คัดลอกลิ้งค์
                                                         </button>
                                                     </div>
@@ -2130,7 +2128,7 @@ export default function AfterLoginMobile() {
                                     <div className="modal-header">
                                         <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-toggle="modal"
                                             data-bs-target="#bagModal" data-bs-dismiss="modal" />
-                                        <p className="modal-title">สร้างรายได้</p>
+                                        <p className="modal-title">ส่วนแบ่ง Affiliate</p>
                                         <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal"
                                             aria-label="Close" alt="" />
                                     </div>
@@ -2351,7 +2349,6 @@ export default function AfterLoginMobile() {
                                 <div className="modal-body">
                                     <div className="code-modal-content">
                                         <input type="text" placeholder="กรุณากรอกโค้ด" className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
-                                        <div style={{ color: "red", marginTop: -18 }}>{reMessage}</div>
                                         <button type="button" className="button-warning" onClick={() => _addCupon()}>ยืนยัน</button>
                                     </div>
                                 </div>
@@ -2377,17 +2374,19 @@ export default function AfterLoginMobile() {
                                 </div>
                                 <div className="modal-body">
                                     <div className="spinner-modal-content">
-                                        <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint?.currentPoint}</p>
+                                        <p className="spinner-modal-title">แต้มทั้งหมด : {currentPoint}</p>
                                         <div className="spinner-modal-body" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                             {dataSpinWheel.length > 0 &&
                                                 <Roulette
                                                     data={dataSpinWheel}
                                                     setOutputSpin={setOutputSpin}
                                                     username={dataFromLogin?.username}
-                                                    setCurrentPoint={setCurrentPoint} />}
-                                            <p style={{ margin: 'none', marginTop: 10 }}>เครดิตกงล้อ : {outputSpin}</p>
+                                                    setCurrentPoint={setCurrentPoint}
+                                                    setNotCurrentPoint={setNotCurrentPoint}
+                                                />}
+                                            <br />
                                             <div style={{ fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
-                                            <p style={{ margin: 'none' }}>หมุนได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว 3 ครั้ง</p>
+                                            <p style={{ margin: 'none' }}>หมุนได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว {notCurrentPoint} ครั้ง</p>
                                             <p style={{ margin: 'none' }}>ภายในวันสามารถใข้สิทธิได้ {limitSpinWheel?.i_per_day} ครั้ง</p>
                                         </div>
                                     </div>
@@ -2458,7 +2457,6 @@ export default function AfterLoginMobile() {
                                         <div>ยอดเสียสะสมของคุณ (คืนยอดเสีย {maxLevel} %)</div>
                                         <button className="btn-history" data-bs-toggle="modal"
                                             data-bs-target="#cashbackDetail" type="button" >ประวัติการรับ</button>
-                                        <div style={{ color: 'red' }}>{reMessage}</div>
                                         <div>อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
                                         <button type="button" onClick={() => _receiveCashBack()} className="btn-get-credit">รับเข้าเครดิต</button>
                                     </div>
@@ -2575,7 +2573,10 @@ export default function AfterLoginMobile() {
                 </div>
                 {/* <!-- confirm logout modal end --> */}
             </main>
-
+            <Toaster
+                position="top-center"
+                reverseOrder={false}
+            />
         </div>
     )
 }

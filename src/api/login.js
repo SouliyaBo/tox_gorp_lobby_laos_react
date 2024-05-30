@@ -227,7 +227,7 @@ const LoginController = () => {
 
 	// ==================> ChangePassword <=================
 	const ChangePassword = async (newPassword, firstPassword) => {
-		const _dataTokenLocal = await TokenLocalStorage();
+		const _dataTokenLocal = localStorage.getItem("TOX_LOBBY_TOKEN")
 		const _dataLocal = await DataLocalStorage();
 		const _res = await axios({
 			method: "post",

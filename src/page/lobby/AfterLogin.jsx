@@ -8,15 +8,13 @@ import { useHistory } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import "react-slideshow-image/dist/styles.css";
 import "react-slideshow-image/dist/styles.css";
-import { CheckLevelCashBack, DataLoginInRout, FillerCategory, LogoutClearLocalStorage, OpenNewTabWithHTML, formatMontYear } from "../../helper";
+import { CheckLevelCashBack, DataLoginInRout, FillerCategory, OpenNewTabWithHTML, formatMontYear } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
 import _LoginController from "../../api/login";
-// import { customizeToast } from "../../helper/toast";
 import QRCode from 'qrcode.react';
 import Roulette from "../../component/Roulette";
-// import { ToastContainer, toast } from 'react-toastify';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function AfterLogin() {
     const history = useHistory();
@@ -48,8 +46,12 @@ export default function AfterLogin() {
     const [percentageData, setPercentageData] = useState([]);
 
     const [show, setShow] = useState(false);
+    const [showCupong, setShowCupong] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleShowCupong = () => setShowCupong(true)
+    const handleCloseCupong = () => setShowCupong(false)
 
     const [oldPassword, setOldPassword] = useState("");
     const [NewPassword, setNewPassword] = useState("");
@@ -76,6 +78,7 @@ export default function AfterLogin() {
     const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
     const [years, setYears] = useState([]);
     const [animationRefresh, setAnimationRefresh] = useState(false);
+    const [supong, setCupong] = useState(false);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
@@ -110,6 +113,7 @@ export default function AfterLogin() {
         setYears(yearArray);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
     useEffect(() => {
         let hasTouchScreen = false;
         if ("maxTouchPoints" in navigator) {
@@ -238,7 +242,7 @@ export default function AfterLogin() {
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1/LuckyWheel/Inquiry?XDEBUG_SESSION_START=netbeans-xdebug',
+            url: `${Constant.SERVER_URL}/LuckyWheel/Inquiry?XDEBUG_SESSION_START=netbeans-xdebug`,
             headers: {
                 'authorization-agent': '{{AUTHEN-VALUE-AGENT}}',
                 'authorization-token': '{{AUTHEN-VALUE-TOKEN}}',
@@ -462,11 +466,10 @@ export default function AfterLogin() {
                 return;
             }
             const _data = await ChangePassword(NewPassword, oldPassword);
-            if (_data?.data) {
-                setReMessage(_data?.data?.statusDesc);
-                if (_data?.data.statusCode === 0) {
-                    LogoutClearLocalStorage();
-                }
+            if (_data?.data.statusCode === 0) {
+                toast.success(_data?.data?.statusDesc);
+            } else {
+                toast.error(_data?.data?.statusDesc + "!");
             }
         } catch (error) {
             console.error("Error playing the game:", error);
@@ -486,7 +489,11 @@ export default function AfterLogin() {
                 s_code: codeCupon,
                 actionBy: "ADM",
             });
-            if (_data?.data) {
+            if (_data?.data?.statusCode === 0) {
+                toast.success(_data?.data?.statusDesc);
+                handleCloseCupong()
+            } else {
+                setCupong(true)
                 toast.error(_data?.data?.statusDesc)
             }
         } catch (error) {
@@ -544,7 +551,7 @@ export default function AfterLogin() {
         try {
             const _res = await axios({
                 method: "post",
-                url: `${Constant.SERVER_URL}/Affiliate/Receive`,
+                url: `${Constant.SERVER_URL}/Cashback/Receive`,
                 data: {
                     s_agent_code: dataFromLogin?.agent,
                     s_username: dataFromLogin?.username,
@@ -552,12 +559,11 @@ export default function AfterLogin() {
                     actionBy: "ADM",
                 },
             });
-            if (_res?.data) {
-                toast.error(_res?.data?.statusDesc)
-            }
             if (_res?.data?.statusCode === 0) {
                 toast.success(_res?.data?.statusDesc)
                 _getData();
+            } else {
+                toast.error(_res?.data?.statusDesc)
             }
         } catch (error) {
             console.log("🚀 ~ const_login= ~ error:", error);
@@ -809,9 +815,9 @@ export default function AfterLogin() {
         });
         if (_res?.data?.statusCode === 0) {
             setDataHistoryAffiliate(_res?.data?.data)
+            toast.success(_res?.data?.statusDesc);
         } else {
             toast.error(_res?.data?.statusDesc);
-
         }
     }
 
@@ -849,8 +855,7 @@ export default function AfterLogin() {
                     <img
                         src={`data:image/jpeg;base64,${logoWebsite}`}
                         alt="logo"
-                        height="49px"
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", height: 90 }}
                         id="banner"
                     />
                 </div>
@@ -1037,9 +1042,10 @@ export default function AfterLogin() {
                                 <p>{dataFromLogin?.info?.s_phone}</p>
                             </div> */}
                             <div className="balance">
-                                <small>ยอดเงินคงเหลือ <span>
-                                    <img src="/assets/images/icons8-refresh-30.png" onClick={(e) => refreshBalance(e)} alt="fresh" className={animationRefresh === true ? "refresh-balance" : ""} style={{ width: 20, height: 20, cursor: "pointer" }} />
-                                </span>
+                                <small>ยอดเงินคงเหลือ
+                                    <span style={{ marginLeft: 8 }}>
+                                        <img src="/assets/images/icons8-refresh-30.png" onClick={(e) => refreshBalance(e)} alt="fresh" className={animationRefresh === true ? "refresh-balance" : ""} style={{ width: 20, height: 20, cursor: "pointer" }} />
+                                    </span>
                                 </small>
                                 <p>{dataUser?.amount}</p>
                             </div>
@@ -1215,9 +1221,9 @@ export default function AfterLogin() {
                                             <div key={index}>
                                                 <div className="user">
                                                     <p className="username">Bank</p>
-                                                    <div>
+                                                    <div style={{ textTransform: "uppercase" }}>
                                                         {item?.s_icon.split(".")[0]}
-                                                        <img style={{ width: 50, height: 50 }} src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" />
+                                                        <img style={{ marginLeft: 10, width: 50, height: 50 }} src={`/assets/images/bank/${item?.s_icon}`} alt="logo bank" className="result" />
                                                     </div>
                                                 </div>
                                                 <br />
@@ -1229,10 +1235,12 @@ export default function AfterLogin() {
                                                     <p className="username">Account Name</p>
                                                     <p className="result">{item?.s_account_name}</p>
                                                 </div>
+                                                <div style={{ border: "1px solid #b78113" }} />
+
                                             </div>
                                         ))}
 
-                                        <div style={{ border: "1px solid #b78113" }} />
+                                        {/* <div style={{ border: "1px solid #b78113" }} /> */}
                                         {/* <div className="user">
                                             <p className="username">ชื่อ</p>
                                             <p className="result">{dataFromLogin?.info?.profile?.s_firstname}</p>
@@ -1403,7 +1411,7 @@ export default function AfterLogin() {
                                                 data-bs-target="#historyCashback"
                                                 data-bs-dismiss="modal"
                                             >ประวัติการรับ</button>
-                                            <div className="loss">{dataFromLogin?.balance?.cashback}</div>
+                                            <div className="loss">{dataUser?.cashback}</div>
                                             <div style={{ textAlign: "center", fontSize: 14 }} >อัพเดทล่าสุด {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}</div>
                                             <div className="btn">
                                                 <button type='button' className="receive-credit" onClick={() => _receiveCashBack()}>รับเข้าเครดิต</button>
@@ -2523,8 +2531,9 @@ export default function AfterLogin() {
                                         <div
                                             className="bag-modal-menu-item"
                                             id="code-modal-btn"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#codeModal"
+                                            onClick={handleShowCupong}
+                                            // data-bs-toggle="modal"
+                                            // data-bs-target="#codeModal"
                                             data-bs-dismiss="modal"
                                         >
                                             <div className="bag-menu-img-container">
@@ -2690,7 +2699,7 @@ export default function AfterLogin() {
                                         className="input-box"
                                         onChange={(e) => setCodeCupon(e.target.value)}
                                     />
-                                    <button type="button" className="button-warning" onClick={() => _addCupon()}>ยืนยัน</button>
+                                    <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>ยืนยัน</button>
                                 </div>
                             </div>
                         </div>
@@ -2871,8 +2880,8 @@ export default function AfterLogin() {
                                                 setCurrentPoint={setCurrentPoint}
                                                 setNotCurrentPoint={setNotCurrentPoint}
                                             />}
-
-                                        <div style={{ fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
+                                        <br />
+                                        <div style={{ margintTop: 10, fontWeight: 500, fontSize: 16, textDecoration: "underline" }}>รายละเอียด</div>
                                         <p style={{ margin: 'none' }}>หมุนวงล้อได้ทั้งหมด {limitSpinWheel?.i_max} ครั้ง ใช้สิทธิไปแล้ว {notCurrentPoint} ครั้ง</p>
                                         <p style={{ margin: 'none' }}>ภายในวันสามารถใข้สิทธิได้ {limitSpinWheel?.i_per_day} ครั้ง</p>
                                     </div>
@@ -3421,8 +3430,50 @@ export default function AfterLogin() {
                     </div>
                 </div>
             </Modal>
+            <Modal show={showCupong} style onHide={handleCloseCupong}>
+                <div className="modal-border">
+                    <div className="modal-content">
+                        <div className="modal-header-container">
+                            <div className="modal-header">
+                                <img
+                                    src="/assets/icons/icon-back-modal.svg"
+                                    className="modal-icon-back"
+                                    alt=""
+                                    onClick={handleCloseCupong}
+                                // data-bs-toggle="modal"
+                                // data-bs-target="#bagModal"
+                                // data-bs-dismiss="modal"
+                                />
+                                <p className="modal-title">กรอกโค้ด</p>
+                                <img
+                                    alt=""
+                                    onClick={() => handleCloseCupong()}
+                                    src="/assets/icons/icon-close-modal.svg"
+                                    className="modal-icon-close"
+                                // data-bs-dismiss="modal"
+                                // aria-label="Close"
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-body">
+                            <div className="code-modal-content">
+                                <input
+                                    type="text"
+                                    placeholder="กรุณากรอกโค้ด"
+                                    className="input-box"
+                                    onChange={(e) => setCodeCupon(e.target.value)}
+                                />
+                                <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>ยืนยัน</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
             {/* <ToastContainer position="top-right" autoClose={2000} /> */}
-
+            <Toaster
+                position="top-right"
+                reverseOrder={false}
+            />
         </div >
     )
 }
