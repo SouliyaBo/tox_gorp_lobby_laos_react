@@ -25,24 +25,19 @@ const LoginController = () => {
 						agent: data?.data?.agent,
 						username: data?.data?.username,
 						balance: data?.data?.balance,
-						// info: {
-						//     bankDeposit: data?.data?.info?.bankDeposit,
-						//     bankList: data?.data?.info?.bankList,
-						//     brandList: data?.data?.info?.brandList,
-						//     cashback: data?.data?.info?.cashback,
-						//     profile: data?.data?.info?.profile,
-						//     promotionList: data?.data?.info?.promotionList,
-						//     slide: data?.data?.info?.slide,
-						//     shorturl: data?.data?.info?.shorturl,
-						// }
 					}),
 				);
 				if (isMobile === "MOBILE") {
 					setLoading(false);
-					history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
+					setTimeout(() => {
+						history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
+					},);
 				} else {
 					setLoading(false);
-					history.push(Constant.AFTER_LOGIN, data?.data);
+					setTimeout(() => {
+						history.push(Constant.AFTER_LOGIN, data?.data);
+
+					},);
 				}
 			} else {
 				setLoading(true);
@@ -67,7 +62,6 @@ const LoginController = () => {
 					"ip": "1.2.3.4"
 				},
 			});
-			console.log("_res?.data.statusCode::: ", _res?.data)
 			if (_res?.data.statusCode === 0) {
 				localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
 				localStorage.setItem(

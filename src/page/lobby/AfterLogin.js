@@ -194,11 +194,13 @@ export default function AfterLogin() {
                 method: "get",
                 url: `${Constant.SERVER_URL}/Authen/CheckTokenLogin/eWVEOXhSV2g2N0t1c2thdjRnOUMwYmt6ZHVpdzY3MGR6M2JFNjByVmQ5MD0=`,
             });
+            console.log(_res?.data?.data)
             if (_res?.data?.data) {
                 const presentTime = new Date();
                 const futureTime = new Date(_res?.data?.data?.d_session_expire)
+                console.log("futureTime: ", futureTime)
                 if (presentTime > futureTime) {
-                    history.push("/")
+                    // history.push("/")
                 }
             }
         } catch (error) { }
