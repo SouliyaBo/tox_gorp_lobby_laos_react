@@ -2,12 +2,15 @@
 import React, { useState, useCallback } from 'react'
 import { useHistory } from "react-router-dom";
 import queryString from "query-string";
-
 import Constant from "../../constant";
+import { useTranslation } from "react-i18next";
+import Translate from "../../component/Translate"
+
 export default function RegisterStep1() {
     const history = useHistory()
     const parsed = queryString.parse(history?.location?.search);
     const [inputPhonenumber, setInputPhonenumber] = useState("")
+    const { t } = useTranslation();
     const [inputPassword, setInputPassword] = useState("")
     const [inputFirstname, setInputFirstname] = useState("")
     const [inputLastname, setInputLastname] = useState("")
@@ -52,9 +55,12 @@ export default function RegisterStep1() {
             setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
         }
     });
+
     const handleChangePassword = useCallback((event) => {
         if (event.target.value.length < 4) {
             setWarningPassword("กรุณากรอกรหัสผ่านให้ครบ 4 ตัว");
+        } else {
+            setWarningPassword("");
         }
         setInputPassword(event?.target?.value)
 
@@ -69,6 +75,8 @@ export default function RegisterStep1() {
         setInputPhonenumber("")
         setTypePhone(type)
     }
+
+
     return (
         <div>
             <main className="register-page flexCenter">
@@ -80,12 +88,12 @@ export default function RegisterStep1() {
                     />
                 </a>
 
-                <img className="logo" src={Constant?.LOGO_WEB} alt="logo" />
+                <img className="logo" style={{ width: 250 }} src={Constant?.LOGO_WEB} alt="logo" />
 
                 <div className="progress-step-container flexCenter">
                     <div className="progress-step flexCenter">
                         <div className="step-active flexCenter">1</div>
-                        <small>กรอกเบอร์</small>
+                        <small>{t("EnterTheNumber")}</small>
                     </div>
                     <hr />
                     <div className="progress-step flexCenter">
@@ -101,7 +109,7 @@ export default function RegisterStep1() {
                         <div className="input-container flexCenter">
                             <select onChange={(event) => _selectTypePhone(event.target?.value)} className="type-phone">
                                 <option value={"TH"}>TH</option>
-                                <option value={"LA"}>LA</option>
+                                {/* <option value={"LA"}>LA</option> */}
                             </select>
                             <input
                                 type="text"
@@ -124,7 +132,7 @@ export default function RegisterStep1() {
                     <div className="phone-input">
                         <div className="input-container flexCenter">
                             <img src="/assets/icons/lock-alt.svg" alt="phone icon" />
-                            <label for="phone" />
+                            <label htmlFor="phone" />
                             <input
                                 name="password"
                                 id="password"
@@ -135,16 +143,16 @@ export default function RegisterStep1() {
                             />
                         </div>
                     </div>
-                    <span style={{ color: "red" }}>{inputPassword !== "" ? "" : warningPassword}</span>
+                    <span style={{ color: "red" }}>{inputPassword !== "" ? warningPassword : warningPassword}</span>
                     <div className="phone-input">
                         <div className="input-container flexCenter">
                             <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
-                            <label for="s_firstname" />
+                            <label htmlFor="s_firstname" />
                             <input
                                 name="s_firstname"
                                 id="s_firstname"
                                 type="text"
-                                placeholder="ซื่อ"
+                                placeholder="ชื่อ"
                                 onChange={(e) => setInputFirstname(e?.target?.value)}
                             />
                         </div>
@@ -153,7 +161,7 @@ export default function RegisterStep1() {
                     <div className="phone-input">
                         <div className="input-container flexCenter">
                             <img src="/assets/icons/icons8-user-24.png" alt="user icon" />
-                            <label for="s_lastname" />
+                            <label htmlFor="s_lastname" />
                             <input
                                 name="s_lastname"
                                 id="s_lastname"
@@ -172,6 +180,9 @@ export default function RegisterStep1() {
                     คุณมีบัญชีอยู่แล้ว
                     <a href={Constant?.PAGE_LOGIN_MOBILE}>เข้าสู่ระบบ</a>
                 </p>
+                <div>
+                    <Translate />
+                </div>
             </main >
         </div >
     )

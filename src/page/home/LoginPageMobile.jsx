@@ -5,20 +5,23 @@ import { useHistory, useParams } from "react-router-dom";
 import Constant from "../../constant";
 import { EncriptBase64 } from '../../helper';
 import Swal from 'sweetalert2'
+import { useTranslation } from "react-i18next";
+import Translate from "../../component/Translate"
+
 export default function LoginPageMobile() {
     const history = useHistory();
     const UseParams = useParams();
+    const { t } = useTranslation();
     const [userNameInput, setUserNameInput] = useState();
     const [passwordInput, setPasswordInput] = useState();
     const [messageCreate, setMessageCreate] = useState();
     const [deviceType, setDeviceType] = useState(false);
-
     const { handleLogin, loginPlayNow } = _LoginController();
+
     useEffect(() => {
         if (UseParams?.token) {
             let _res = EncriptBase64(UseParams?.token)
             if (_res?.agentCode && _res?.username && _res?.password) {
-                console.log("RES: ", _res)
                 loginPlayNow(_res?.username, _res?.password)
             }
         }
@@ -54,14 +57,14 @@ export default function LoginPageMobile() {
 
 
     }, []);
-    // ===== LoginController =====>
+
     const _Login = async () => {
         const _res = await handleLogin(userNameInput, passwordInput, deviceType,
             (response) => {
                 if (response === false) {
                     Swal.fire({
                         icon: 'success',
-                        title: "สำเร็จ",
+                        title: t("Complete"),
                         showConfirmButton: false,
                         timer: 2000,
                         background: '#242424', // Change to the color you want
@@ -70,7 +73,7 @@ export default function LoginPageMobile() {
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: "ทำรายการไม่สำเร็จ",
+                        title: t("UnsuccessfulTransaction"),
                         showConfirmButton: false,
                         timer: 2000,
                         background: '#242424',
@@ -94,23 +97,24 @@ export default function LoginPageMobile() {
                 </a>
                 <img
                     className="logo"
+                    style={{ width: 250 }}
                     src={Constant?.LOGO_WEB}
                     alt="banner"
                 />
 
-                <h1>เข้าสู่ระบบ</h1>
+                <h1>{t("Login")}</h1>
 
                 <div className="phone-input">
                     {/* <small>กรุณากรอก เบอร์โทรศัพท์</small> */}
                     <div className="input-container flexCenter">
                         <img src="/assets/icons/phone.svg" alt="phone icon" />
-                        <label for="phone" />
+                        <label htmlFor="phone" />
                         <input
                             name="phone"
                             id="phone"
                             type="number"
                             maxlength="9"
-                            placeholder="เบอร์โทรศัพท์"
+                            placeholder={t("telephoneNumber")}
                             onChange={(e) => setUserNameInput(e?.target?.value)}
                         />
                     </div>
@@ -119,20 +123,16 @@ export default function LoginPageMobile() {
                     {/* <small>กรุณากรอก รหัสผ่าน</small> */}
                     <div className="input-container flexCenter">
                         <img src="/assets/icons/lock-alt.svg" alt="lock icon" />
-                        <label for="password" />
+                        <label htmlFor="password" />
                         <input
                             name="password"
                             id="password"
                             type="password"
-                            placeholder="กรอกรหัสผ่าน"
+                            placeholder={t("EnterPassword")}
                             onChange={(e) => setPasswordInput(e?.target?.value)}
                         />
                     </div>
                 </div>
-
-                {/* <div className="suggest-info" style={{ marginBottom: 20 }}>
-                    Password คือเลขบัญชีธนาคารที่ลูกค้าสมัครเลยนะคะ
-                </div> */}
                 <div style={{ padding: 10, color: "red" }}>{messageCreate}</div>
                 <div className="button-container flexCenter">
                     {/* <a href={constant?.AFTER_LOGIN_MOBILE}>  */}
@@ -142,18 +142,19 @@ export default function LoginPageMobile() {
                         id="loginBtn"
                         onClick={() => _Login()}
                     >
-                        เข้าสู่ระบบ
+                        {t("Login")}
                     </button>
                     {/* </a> */}
                     {/* <a href={constant?.PAGE_REGISTER_STEP1}>  */}
                     <button type="button" style={{ cursor: "pointer" }} onClick={() => history.push(constant?.PAGE_REGISTER_STEP1)} id="signupBtn">
-                        สมัครสมาชิก
+                        {t("ApplyForMembership")}
                     </button>
                     {/* </a> */}
                 </div>
 
-                <a href="/">พบปัญหาติดต่อเรา</a>
+                <Translate />
+
             </main>
-        </div>
+        </div >
     );
 }

@@ -29,7 +29,6 @@ export const FillerCategory = async (value, setCategoryGame) => {
 export const EncriptBase64 = (date) => {
   const tokens = date;
   const token = tokens.split("1a88");
-  console.log("token:: ", token)
   let _agentCode = token[0];
   let _username = token[1];
   let _password = token[2];
@@ -113,16 +112,12 @@ export const formatMontYear = (today) => {
 };
 
 export const openUrlInNewWindow = (url) => {
-  console.log("url: ", url)
   // Attempt to open the URL in a new window/tab
   const newWindow = window.open(url, '_blank');
-  console.log("newWindow: ", newWindow)
 
   // Check if newWindow is not null
   if (newWindow === null) {
-    console.log("newWindow: ", newWindow)
     // If newWindow is null, it indicates that the pop-up blocker might be enabled or the operation was blocked
-    console.error('Failed to open URL in a new window.');
   }
 }
 
@@ -157,13 +152,3 @@ export const convertBankCode = (bankCode) => {
   return res;
 };
 
-
-
-// function encrypt($string) {
-//   $output = false;
-//   $encrypt_method = "AES-128-CBC";
-//   $key = hash('sha256', $this -> secret_key);
-//   $suffix = substr(hash('sha256', $this -> secret_suffix), 0, 16);
-//   $output = base64_encode(openssl_encrypt($string, $encrypt_method, $key, 0, $suffix));
-//   return $output;
-// }

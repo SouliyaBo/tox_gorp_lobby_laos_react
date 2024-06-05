@@ -9,8 +9,11 @@ import _LoginController from "../../api/login";
 import { BackList } from "../../constant/bankList";
 import { convertBankCode } from "../../helper";
 import { Dropdown } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
+
 export default function RegisterStep2() {
     const history = useHistory();
+    const { t } = useTranslation();
 
     const { handleRegister } = _LoginController();
     const [inputBank, setInputBank] = useState('');
@@ -64,7 +67,7 @@ export default function RegisterStep2() {
                 if (response === false) {
                     Swal.fire({
                         icon: 'success',
-                        title: "สำเร็จ",
+                        title: t("Complete"),
                         showConfirmButton: false,
                         timer: 2000,
                         background: '#242424', // Change to the color you want
@@ -73,7 +76,7 @@ export default function RegisterStep2() {
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: "ทำรายการไม่สำเร็จ",
+                        title: t("UnsuccessfulTransaction"),
                         showConfirmButton: false,
                         timer: 2000,
                         background: '#242424',
@@ -164,7 +167,7 @@ export default function RegisterStep2() {
                 >
                     <div className="progress-step flexCenter">
                         <div className="step flexCenter">1</div>
-                        <small>กรอกเบอร์</small>
+                        <small>{t("Username")}</small>
                     </div>
                     <hr />
                     <div className="progress-step flexCenter">
@@ -174,7 +177,7 @@ export default function RegisterStep2() {
                 </div>
 
                 <div className="text-container" style={{ textAlign: "center" }}>
-                    <h3>สมัครสมาชิก</h3>
+                    <h3>{t("Register")}</h3>
                 </div>
                 <div className="banking-list">
                     {BackList?.map((bank) => (
@@ -196,7 +199,10 @@ export default function RegisterStep2() {
                             <Dropdown style={{ margin: 0, height: 40 }}>
                                 <Dropdown.Toggle
                                     align="start"
-                                    style={{ background: `linear-gradient(90deg, ${backgroundDropdown} 0%, rgb(17, 17, 17) 100%)`, width: 310, color: bankCode === 6 ? "#000" : "#FFF" }}>
+                                    style={{
+                                        border: `1px solid ${backgroundDropdown}`,
+                                        background: `linear-gradient(90deg, ${backgroundDropdown} 0%, rgb(17, 17, 17) 100%)`, width: 310, color: bankCode === 6 ? "#000" : "#FFF"
+                                    }}>
                                     {bankNameOption}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu style={{ overflow: "scroll", height: 300 }}>

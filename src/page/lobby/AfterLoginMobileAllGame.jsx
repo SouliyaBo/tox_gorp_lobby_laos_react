@@ -1211,7 +1211,7 @@ export default function AfterLoginMobileAllGame() {
                       *ใช้ในกรณีที่ธนาคารมีปัญหาหรือยอดฝากไม่เข้า*
                     </p>
                     <div className="bank-selector">
-                      <label for="name">เลือกธนาคารบัญชีฝาก</label>
+                      <label htmlFor="name">เลือกธนาคารบัญชีฝาก</label>
                       <div className="flexCenter" style={{ gap: "8px" }}>
                         <div className="flexCenter" style={{ width: "20%" }}>
                           <img
@@ -1245,16 +1245,16 @@ export default function AfterLoginMobileAllGame() {
                     </div>
 
                     <div className="bank-input">
-                      <label for="bank">เลือกธนาคารที่ทำรายการฝาก</label>
+                      <label htmlFor="bank">เลือกธนาคารที่ทำรายการฝาก</label>
                       <input type="text" name="bank" placeholder="เลือกธนาคาร" />
                     </div>
                     <div className="bank-input">
-                      <label for="bank">กรุณากรอกข้อมูล</label>
+                      <label htmlFor="bank">กรุณากรอกข้อมูล</label>
                       <input type="text" name="bank" placeholder="0" />
                       <small>กรอกจำนวนเงินตามสลิป</small>
                     </div>
                     <div className="bank-input">
-                      <label for="bank">กรุณากรอกข้อมูล</label>
+                      <label htmlFor="bank">กรุณากรอกข้อมูล</label>
                       <input type="text" name="bank" placeholder="0" />
                       <small>วันที่ทำรายการฝาก</small>
                     </div>
@@ -1577,7 +1577,7 @@ export default function AfterLoginMobileAllGame() {
                           />
                           <label
                             className="promotion-checkbox-title"
-                            for="get-promotion"
+                            htmlFor="get-promotion"
                           >
                             <div className="promotion-custom-radio" />
                             รับโบนัส
@@ -1590,7 +1590,7 @@ export default function AfterLoginMobileAllGame() {
                           />
                           <label
                             className="promotion-checkbox-title"
-                            for="not-get-promotion"
+                            htmlFor="not-get-promotion"
                           >
                             <div className="promotion-custom-radio" />
                             ไม่รับโบนัส

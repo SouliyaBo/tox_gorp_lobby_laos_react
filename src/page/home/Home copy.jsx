@@ -781,7 +781,7 @@ export default function Home() {
 						<h3>เข้าสู่ระบบ</h3>
 						<div className="phone-input">
 							<img src="/assets/icons/phone.svg" alt="icon" />
-							<label for="phone" />
+							<label htmlFor="phone" />
 							<input
 								type="number"
 								id="phone"
@@ -793,7 +793,7 @@ export default function Home() {
 						</div>
 						<div className="phone-input" style={{ marginTop: 20 }}>
 							<img src="/assets/icons/lock-alt.svg" alt="lock icon" />
-							<label for="phone" />
+							<label htmlFor="phone" />
 							<input
 								name="password"
 								id="password"
@@ -884,7 +884,7 @@ export default function Home() {
 											</div>
 											<div className="phone-input">
 												{/* <img src="/assets/icons/phone.svg" alt="icon" /> */}
-												{/* <label for="phone" /> */}
+												{/* <label htmlFor="phone" /> */}
 												<select onChange={(event) => _selectTypePhone(event.target?.value)} className="type-phone">
 													<option value={"TH"}>TH</option>
 													<option value={"LA"}>LA</option>
@@ -908,7 +908,7 @@ export default function Home() {
 											</span>
 											<div className="phone-input">
 												<img src="/assets/icons/lock-alt.svg" alt="icon" />
-												<label for="phone" />
+												<label htmlFor="phone" />
 												<input
 													type="password"
 													id="text"
@@ -920,7 +920,7 @@ export default function Home() {
 											<span style={{ color: "red" }}>{inputPassword !== "" ? "" : warningPassword}</span>
 											<div className="phone-input">
 												<img src="/assets/icons/icons8-user-24.png" alt="icon" />
-												<label for="phone" />
+												<label htmlFor="phone" />
 												<input
 													type="text"
 													id="s_firstname"
@@ -932,7 +932,7 @@ export default function Home() {
 											<span style={{ color: "red" }}>{inputFirstname !== "" ? "" : warningFirstName}</span>
 											<div className="phone-input">
 												<img src="/assets/icons/icons8-user-24.png" alt="icon" />
-												<label for="phone" />
+												<label htmlFor="phone" />
 												<input
 													type="text"
 													id="s_lastname"
@@ -2743,7 +2743,7 @@ export default function Home() {
 											<div className="show-username-bank">นาย ปปปปป ปปปปป</div>
 										</div>
 										{/* <!-- <div className="bank-selector">
-                <label for="name">เลือกธนาคารบัญชีฝาก</label>
+                <label htmlFor="name">เลือกธนาคารบัญชีฝาก</label>
 
                 <div className="flexCenter" style="gap: 8px">
                   <div className="flexCenter" style="width: 20%">
@@ -2777,16 +2777,16 @@ export default function Home() {
               </div> --> */}
 
 										<div className="bank-input">
-											<label for="bank">เลือกธนาคารที่ทำรายการฝาก</label>
+											<label htmlFor="bank">เลือกธนาคารที่ทำรายการฝาก</label>
 											<input type="text" name="bank" placeholder="เลือกธนาคาร" />
 										</div>
 										<div className="bank-input">
-											<label for="bank">กรุณากรอกข้อมูล</label>
+											<label htmlFor="bank">กรุณากรอกข้อมูล</label>
 											<input type="text" name="bank" placeholder="0" />
 											<small>กรอกจำนวนเงินตามสลิป</small>
 										</div>
 										<div className="bank-input">
-											<label for="bank">กรุณากรอกข้อมูล</label>
+											<label htmlFor="bank">กรุณากรอกข้อมูล</label>
 											<input type="text" name="bank" placeholder="0" />
 											<small>วันที่ทำรายการฝาก</small>
 										</div>
@@ -3511,7 +3511,7 @@ export default function Home() {
 													/>
 													<label
 														className="promotion-checkbox-title"
-														for="get-promotion"
+														htmlFor="get-promotion"
 													>
 														<div className="promotion-custom-radio" />
 														รับโบนัส
@@ -3524,7 +3524,7 @@ export default function Home() {
 													/>
 													<label
 														className="promotion-checkbox-title"
-														for="not-get-promotion"
+														htmlFor="not-get-promotion"
 													>
 														<div className="promotion-custom-radio" />
 														ไม่รับโบนัส

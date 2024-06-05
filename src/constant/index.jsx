@@ -1,6 +1,6 @@
 module.exports = {
-    AGEN_CODE: "AG019",
-    AGENT_CODE: "AG019",
+    AGEN_CODE: "AG023",
+    AGENT_CODE: "AG023",
 
     SERVER_URL: "https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1",
 
@@ -17,8 +17,8 @@ module.exports = {
     AFFILIATE: "/affiliate",
 
 
-    LOGO_WEB: "/assets/images/Logo.png",
-    LINK_WORDPRESS: "https://shun808.com",
+    LOGO_WEB: "/assets/images/logo-website/live88.png",
+    LINK_WORDPRESS: "https://live88.me",
     LOGIN_TOKEN_DATA: "TOX_LOBBY_TOKEN",
     LOGIN_USER_DATA: "TOX_LOBBY_DATA",
 

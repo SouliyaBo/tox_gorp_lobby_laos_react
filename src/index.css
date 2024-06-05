@@ -13,6 +13,7 @@
 
 * {
   font-family: 'NotoSansLaos' !important;
+  /* font-family: 'TimeNewRoman' !important; */
 }
 
 :root {
@@ -1343,7 +1344,7 @@ p {
     background: -webkit-linear-gradient(180deg, #ffc757 0%, #a76f00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    z-index: 10;
+    z-index: 3;
     cursor: pointer;
     user-select: none;
   }
@@ -1353,7 +1354,7 @@ p {
     top: 50%;
     left: 10px;
     font-size: 2rem;
-    z-index: 10;
+    z-index: 3;
     cursor: pointer;
     color: #a76f00;
     user-select: none;
@@ -2219,13 +2220,13 @@ p {
   .after-login-mobile-page .all-mobile-games .container-image {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 
   .after-login-mobile-page .all-mobile-games .container-image .content-image {
     width: 120px;
-    height: 160px;
-    object-fit: fill;
-    background-size: cover;
+    height: 169px;
+    object-fit: contain;
   }
 
   .after-login-mobile-page .all-mobile-games .container-image .content-image .url {
@@ -7743,3 +7744,59 @@ input[type="file"] {
         transform:rotate(360deg);
     }
 }
+
+.round-container {
+  width: 150px; /* You can adjust the size as needed */
+  height: 150px; /* Ensure the width and height are the same for a perfect circle */
+  border-radius: 50%; /* This makes the image round */
+  border: 2px solid #fff; /* Optional: Add a border around the image */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visual */
+}
+.round-image {
+  margin-right: 10px;
+  border-radius: 50%; /* This makes the image round */
+  object-fit: cover;
+   width: 35px; /* You can adjust the size as needed */
+  height: 35px; /* Ensure the width and height are the same for a perfect circle */
+}
+.dropdown-toggle {
+    white-space: nowrap;
+    background: none !important;
+    border: none;
+}
+.dropdown-toggle::after {
+    display: inline-block;
+    /* margin-left: .255em; */
+    /* vertical-align: .255em; */
+    content: "";
+    border-top: .3em solid;
+    /* border-right: .3em solid transparent; */
+    /* border-bottom: 0; */
+    border-left: 0em solid transparent;
+}
+
+.dropdown-item {
+  color: #fff !important;
+}
+.dropdown-item:hover {
+  color: #fa0 !important;
+}
+
+.dropdown-menu.show {
+    display: block !important;
+    background: #433d3d;
+}
+
+.dropdown-toggle {
+    white-space: nowrap;
+    background: #433d3d;
+    border: none;
+
+}
+.dropdown-toggle:hover{
+    white-space: nowrap;
+    background: #5e5555;
+    border: none;
+}
+
+

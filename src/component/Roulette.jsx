@@ -3,8 +3,9 @@ import { Wheel } from "react-custom-roulette";
 import Constant, { AGENT_CODE } from "../constant";
 import axios from "axios";
 import toast from 'react-hot-toast';
-
+import { useTranslation } from "react-i18next";
 const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurrentPoint }) => {
+    const { t } = useTranslation();
     const [mustSpin, setMustSpin] = useState(false);
     const [prizeNumber, setPrizeNumber] = useState(0);
     const [rouletteData, setRouletteData] = useState(data);
@@ -90,7 +91,7 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurren
                     }}
                 />
                 <br />
-                <button type="button" className="btn-spinner" onClick={handleSpinClick}>หมุนกงล้อ</button>
+                <button type="button" className="btn-spinner" onClick={handleSpinClick}>{t("spinTheWheel")}</button>
             </div>
         </>
     );
