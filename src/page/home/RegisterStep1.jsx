@@ -30,11 +30,11 @@ export default function RegisterStep1() {
         if (inputPhonenumber === "") {
             setWarningPhone(t("Username"));
         } else if (inputPassword === "") {
-            setWarningPassword("กรุณาป้อนรหัสผ่าน");
+            setWarningPassword(t("PleaseEnterYourPassword"));
         } else if (inputFirstname === "") {
-            setWarningFirstName("กรุณาป้อนชื่อ")
+            setWarningFirstName(t("PleaseEnterYourName"))
         } else if (inputLastname === "") {
-            setWarningLastName("กรุณาป้อนนามสกุล")
+            setWarningLastName(t("PleaseEnterLastYame"))
         } else {
             history.push(Constant.PAGE_REGISTER_STEP2, {
                 inputPhonenumber,
@@ -55,13 +55,13 @@ export default function RegisterStep1() {
         if (event.target.value.length < 10 && typePhone === "TH") {
             setPhoneCheck(t("TelephoneNumber10"));
         } else {
-            setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
+            setPhoneCheck(t("PleaseEnterComplete13"));
         }
     });
 
     const handleChangePassword = useCallback((event) => {
         if (event.target.value.length < 4) {
-            setWarningPassword("กรุณากรอกรหัสผ่านให้ครบ 4 ตัว");
+            setWarningPassword(t("TheSecurityCode4"));
         } else {
             setWarningPassword("");
         }
@@ -155,7 +155,7 @@ export default function RegisterStep1() {
                                 name="s_firstname"
                                 id="s_firstname"
                                 type="text"
-                                placeholder={t("FirstName")}
+                                placeholder={t("PleaseEnterYourName")}
                                 onChange={(e) => setInputFirstname(e?.target?.value)}
                             />
                         </div>
@@ -169,7 +169,7 @@ export default function RegisterStep1() {
                                 name="s_lastname"
                                 id="s_lastname"
                                 type="text"
-                                placeholder={t("LastName")}
+                                placeholder={t("กรุณากรอกนามสกุล")}
                                 onChange={(e) => setInputLastname(e?.target?.value)}
                             />
                         </div>
@@ -177,11 +177,11 @@ export default function RegisterStep1() {
                     <span style={{ color: "red" }}>{inputLastname !== "" ? "" : warningLastName}</span>
                 </div>
 
-                <button type='button' onClick={() => _clickNextStep()} className="next-step-button">ถัดไป</button>
+                <button type='button' onClick={() => _clickNextStep()} className="next-step-button">{t("Next")}</button>
 
                 <p style={{ marginTop: 8, textAlign: "center" }}>
-                    คุณมีบัญชีอยู่แล้ว
-                    <a href={Constant?.PAGE_LOGIN_MOBILE}>เข้าสู่ระบบ</a>
+                    {t("YouAlreadyHaveAnAccount")}
+                    <a href={Constant?.PAGE_LOGIN_MOBILE}>{t("Login")}</a>
                 </p>
                 <div>
                     <Translate />

@@ -1,6 +1,6 @@
 module.exports = {
-    AGEN_CODE: "AG023",
-    AGENT_CODE: "AG023",
+    AGEN_CODE: "AG019",
+    AGENT_CODE: "AG019",
 
     SERVER_URL: "https://2ov8dxycl0.execute-api.ap-southeast-1.amazonaws.com/api/v1",
 

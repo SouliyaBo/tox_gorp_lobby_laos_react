@@ -385,7 +385,7 @@ export default function AfterLoginMobile() {
   const _ChangePassword = async () => {
     try {
       if (NewPassword !== NewPasswordVery) {
-        setReMessage("รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน");
+        setReMessage(t("NewPasswordAndConfirmNewPasswordDoNotMatch"));
         return;
       }
       const _data = await ChangePassword(NewPassword, oldPassword);
@@ -439,11 +439,11 @@ export default function AfterLoginMobile() {
   };
   const _copyLinkAffiliate = (link) => {
     navigator?.clipboard.writeText(link);
-    toast.success("คัดลอกลิ้งสำเร็จ!");
+    toast.success(t("SuccessfullyCopiedLink"));
   };
   const _copyAccountNo = (accountNo) => {
     navigator.clipboard.writeText(accountNo);
-    toast.success("คัดลอกลิ้งสำเร็จ!");
+    toast.success(t("SuccessfullyCopiedLink"));
   };
 
   const _receiveCashBack = async () => {
@@ -1242,7 +1242,7 @@ export default function AfterLoginMobile() {
                       data-bs-target="#profile"
                     />
                     <p className="modal-title" id="addAccount">
-                      เพิ่มบัญชี
+                      {t("addAccount")}
                     </p>
                     <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
                   </div>
@@ -1463,7 +1463,7 @@ export default function AfterLoginMobile() {
                           </div>
                         </div>
                         <div>
-                          <div className="deposit-bank-title">เปลี่ยนธนาคาร</div>
+                          <div className="deposit-bank-title">{t("ChangeBank")}</div>
                           <img
                             onClick={() => _getOptionBank()}
                             onKeyDown={() => ""}
@@ -1490,8 +1490,8 @@ export default function AfterLoginMobile() {
                     <div data-bs-toggle="modal" data-bs-target="#slipVerify">
                       <div className="btn-slip">
                         <div style={{ color: "white" }}>
-                          <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" /> แจ้งเงินไม่เข้า
-                          /แบบสลิป
+                          <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" />{" "}
+                          {t("ReportMoneyNotReceivedSlipForm")}
                         </div>
                       </div>
                     </div>
@@ -1570,7 +1570,7 @@ export default function AfterLoginMobile() {
                   </div>
                   <div style={{ marginTop: 20 }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <div>ซื่อธนาคาร: </div>
+                      <div>{t("BankName")}: </div>
                       <div>{depositBankList && depositBankList?.s_fname_th}</div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -1911,7 +1911,7 @@ export default function AfterLoginMobile() {
                                   deposit?.s_status === "Y" ? " success" : deposit?.s_status === "C" ? " cancel" : " not-success"
                                 }`}
                               >
-                                {deposit?.s_status === "Y" ? t("Complete") : deposit?.s_status === "C" ? t("cancel") : "ไม่สำเร็จ"}
+                                {deposit?.s_status === "Y" ? t("Complete") : deposit?.s_status === "C" ? t("cancel") : t("unsuccessful")}
                               </div>
                               <p className="history-date">{deposit?.d_datetime}</p>
                             </div>
@@ -1937,7 +1937,7 @@ export default function AfterLoginMobile() {
                                   withdraw?.s_status === "Y" ? " success" : withdraw?.s_status === "C" ? " cancel" : " not-success"
                                 }`}
                               >
-                                {withdraw?.s_status === "Y" ? t("Complete") : withdraw?.s_status === "C" ? t("cancel") : "ไม่สำเร็จ"}
+                                {withdraw?.s_status === "Y" ? t("Complete") : withdraw?.s_status === "C" ? t("cancel") : t("unsuccessful")}
                               </div>
                               <p className="history-date">{withdraw?.d_datetime}</p>
                             </div>
@@ -1951,7 +1951,7 @@ export default function AfterLoginMobile() {
                         dataHistoryBonus?.map((bonus) => (
                           <div className="history-list">
                             <div className="history-list-left">
-                              <label className="history-list-label">รายการโบนัส</label>
+                              <label className="history-list-label">{t("BonusItems")}</label>
                               <p className="history-list-label">{bonus?.f_amount}</p>
                               <p className="history-list-label">
                                 {t("Remark")} : {bonus?.s_remark}
@@ -1963,7 +1963,7 @@ export default function AfterLoginMobile() {
                                   bonus?.s_status === "Y" ? " success" : bonus?.s_status === "C" ? " cancel" : " not-success"
                                 }`}
                               >
-                                {bonus?.s_status === "Y" ? t("Complete") : bonus?.s_status === "C" ? t("cancel") : "ไม่สำเร็จ"}
+                                {bonus?.s_status === "Y" ? t("Complete") : bonus?.s_status === "C" ? t("cancel") : t("unsuccessful")}
                               </div>
                               <p className="history-date">{bonus?.d_datetime}</p>
                             </div>
@@ -2068,7 +2068,7 @@ export default function AfterLoginMobile() {
                     <div className="border-input-gold">
                       <input
                         type="password"
-                        placeholder="กรุณากรอกรหัสผ่านเดิม"
+                        placeholder={t("PleaseEnterTheOldPassword")}
                         className="input-for-border-gold"
                         onChange={(e) => setOldPassword(e.target.value)}
                       />
@@ -2079,7 +2079,7 @@ export default function AfterLoginMobile() {
                     <div className="border-input-gold">
                       <input
                         type="password"
-                        placeholder="กรุณากรอกรหัสผ่านใหม่"
+                        placeholder={t("PleaseEnterNewPassword")}
                         className="input-for-border-gold"
                         onChange={(e) => setNewPassword(e.target.value)}
                       />
@@ -2087,7 +2087,7 @@ export default function AfterLoginMobile() {
                     <div className="border-input-gold">
                       <input
                         type="password"
-                        placeholder="กรุณากรอกรหัสผ่านใหม่อีกครั้ง"
+                        placeholder={t("PleaseEnterYourPasswordAgain")}
                         className="input-for-border-gold"
                         onChange={(e) => setNewPasswordVery(e.target.value)}
                       />
@@ -2291,7 +2291,7 @@ export default function AfterLoginMobile() {
                           <div className="border-input-gold">
                             <div className="th-earn-container">
                               <span className="th-earn">{t("date")}</span>
-                              <span className="th-earn">สมัคร</span>
+                              <span className="th-earn">{t("apply")}</span>
                               <span className="th-earn">{t("DepositMoney")}</span>
                               <span className="th-earn">{t("income")}</span>
                             </div>
@@ -2327,7 +2327,7 @@ export default function AfterLoginMobile() {
                           <div className="border-input-gold">
                             <div className="th-earn-container">
                               <span className="th-earn">{t("month")}</span>
-                              <span className="th-earn">สมัคร</span>
+                              <span className="th-earn">{t("apply")}</span>
                               <span className="th-earn">{t("DepositMoney")}</span>
                               <span className="th-earn">{t("income")}</span>
                             </div>
@@ -2477,7 +2477,7 @@ export default function AfterLoginMobile() {
                 </div>
                 <div className="modal-body">
                   <div className="code-modal-content">
-                    <input type="text" placeholder="กรุณากรอกโค้ด" className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                    <input type="text" placeholder={("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
                     <button type="button" className="button-warning" onClick={() => _addCupon()}>
                       {t("confirm")}
                     </button>
@@ -2721,7 +2721,7 @@ export default function AfterLoginMobile() {
               <div className="modal-content">
                 <div className="modal-header-container">
                   <div className="modal-header">
-                    <p className="modal-title">ยืนยันออกจากระบบ</p>
+                    <p className="modal-title">{t("ConfirmLogout")}</p>
                   </div>
                 </div>
                 <div className="modal-body">

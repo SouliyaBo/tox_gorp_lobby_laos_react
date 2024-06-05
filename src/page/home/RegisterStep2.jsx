@@ -172,7 +172,7 @@ export default function RegisterStep2() {
                     <hr />
                     <div className="progress-step flexCenter">
                         <div className="step-active flexCenter">2</div>
-                        <small>บัญชีธนาคาร</small>
+                        <small>{t("bankAccount")}</small>
                     </div>
                 </div>
 
@@ -229,7 +229,7 @@ export default function RegisterStep2() {
                                 name="bank"
                                 id="bank"
                                 type="text"
-                                placeholder="เลขบัญชีธนาคาร"
+                                placeholder={t("bankAccountNumber")}
                                 onChange={(e) => handleChangeBank(e)}
                             />
                         </div>
@@ -245,7 +245,7 @@ export default function RegisterStep2() {
 
                     onClick={() => checkBank()}
                 >
-                    ยืนยัน สมัครสมาชิก
+                    {t("confirm")}
                 </button>
 
                 <div
