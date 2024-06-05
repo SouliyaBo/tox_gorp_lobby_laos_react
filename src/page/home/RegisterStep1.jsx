@@ -28,7 +28,7 @@ export default function RegisterStep1() {
 
     const _clickNextStep = () => {
         if (inputPhonenumber === "") {
-            setWarningPhone(t("Username"));
+            setWarningPhone(t("EnterYourPhoneNumber"));
         } else if (inputPassword === "") {
             setWarningPassword(t("PleaseEnterYourPassword"));
         } else if (inputFirstname === "") {
@@ -96,12 +96,12 @@ export default function RegisterStep1() {
                 <div className="progress-step-container flexCenter">
                     <div className="progress-step flexCenter">
                         <div className="step-active flexCenter">1</div>
-                        <small>{t("EnterTheNumber")}</small>
+                        <small>{t("account")}</small>
                     </div>
                     <hr />
                     <div className="progress-step flexCenter">
                         <div className="step flexCenter">2</div>
-                        <small>บัญชีธนาคาร</small>
+                        <small>{t("bankAccount")}</small>
                     </div>
                 </div>
                 <div className="text-container" style={{ textAlign: "center" }}>
@@ -169,7 +169,7 @@ export default function RegisterStep1() {
                                 name="s_lastname"
                                 id="s_lastname"
                                 type="text"
-                                placeholder={t("กรุณากรอกนามสกุล")}
+                                placeholder={t("PleaseEnterLastYame")}
                                 onChange={(e) => setInputLastname(e?.target?.value)}
                             />
                         </div>

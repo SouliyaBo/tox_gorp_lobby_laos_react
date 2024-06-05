@@ -21,7 +21,7 @@ export default function RegisterStep2() {
     const [messageCreate, setMessageCreate] = useState();
     const [deviceType, setDeviceType] = useState(false);
     const [textWarning, setTextWarning] = useState(false);
-    const [bankNameOption, setBankNameOption] = useState('เลือกธนาคาร');
+    const [bankNameOption, setBankNameOption] = useState(t('ChooseABank'));
     const [backgroundDropdown, setBackgroundDropdown] = useState('#FFF');
 
     useEffect(() => {
