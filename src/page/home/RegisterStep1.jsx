@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useHistory } from "react-router-dom";
 import queryString from "query-string";
 import Constant from "../../constant";
@@ -10,7 +10,7 @@ export default function RegisterStep1() {
     const history = useHistory()
     const parsed = queryString.parse(history?.location?.search);
     const [inputPhonenumber, setInputPhonenumber] = useState("")
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [inputPassword, setInputPassword] = useState("")
     const [inputFirstname, setInputFirstname] = useState("")
     const [inputLastname, setInputLastname] = useState("")
@@ -20,12 +20,15 @@ export default function RegisterStep1() {
     const [warningFirstName, setWarningFirstName] = useState("")
     const [warningLastName, setWarningLastName] = useState("")
     const [typePhone, setTypePhone] = useState("TH");
-    const [placeholderText, setPlaceholderText] = useState("เบอร์โทรศัพท์ไทย");
+    const [placeholderText, setPlaceholderText] = useState(t("ThaiPhoneNumber"));
     const [phoneCheck, setPhoneCheck] = useState("")
+    useEffect(() => {
+        setPlaceholderText(t("ThaiPhoneNumber"))
+    }, [t])
 
     const _clickNextStep = () => {
         if (inputPhonenumber === "") {
-            setWarningPhone("กรุณากรอกเบอร์โทร");
+            setWarningPhone(t("Username"));
         } else if (inputPassword === "") {
             setWarningPassword("กรุณาป้อนรหัสผ่าน");
         } else if (inputFirstname === "") {
@@ -50,7 +53,7 @@ export default function RegisterStep1() {
             setInputPhonenumber(event?.target?.value)
         }
         if (event.target.value.length < 10 && typePhone === "TH") {
-            setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 10 หลัก");
+            setPhoneCheck(t("TelephoneNumber10"));
         } else {
             setPhoneCheck("กรุณากรอกเบอร์โทรให้ครบ 13 หลัก");
         }
@@ -68,9 +71,9 @@ export default function RegisterStep1() {
 
     const _selectTypePhone = (type) => {
         if (type === "TH") {
-            setPlaceholderText("เบอร์โทรศัพท์ไทย")
+            setPlaceholderText(t("ThaiPhoneNumber"))
         } else {
-            setPlaceholderText("เบอร์โทรศัพท์ลาว")
+            setPlaceholderText(t("LaoPhoneNumber"))
         }
         setInputPhonenumber("")
         setTypePhone(type)
@@ -102,7 +105,7 @@ export default function RegisterStep1() {
                     </div>
                 </div>
                 <div className="text-container" style={{ textAlign: "center" }}>
-                    <h3>สมัครสมาชิก</h3>
+                    <h3>{t("Register")}</h3>
                 </div>
                 <div className='register-form'>
                     <div className="phone-input">
@@ -137,7 +140,7 @@ export default function RegisterStep1() {
                                 name="password"
                                 id="password"
                                 type="password"
-                                placeholder="รหัสผ่าน"
+                                placeholder={t("PleaseEnterYourPassword")}
                                 value={inputPassword}
                                 onChange={(e) => handleChangePassword(e)}
                             />
@@ -152,7 +155,7 @@ export default function RegisterStep1() {
                                 name="s_firstname"
                                 id="s_firstname"
                                 type="text"
-                                placeholder="ชื่อ"
+                                placeholder={t("FirstName")}
                                 onChange={(e) => setInputFirstname(e?.target?.value)}
                             />
                         </div>
@@ -166,7 +169,7 @@ export default function RegisterStep1() {
                                 name="s_lastname"
                                 id="s_lastname"
                                 type="text"
-                                placeholder="นามสกุล"
+                                placeholder={t("LastName")}
                                 onChange={(e) => setInputLastname(e?.target?.value)}
                             />
                         </div>

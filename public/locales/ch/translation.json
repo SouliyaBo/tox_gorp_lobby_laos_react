@@ -1,4 +1,6 @@
 {
+	"ThaiPhoneNumber": "泰國電話號碼",
+	"LaoPhoneNumber": "寮國電話號碼",
 	"titleDropdown": "改变语言",
 	"Login": "登录",
 	"telephoneNumber": "电话号码",
@@ -127,7 +129,7 @@
 	"TheUsernameOrPassword": "用户名或密码信息不正确。",
 	"Invalid2FASecurityCode": "2FA 安全代码无效",
 	"ErrorLabelFormat": "错误标签格式",
-	"TelephoneNumber": "电话号码，10 位数字",
+	"TelephoneNumber10": "电话号码，10 位数字",
 	"onlyNumber": "仅数字",
 	"NumbersPercen": "百分比数字 0.00 - 100.00",
 	"btn": "按钮",

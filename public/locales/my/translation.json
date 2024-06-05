@@ -1,4 +1,6 @@
 {
+	"ThaiPhoneNumber": "ထိုင်းဖုန်းနံပါတ်",
+	"LaoPhoneNumber": "လာအိုဖုန်းနံပါတ်",
 	"titleDropdown": "ဘာသာစကားပြောင်းပါ။",
 	"Login": "လော့ဂ်အင်",
 	"telephoneNumber": "တယ်လီဖုန်းနံပါတ်",
@@ -128,7 +130,7 @@
 	"TheUsernameOrPassword": "အသုံးပြုသူအမည် သို့မဟုတ် စကားဝှက် အချက်အလက်သည် မမှန်ပါ။",
 	"Invalid2FASecurityCode": "2FA လုံခြုံရေးကုဒ် မမှန်ကန်ပါ။",
 	"ErrorLabelFormat": "အညွှန်းဖော်မတ်မှား",
-	"TelephoneNumber": "ဖုန်းနံပါတ်၊ ဂဏန်း ၁၀ လုံး",
+	"TelephoneNumber10": "ဖုန်းနံပါတ်၊ ဂဏန်း ၁၀ လုံး",
 	"onlyNumber": "နံပါတ်များသာ",
 	"NumbersPercen": "ရာခိုင်နှုန်းနံပါတ်များ 0.00 - 100.00",
 	"btn": "btn",

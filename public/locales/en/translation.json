@@ -1,4 +1,6 @@
 {
+	"ThaiPhoneNumber": "Thai phone number",
+	"LaoPhoneNumber": "Lao phone number",
 	"titleDropdown": "Change language",
 	"Login": "Login",
 	"telephoneNumber": "Telephone number",
@@ -129,7 +131,7 @@
 	"TheUsernameOrPassword": "The username or password information is incorrect.",
 	"Invalid2FASecurityCode": "Invalid 2FA security code",
 	"ErrorLabelFormat": "ErrorLabelFormat",
-	"TelephoneNumber": "Telephone number, 10 digits",
+	"TelephoneNumber10": "Telephone number, 10 digits",
 	"onlyNumber": " only number ",
 	"NumbersPercen": "Numbers 0.00 - 100.00 (Percen)",
 	"btn": "btn",

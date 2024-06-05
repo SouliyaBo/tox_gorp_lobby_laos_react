@@ -1,4 +1,6 @@
 {
+	"ThaiPhoneNumber": "เบอร์โทรศัพท์ไทย",
+	"LaoPhoneNumber": "เบอร์โทรศัพท์ลาว",
 	"titleDropdown": "เปลี่ยนภาษา",
 	"Login": "เข้าสู่ระบบ",
 	"telephoneNumber": "เบอร์โทรศัพท์",
@@ -127,7 +129,7 @@
 	"TheUsernameOrPassword": "ข้อมูลชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง",
 	"Invalid2FASecurityCode": "รหัสความปลอดภัย 2FA ไม่ถูกต้อง",
 	"ErrorLabelFormat": "รูปแบบไม่ถูกต้อง",
-	"TelephoneNumber": "เบอร์โทรศัพท์ ตัวเลข 10 หลัก",
+	"TelephoneNumber10": "เบอร์โทรศัพท์ ตัวเลข 10 หลัก",
 	"onlyNumber": "ตัวเลขเท่านั้น",
 	"NumbersPercen": "ตัวเลข 0.00 - 100.00",
 	"btn": "btn",
