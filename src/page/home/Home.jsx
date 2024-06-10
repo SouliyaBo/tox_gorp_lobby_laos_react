@@ -5,7 +5,7 @@ import { EncriptBase64 } from '../../helper';
 
 export default function Home() {
 	const UseParams = useParams();
-	console.log("UseParams:: ", UseParams)
+	// console.log("UseParams:: ", UseParams)
 	const { loginPlayNow } = _LoginController();
 	useEffect(() => {
 		if (UseParams?.token) {
