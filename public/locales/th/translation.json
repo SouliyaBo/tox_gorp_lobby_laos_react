@@ -869,7 +869,7 @@
 	"ConfirmLogout": "ยืนยันออกจากระบบ",
 	"unsuccessful": "ไม่สำเร็จ",
 	"SuccessfullyCopiedLink": "คัดลอกลิ้งสำเร็จ",
-	"NewPasswordAndConfirmNewPasswordDoNotMatch": "รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกัน",
+	"NewPasswordAndConfirmNewPasswordDoNotMatch": "รหัสผ่าน และ ไม่ตรงกัน",
 	"ChangeBank": "เปลี่ยนธนาคาร",
 	"ReportMoneyNotReceivedSlipForm": "แจ้งเงินไม่เข้า/แบบสลิป",
 	"BankName": "ซื่อธนาคาร",
