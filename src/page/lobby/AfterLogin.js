@@ -97,26 +97,20 @@ export default function AfterLogin() {
         setLogoWebsite(_data?.info?.configLobby?.s_logo);
         setLinkLine(_data?.info?.configLobby?.s_line);
         setDataFromLogin(_data);
-        // if (_data?.info?.slide?.length > 0) {
-        // console.log("AAAAAA=======>")
         const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
         const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
         setSliderData(newSlideArray);
-        // } else {
-        //     setSliderData(SlideDemo)
-        // }
         setCurrentPoint(_data?.balance?.cevent);
         setDepositBankList(_data?.info?.bankDeposit[0]);
-        // getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
         const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
         if (color?.length > 0) {
           setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
         }
       }
       setDataPromotion(history?.location?.state?.info?.promotionList);
-      if (_data === undefined) {
-        history.push(Constant?.HOME);
-      }
+      // if (_data === undefined) {
+      //   history.push(Constant?.HOME);
+      // }
       getSpinWheel();
       const currentYear = new Date().getFullYear();
       const yearArray = [];
@@ -127,6 +121,18 @@ export default function AfterLogin() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [UseParams?.token]);
+
+  const loginByToken = () => {
+    console.log("AAAA");
+    let _res = EncriptBase64(UseParams?.token);
+    if (_res?.agentCode && _res?.username && _res?.password) {
+      console.log("🚀 ~ loginByToken ~ _res?.password:", _res?.password);
+      console.log("🚀 ~ loginByToken ~ _res?.username:", _res?.username);
+      console.log("🚀 ~ loginByToken ~ _res?.agentCode:", _res?.agentCode);
+      // console.log("RES_BY_HOM: ", _res);
+      loginPlayNow(_res?.username, _res?.password);
+    }
+  };
 
   useEffect(() => {
     let hasTouchScreen = false;
@@ -825,17 +831,7 @@ export default function AfterLogin() {
     _getData();
   };
 
-  const loginByToken = () => {
-    console.log("AAAA");
-    let _res = EncriptBase64(UseParams?.token);
-    if (_res?.agentCode && _res?.username && _res?.password) {
-      console.log("🚀 ~ loginByToken ~ _res?.password:", _res?.password);
-      console.log("🚀 ~ loginByToken ~ _res?.username:", _res?.username);
-      console.log("🚀 ~ loginByToken ~ _res?.agentCode:", _res?.agentCode);
-      // console.log("RES_BY_HOM: ", _res);
-      // loginPlayNow(_res?.username, _res?.password);
-    }
-  };
+ 
 
   return (
     <div>
