@@ -2207,20 +2207,14 @@ export default function AfterLoginMobile() {
                       <div className="link-shared">
                         <p className="link-shared-title">{t("ReferAFriendLink")}</p>
                         <p className="link-shared-subtitle">{t("YouwillEarnFree")}</p>
-                        <input
-                          type="text"
-                          className="link-shared-input"
-                          value={dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl?.split("m")[2]}
-                        />
+                        <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} />
 
                         <div className="link-shared-btn-group">
                           <div className="border-input-gold border-btn">
                             <button
                               type="button"
                               className="btn-copy-link"
-                              onClick={() =>
-                                _copyLinkAffiliate(dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl?.split("m")[2])
-                              }
+                              onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}
                               onKeyDown={() => ""}
                             >
                               {t("CopyLink")}
@@ -2477,7 +2471,7 @@ export default function AfterLoginMobile() {
                 </div>
                 <div className="modal-body">
                   <div className="code-modal-content">
-                    <input type="text" placeholder={("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                    <input type="text" placeholder={"PleaseEnterTheCode"} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
                     <button type="button" className="button-warning" onClick={() => _addCupon()}>
                       {t("confirm")}
                     </button>

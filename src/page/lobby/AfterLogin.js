@@ -4,11 +4,11 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import jsQR from "jsqr";
 import { faChevronCircleLeft, faChevronCircleRight, faHeart } from "@fortawesome/free-solid-svg-icons";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import "react-slideshow-image/dist/styles.css";
 import "react-slideshow-image/dist/styles.css";
-import { CheckLevelCashBack, DataLoginInRout, FillerCategory, OpenNewTabWithHTML, formatMontYear } from "../../helper";
+import { CheckLevelCashBack, DataLoginInRout, FillerCategory, OpenNewTabWithHTML, formatMontYear, EncriptBase64 } from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
 import { SlideDemo } from "../../constant/demoSlide";
@@ -21,7 +21,8 @@ import { useTranslation } from "react-i18next";
 
 export default function AfterLogin() {
   const history = useHistory();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const UseParams = useParams();
   const user = localStorage.getItem(Constant?.LOGIN_TOKEN_DATA);
   const sidebarUseRef = useRef(null);
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -34,7 +35,7 @@ export default function AfterLogin() {
   const [historyCashBack, setHistoryCashBack] = useState([]);
   const [dataPromotion, setDataPromotion] = useState([]);
   const [disableArrow, setDisableArrow] = useState(false);
-  const { ChangePassword } = _LoginController();
+  const { ChangePassword, loginPlayNow } = _LoginController();
   const [dataFromLogin, setDataFromLogin] = useState({});
   const [dataGameList, setDataGameList] = useState();
   const [categoryGame, setCategoryGame] = useState([]);
@@ -86,39 +87,44 @@ export default function AfterLogin() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    const _data = DataLoginInRout(history?.location?.state);
-    console.log("_data: ", _data?.info);
-    if (_data) {
-      setLogoWebsite(_data?.info?.configLobby?.s_logo);
-      setLinkLine(_data?.info?.configLobby?.s_line);
-      setDataFromLogin(_data);
-      // if (_data?.info?.slide?.length > 0) {
-      // console.log("AAAAAA=======>")
-      const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-      const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
-      setSliderData(newSlideArray);
-      // } else {
-      //     setSliderData(SlideDemo)
-      // }
-      setCurrentPoint(_data?.balance?.cevent);
-      setDepositBankList(_data?.info?.bankDeposit[0]);
-      // getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
-      const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
-      if (color?.length > 0) {
-        setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
+    console.log("UseParams:: ", UseParams);
+    if (UseParams?.token) {
+      loginByToken();
+    } else {
+      const _data = DataLoginInRout(history?.location?.state);
+      console.log("_data: ", _data?.info);
+      if (_data) {
+        setLogoWebsite(_data?.info?.configLobby?.s_logo);
+        setLinkLine(_data?.info?.configLobby?.s_line);
+        setDataFromLogin(_data);
+        // if (_data?.info?.slide?.length > 0) {
+        // console.log("AAAAAA=======>")
+        const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
+        const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
+        setSliderData(newSlideArray);
+        // } else {
+        //     setSliderData(SlideDemo)
+        // }
+        setCurrentPoint(_data?.balance?.cevent);
+        setDepositBankList(_data?.info?.bankDeposit[0]);
+        // getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
+        const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
+        if (color?.length > 0) {
+          setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
+        }
       }
+      setDataPromotion(history?.location?.state?.info?.promotionList);
+      if (_data === undefined) {
+        history.push(Constant?.HOME);
+      }
+      getSpinWheel();
+      const currentYear = new Date().getFullYear();
+      const yearArray = [];
+      for (let year = 2020; year <= currentYear; year++) {
+        yearArray.push(year);
+      }
+      setYears(yearArray);
     }
-    setDataPromotion(history?.location?.state?.info?.promotionList);
-    if (_data === undefined) {
-      history.push(Constant?.HOME);
-    }
-    getSpinWheel();
-    const currentYear = new Date().getFullYear();
-    const yearArray = [];
-    for (let year = 2020; year <= currentYear; year++) {
-      yearArray.push(year);
-    }
-    setYears(yearArray);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -724,7 +730,7 @@ export default function AfterLogin() {
       data: {
         s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
-        d_date: "2023-09",
+        d_date: overviewDate,
         page_start: 0,
       },
     });
@@ -817,6 +823,18 @@ export default function AfterLogin() {
     e.stopPropagation();
     setAnimationRefresh(true);
     _getData();
+  };
+
+  const loginByToken = async () => {
+    console.log("AAAA");
+    let _res = await EncriptBase64(UseParams?.token);
+    if (_res?.agentCode && _res?.username && _res?.password) {
+      console.log("🚀 ~ loginByToken ~ _res?.password:", _res?.password);
+      console.log("🚀 ~ loginByToken ~ _res?.username:", _res?.username);
+      console.log("🚀 ~ loginByToken ~ _res?.agentCode:", _res?.agentCode);
+      // console.log("RES_BY_HOM: ", _res);
+      loginPlayNow(_res?.username, _res?.password);
+    }
   };
 
   return (
@@ -951,7 +969,7 @@ export default function AfterLogin() {
                 ))
               : categoryGame?.length > 0 &&
                 categoryGame?.map((item, index) => (
-                  <div key={item?.index} className="game-card" style={{ marginLeft: index === 0 ? 70 : 20 }}>
+                  <div key={item?.index} className="game-card">
                     {dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? (
                       <div
                         style={{
@@ -1541,7 +1559,7 @@ export default function AfterLogin() {
                       data-bs-target="#depositWithdraw"
                       data-bs-dismiss="modal"
                     />
-                    <p className="modal-title">{ t("DepositMoneyWithQRCode")}</p>
+                    <p className="modal-title">{t("DepositMoneyWithQRCode")}</p>
                     <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
                   </div>
                 </div>
@@ -2136,7 +2154,9 @@ export default function AfterLogin() {
                         {t("Deposit")} {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.f_max_amount} รับ{" "}
                         {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.f_percen}
                       </div>
-                      <div>{t("Ltd")} {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.i_per_day} {t("TimesDay")}</div>
+                      <div>
+                        {t("Ltd")} {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.i_per_day} {t("TimesDay")}
+                      </div>
                       <div style={{ color: "yellow" }}>{t("details")}</div>
                       <div>{dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.s_detail}</div>
                     </div>
@@ -2189,7 +2209,7 @@ export default function AfterLogin() {
               </div>
               <div className="modal-body">
                 <div className="code-modal-content">
-                  <input type="text" placeholder={("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                  <input type="text" placeholder={"PleaseEnterTheCode"} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
                   <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>
                     {t("confirm")}
                   </button>
@@ -2377,21 +2397,11 @@ export default function AfterLogin() {
                     <div className="link-shared">
                       <p className="link-shared-title">{t("ReferAFriendLink")}</p>
                       <p className="link-shared-subtitle">{t("YouwillEarnFree")}</p>
-                      <input
-                        type="text"
-                        className="link-shared-input"
-                        value={dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl?.split("m")[2]}
-                      />
+                      <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} />
 
                       <div className="link-shared-btn-group">
                         <div className="border-input-gold border-btn">
-                          <button
-                            type="button"
-                            className="btn-copy-link"
-                            onClick={() =>
-                              _copyLinkAffiliate(dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl?.split("m")[2])
-                            }
-                          >
+                          <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}>
                             {t("CopyLink")}
                           </button>
                         </div>
@@ -2453,7 +2463,14 @@ export default function AfterLogin() {
                   <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
                     <div className="filter-date">
                       <p className="filter-label">{t("DateOverview")}</p>
-                      <input className="filter-date-input" value={overviewDate} type="month" name="" id="" />
+                      <input
+                        className="filter-date-input"
+                        value={overviewDate}
+                        onChange={(e) => setOverviewDate(e.target.value)}
+                        type="month"
+                        name=""
+                        id=""
+                      />
                     </div>
 
                     <div className="border-input-gold">
@@ -2471,10 +2488,10 @@ export default function AfterLogin() {
                           {dataOverview.length > 0 &&
                             dataOverview?.map((item, index) => (
                               <div className="tr-earn">
-                                <span className="td-earn">1/01/66</span>
-                                <span className="td-earn">110</span>
-                                <span className="td-earn">40</span>
-                                <span className="td-earn">11,668</span>
+                                <span className="td-earn">{item?.d_create}</span>
+                                <span className="td-earn">{item?.regisCount}</span>
+                                <span className="td-earn">{item?.deposit}</span>
+                                <span className="td-earn">{item?.f_affiliate_credit}</span>
                               </div>
                             ))}
                         </div>
@@ -2553,8 +2570,8 @@ export default function AfterLogin() {
                           {dataIncome?.length > 0 &&
                             dataIncome?.map((item, index) => (
                               <div className="tr-earn" key={index}>
-                                <span className="td-earn">{item?.d_date}</span>
-                                <span className="td-earn">{item?.f_affiliate}</span>
+                                <div className="td-earn">{item?.d_date}</div>
+                                <div className="td-earn">{item?.f_affiliate}</div>
                               </div>
                             ))}
                         </div>
@@ -2897,7 +2914,7 @@ export default function AfterLogin() {
             </div>
             <div className="modal-body">
               <div className="code-modal-content">
-                <input type="text" placeholder={("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                <input type="text" placeholder={"PleaseEnterTheCode"} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
                 <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>
                   {t("confirm")}
                 </button>
