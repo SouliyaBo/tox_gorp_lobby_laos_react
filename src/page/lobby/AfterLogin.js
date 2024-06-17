@@ -89,7 +89,6 @@ export default function AfterLogin() {
   useEffect(() => {
     console.log("UseParams:: ", UseParams);
     if (UseParams?.token) {
-      console.log("SSSS");
       loginByToken();
     } else {
       const _data = DataLoginInRout(history?.location?.state);
