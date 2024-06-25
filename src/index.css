@@ -249,7 +249,7 @@ p {
 
 .login-page-header .left .coin-balance img {
   position: absolute;
-  left: -10px;
+  left: -20px;
   top: -9px;
   width: 40px;
   height: 40px;
@@ -363,16 +363,16 @@ p {
 }
 
 .featured-game-wrapper .container {
-  height: 94px;
+  height: 84px;
   gap: 14px;
   flex-wrap: wrap;
 }
 
 .featured-game-wrapper .container .featured-game {
   cursor: pointer;
-  width: 200px;
+  width: 173px;
   height: 100%;
-  padding: 0 17px;
+  padding: 0 12px;
   position: relative;
   background-clip: padding-box;
   border: solid 6px transparent;
@@ -397,15 +397,15 @@ p {
 
 .featured-game-wrapper .container .featured-game p {
   color: #fff;
-  font-size: 22px;
+  font-size: 18px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
 }
 
 .featured-game-wrapper .container .featured-game img {
-  width: 75px;
-  height: 75px;
+  width: 55px;
+  height: 55px;
   animation: rotatingcrown 1s ease-in-out infinite;
   transition: all .2s ease;
 }
@@ -6287,6 +6287,7 @@ p {
 
 .true-wallet-content {
   padding: 40px 16px 15px 16px;
+  display: flex;
   gap: 20px;
   flex-direction: column;
 }
@@ -6299,10 +6300,13 @@ p {
   background: linear-gradient(257deg, #ee4700 0%, #ff8731 100%);
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   padding: 12px;
+  display: flex;
+  flex-direction: row;
 }
 
 .true-wallet-content .card .left {
   flex-direction: column;
+  /* margin-left: 40px; */
   text-align: left;
 }
 

@@ -35,10 +35,10 @@ export const Language = [
     name: "中国", // ຈີນ
     lang: "ch",
   },
-  // {
-  //     id: 6,
-  //     image: "/assets/images/lang/la.webp",
-  //     name: "ພາສາລາວ", // ລາວ
-  //     lang: "la"
-  // },
+  {
+    id: 6,
+    image: "/assets/images/lang/la.webp",
+    name: "ພາສາລາວ", // ລາວ
+    lang: "la",
+  },
 ];

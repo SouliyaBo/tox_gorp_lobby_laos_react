@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import constant from "../../constant";
 import _LoginController from "../../api/login";
 import { useHistory, useParams } from "react-router-dom";
@@ -17,6 +18,7 @@ export default function LoginPageMobile() {
     const [messageCreate, setMessageCreate] = useState();
     const [deviceType, setDeviceType] = useState(false);
     const { handleLogin, loginPlayNow } = _LoginController();
+    const [dataBackOffice, setDataBackOffice] = useState({});
 
     useEffect(() => {
         if (UseParams?.token) {
@@ -54,7 +56,7 @@ export default function LoginPageMobile() {
             setDeviceType("DESKTOP");
             // console.log("Desktop: ");
         }
-
+        getDataBackOffice();
 
     }, []);
 
@@ -84,10 +86,24 @@ export default function LoginPageMobile() {
         if (_res) setMessageCreate(_res?.statusDesc);
     };
 
+    const getDataBackOffice = async () => {
+        try {
+            const _res = await axios({
+                method: "get",
+                url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
+            });
+            console.log("_res:: ", _res?.data?.data)
+            if (_res?.data?.status === 200) {
+                setDataBackOffice(_res?.data?.data);
+            }
+        } catch (error) { }
+    };
+
     return (
         <div>
             <main className="login-page flexCenter">
-                <a href={Constant?.LINK_WORDPRESS}>
+                {/* <a href={dataBackOffice?.domain}> */}
+                <a href={Constant.LINK_WORDPRESS}>
                     <img
                         onClick={() => history.push(Constant.HOME)}
                         src="/assets/icons/home-icon.svg"
@@ -98,7 +114,7 @@ export default function LoginPageMobile() {
                 <img
                     className="logo"
                     style={{ width: 250 }}
-                    src={Constant?.LOGO_WEB}
+                    src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
                     alt="banner"
                 />
 

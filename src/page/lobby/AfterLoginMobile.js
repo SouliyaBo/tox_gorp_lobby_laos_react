@@ -51,6 +51,7 @@ export default function AfterLoginMobile() {
   const [current, setCurrent] = useState(0);
   const [disableArrow, setDisableArrow] = useState(false);
   const [depositBankList, setDepositBankList] = useState({});
+  const [userBankList, setUserBankList] = useState({});
   const [sliderData, setSliderData] = useState([]);
   const [percentageData, setPercentageData] = useState([]);
   const [logoWebsite, setLogoWebsite] = useState("");
@@ -74,11 +75,13 @@ export default function AfterLoginMobile() {
   const [years, setYears] = useState([]);
   const [notCurrentPoint, setNotCurrentPoint] = useState(0);
   const [animationRefresh, setAnimationRefresh] = useState(false);
+  const [dataBackOffice, setDataBackOffice] = useState({});
+  const [iBank, setIBank] = useState("");
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const _data = DataLoginInRout(history?.location?.state);
-    console.log("AAAAAA::: ", _data);
+    getDataBackOffice();
     if (_data) {
       setLogoWebsite(_data?.info?.configLobby?.s_logo);
       setLinkLine(_data?.info?.configLobby?.s_line);
@@ -86,16 +89,14 @@ export default function AfterLoginMobile() {
       setDepositBankList(_data?.info?.bankDeposit[0]);
       setCurrentPoint(_data?.balance?.cevent);
       getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
-      // if (_data?.info?.slide?.length > 0) {
-      const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-      const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
-      setSliderData(newSlideArray);
-      // } else {
-      // setSliderData(SlideDemo)
-      // }
       const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
       if (color?.length > 0) {
         setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
+      }
+      setUserBankList(_data?.info?.bankList[0]);
+      const dataBank = BackList.filter((data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank);
+      if (dataBank?.length > 0) {
+        setUserBankList({ ..._data?.info?.bankList[0], background: dataBank[0].backgroundColor, bankName: dataBank[0].bankName });
       }
     }
     setDeviceType(false);
@@ -180,6 +181,23 @@ export default function AfterLoginMobile() {
     }, 3000);
     return () => clearInterval(interval);
   }, [current]);
+
+  const getDataBackOffice = async () => {
+    try {
+      const _res = await axios({
+        method: "get",
+        url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
+      });
+      if (_res?.data?.status === 200) {
+        setDataBackOffice(_res?.data?.data);
+        if (_res?.data?.data?.slide?.wallet.length > 0) {
+          setSliderData(_res?.data?.data?.slide?.wallet);
+        } else {
+          setSliderData(SlideDemo);
+        }
+      }
+    } catch (error) {}
+  };
 
   const _getOptionBankQR = (bankName) => {
     getQRCode(bankName);
@@ -364,9 +382,9 @@ export default function AfterLoginMobile() {
         s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
         f_amount: dataUser?.amount,
-        i_bank: dataFromLogin?.info?.bankList[0]?.id,
+        i_bank: iBank,
         i_ip: "1.2.3.4",
-        actionBy: "adm",
+        actionBy: dataFromLogin?.username,
       };
       // Send the data to the server to get the game URL
       const _res = await axios({
@@ -446,6 +464,11 @@ export default function AfterLoginMobile() {
     toast.success(t("SuccessfullyCopiedLink"));
   };
 
+  const _copyAccountNoTrue = (link) => {
+    navigator.clipboard.writeText(link);
+    toast.success(t("SuccessfullyCopiedLink"));
+  };
+
   const _receiveCashBack = async () => {
     try {
       const _res = await axios({
@@ -517,12 +540,21 @@ export default function AfterLoginMobile() {
   const _getOptionBank2 = (bankName) => {
     setDisableArrow(!disableArrow);
     const newData = JSON.parse(bankName);
+    setIBank(newData?.i_bank);
     const color = BackList.filter((data) => data?.bankName === newData?.s_fname_th);
     if (color?.length > 0) {
       setDepositBankList({ ...newData, background: color[0].backgroundColor });
     }
   };
-
+  const _getOptionBankUser = (bankName) => {
+    setDisableArrow(!disableArrow);
+    const newData = JSON.parse(bankName);
+    setIBank(newData?.i_bank);
+    const color = BackList.filter((data) => data?.code?.toString() === newData?.i_bank);
+    if (color?.length > 0) {
+      setUserBankList({ ...newData, background: color[0].backgroundColor, bankName: color[0].bankName });
+    }
+  };
   const generatePercentageData = (count) => {
     const data = [];
     for (let i = 0; i < count; i++) {
@@ -734,6 +766,18 @@ export default function AfterLoginMobile() {
     setAnimationRefresh(true);
     _getData();
   };
+
+  const returnBankName = (i_bank) => {
+    const dataBank = BackList.filter((data) => data?.code?.toString() === i_bank);
+    return dataBank[0]?.bankName;
+  };
+
+  const _checkLogout = (linkLogout) => {
+    localStorage.clear();
+    sessionStorage.clear();
+    history.push(linkLogout);
+  };
+
   return (
     <div>
       <main className="after-login-mobile-page">
@@ -742,7 +786,12 @@ export default function AfterLoginMobile() {
             <img className="hamburger" src="/assets/images/icon-hamburger.svg" alt="hamburger icon" />
           </div>
           <div className="middle">
-            <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="logo" style={{ cursor: "pointer", height: 28 }} id="banner" />
+            <img
+              src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
+              alt="logo"
+              style={{ cursor: "pointer", height: 35 }}
+              id="banner"
+            />
           </div>
           <div className="right">
             <div className="balance-container">
@@ -793,13 +842,13 @@ export default function AfterLoginMobile() {
               <div className="right-arrow" onClick={() => nextSlide()} onKeyDown={() => ""}>
                 ❯
               </div>
-              {sliderData.length > 0 &&
+              {sliderData?.length > 0 &&
                 sliderData?.map((slide, index) => {
                   return (
-                    <div className={index === current ? "slide1 active" : "slide1"} key={slide?.i_index}>
+                    <div className={index === current ? "slide1 active" : "slide1"} key={index}>
                       {index === current && (
                         <img
-                          src={slide?.s_image ? `data:image/jpeg;base64,${slide?.s_image}` : "/assets/images/Cardgame/image 70.png"}
+                          src={slide?.name ? `${Constant?.SERVER_URL_IMAGE}/images/${slide?.name}` : "/assets/images/Cardgame/image 70.png"}
                           alt="travel"
                           style={{ width: "100%" }}
                         />
@@ -817,10 +866,20 @@ export default function AfterLoginMobile() {
             <img src="/assets/images/newicon/favorite.png" alt="game icon" />
             <p>{t("FavoriteGame")}</p>
           </div>
-          <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ""}>
+          {/* <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ""}>
             <img src="/assets/images/newicon/hothit.png" alt="game icon" />
             <p>{t("popular")}</p>
-          </div>
+          </div> */}
+          <a
+            className="featured-game flexBetween"
+            style={{ textDecoration: "none", color: "#FFF" }}
+            target="_blank"
+            href="https://siambit.co/"
+            rel="noreferrer"
+          >
+            <img src="/assets/images/public.avif" alt="game icon" />
+            <p>{t("WatchAFilm")}</p>
+          </a>
           <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")} onKeyDown={() => ""}>
             <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
             <p>{t("slots")}</p>
@@ -968,7 +1027,10 @@ export default function AfterLoginMobile() {
               <div className="icon-turn-back" onClick={() => closeSidebar()} onKeyDown={() => ""}>
                 <img src="/assets/images/turn-back 1.png" alt="" />
               </div>
-              <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="logo" />
+              <img
+                src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
+                alt="logo"
+              />
               <div className="flexBetween">
                 <p>Username:</p>
                 <p>{dataFromLogin?.username}</p>
@@ -1352,14 +1414,14 @@ export default function AfterLoginMobile() {
                           </div>
                         </div>
                       </div>
-                      <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#leaveAdecimal" data-bs-dismiss="modal">
+                      {/* <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#leaveAdecimal" data-bs-dismiss="modal">
                         <div className="type-of-withdrawal">
                           <div className="withdrawal">
                             <img style={{ width: 30 }} src="/assets/images/qrpay.png" alt="kkk" />
                             <div>{t("QRCode")}</div>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#withdraw" data-bs-dismiss="modal">
                         <div className="type-of-withdrawal">
                           <div className="withdrawal">
@@ -1368,7 +1430,18 @@ export default function AfterLoginMobile() {
                           </div>
                         </div>
                       </div>
-
+                      {dataFromLogin?.info?.tmnWithdraw === true ? (
+                        <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#trueWallet" data-bs-dismiss="modal">
+                          <div className="type-of-withdrawal">
+                            <div className="withdrawal">
+                              <img src="/assets/images/true-money-wallet.svg" alt="kkk" />
+                              <div>Truewallet</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        ""
+                      )}
                       {/* <div data-bs-toggle="modal" data-bs-target="#qrplay" data-bs-dismiss="modal" style={{ cursor: 'pointer' }}>
                                                 <div className="type-of-withdrawal">
                                                     <div className="withdrawal">
@@ -1415,6 +1488,67 @@ export default function AfterLoginMobile() {
           </div>
         </div>
         {/* <!-- end  modal ฝาก - ถอน --> */}
+
+        {/* <!-- true wallet end modal --> */}
+        <div className="modal fade" id="trueWallet" tabIndex="-1" aria-labelledby="trueWalletLabel" aria-hidden="true">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-border">
+              <div className="modal-content">
+                <div className="modal-header-container">
+                  <div className="modal-header">
+                    <img
+                      src="/assets/icons/icon-back-modal.svg"
+                      className="modal-icon-back"
+                      alt=""
+                      data-bs-toggle="modal"
+                      data-bs-target="#depositWithdraw"
+                      data-bs-dismiss="modal"
+                    />
+                    <p className="modal-title">Truewallet</p>
+                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  </div>
+                </div>
+                <div className="modal-body">
+                  <div className="true-wallet-content">
+                    <div className="card flexBetween">
+                      <div className="flexCenter left" style={{ color: "#FFF" }}>
+                        <p>True Wallet</p>
+                        <p>
+                          {dataFromLogin?.info?.bankDeposit[1]?.s_account_no}{" "}
+                          <span>
+                            <img
+                              src="/assets/images/icon-coppy.svg"
+                              alt=""
+                              style={{
+                                width: 20,
+                                height: 20,
+                                marginBottom: -3,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => _copyAccountNoTrue(dataFromLogin?.info?.bankDeposit[1]?.s_account_no)}
+                            />
+                          </span>
+                        </p>
+                        <p>{dataFromLogin?.info?.bankDeposit[1]?.s_account_name}</p>
+                      </div>
+                      <div className="flexBetween right">
+                        <div className="true-wallet-title flexBetween">
+                          <div style={{ marginTop: -40 }}>
+                            <img src="/assets/images/true-money-wallet.svg" alt="" />
+                          </div>
+                        </div>
+                        {/* <div className="visa">
+                          <img src="/assets/icons/visa.svg" alt="visa" />
+                        </div> */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <!-- true wallet end --> */}
 
         {/* <!-- start  modal ฝากออโต้ --> */}
         <div className="modal fade" id="autoDeposit" tabindex="-1" aria-labelledby="autoDeposit" aria-hidden="true">
@@ -1479,7 +1613,11 @@ export default function AfterLoginMobile() {
                             style={{ display: disableArrow === true ? "block" : "none" }}
                           >
                             {dataFromLogin?.info?.bankDeposit.length > 0 &&
-                              dataFromLogin?.info?.bankDeposit?.map((bank) => <option value={JSON.stringify(bank)}>{bank?.s_fname_th}</option>)}
+                              dataFromLogin?.info?.bankDeposit?.map((bank) => (
+                                <option value={JSON.stringify(bank)} style={{ display: bank?.i_bank === "7" ? "none" : "block" }}>
+                                  {bank?.s_fname_th}
+                                </option>
+                              ))}
                           </select>
                         </div>
                       </div>
@@ -1608,6 +1746,56 @@ export default function AfterLoginMobile() {
                 </div>
                 <div className="modal-body">
                   <div className="withdraw-modal-content" style={{ marginTop: 40 }}>
+                    <div className="detail-card-scb" style={{ background: userBankList && userBankList?.background, borderRadius: 20 }}>
+                      <div className="card-scb flexBetween">
+                        <div className="left">
+                          <p style={{ margin: 0 }}>{userBankList && userBankList?.bankName}</p>
+                          <p style={{ margin: 0 }}>{userBankList && userBankList?.s_account_name}</p>
+                          <p style={{ margin: 0 }}>
+                            {userBankList && userBankList?.s_account_no}
+                            <span>
+                              <img
+                                src="/assets/images/icon-coppy.svg"
+                                data-bs-dismiss="modal"
+                                onClick={() => _copyAccountNo(userBankList?.s_account_no)}
+                                alt=""
+                                style={{ width: 35, height: 35, marginBottom: 3, marginLeft: 8 }}
+                              />
+                            </span>
+                          </p>
+                        </div>
+                        <div className="right" style={{ height: 80 }}>
+                          <div className="flexCenter bank">
+                            <h3 style={{ textTransform: "uppercase" }}>{userBankList && userBankList?.s_icon?.split(".")[0]}</h3>
+                            <div style={{ borderRadius: "100%", marginTop: -10 }}>
+                              <img src={`/assets/images/bank/${userBankList && userBankList?.s_icon}`} alt="scb" />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="deposit-bank-title">{t("ChangeBank")}</div>
+                            <img
+                              onClick={() => _getOptionBank()}
+                              onKeyDown={() => ""}
+                              className="arrow-down"
+                              style={{ display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                              src="/assets/images/arrow-bottom.svg"
+                              alt=""
+                              srcset=""
+                            />
+                            <select
+                              onChange={(e) => _getOptionBankUser(e.target.value)}
+                              className="deposit-bank-list"
+                              style={{ display: disableArrow === true ? "block" : "none" }}
+                            >
+                              {dataFromLogin?.info?.bankList.length > 0 &&
+                                dataFromLogin?.info?.bankList?.map((bank) => (
+                                  <option value={JSON.stringify(bank)}>{returnBankName(bank?.i_bank)}</option>
+                                ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div className="money-input" style={{ display: "flex", justifyContent: "space-between" }}>
                       <div>{t("AmountThatCanBeWithdrawn")}</div>
                       <div type="text">{dataUser?.amount}</div>
@@ -1793,7 +1981,6 @@ export default function AfterLoginMobile() {
             </div>
           </div>
         </div>
-
         {/* <!-- end modal qr --> */}
 
         {/* <!-- slip verify modal --> */}
@@ -2207,14 +2394,21 @@ export default function AfterLoginMobile() {
                       <div className="link-shared">
                         <p className="link-shared-title">{t("ReferAFriendLink")}</p>
                         <p className="link-shared-subtitle">{t("YouwillEarnFree")}</p>
-                        <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} />
+                        <input
+                          type="text"
+                          className="link-shared-input"
+                          value={dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl.split("=")[1]}
+                        />
+                        {/* <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} /> */}
 
                         <div className="link-shared-btn-group">
                           <div className="border-input-gold border-btn">
                             <button
                               type="button"
                               className="btn-copy-link"
-                              onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}
+                              onClick={() =>
+                                _copyLinkAffiliate(dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl.split("=")[1])
+                              }
                               onKeyDown={() => ""}
                             >
                               {t("CopyLink")}
@@ -2723,7 +2917,8 @@ export default function AfterLoginMobile() {
                     <div>{t("DoYouWantToLog")}</div>
                   </div>
                   <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                    <a href={Constant?.LINK_WORDPRESS} className="btn-confirm-logout" style={{ textDecoration: "none" }}>
+                    {/* <a href={dataBackOffice?.linkLogOut} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout"> */}
+                    <a href={Constant.LINK_WORDPRESS} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout">
                       {t("confirm")}
                     </a>
                     <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">

@@ -36,6 +36,12 @@ export const BackList = [
         image: "/assets/icons/icon-bank-active/tmb6.png"
     },
     {
+        code: 7,
+        bankName: "TrueWallet",
+        backgroundColor: "#ee4700",
+        image: "/assets/icons/icon-bank-active/tmb6.png"
+    },
+    {
         code: 8,
         bankName: "ธนาคารออมสิน",
         backgroundColor: "#E50489",

@@ -46,6 +46,7 @@ export default function AfterLogin() {
   const [dataHistoryBonus, setDataHistoryBonus] = useState([]);
   const [dataHistoryWithdraw, setDataHistoryWithdraw] = useState([]);
   const [depositBankList, setDepositBankList] = useState();
+  const [userBankList, setUserBankList] = useState();
   const [current, setCurrent] = useState(0);
   const [sliderData, setSliderData] = useState([]);
   const [percentageData, setPercentageData] = useState([]);
@@ -78,55 +79,57 @@ export default function AfterLogin() {
   const [dataHistoryAffiliate, setDataHistoryAffiliate] = useState([]);
   const [codeCupon, setCodeCupon] = useState("");
 
-  const [overviewDate, setOverviewDate] = useState(formatMontYear(new Date()));
+  const [overviewDate, setOverviewDate] = useState();
   const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
   const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
   const [years, setYears] = useState([]);
   const [animationRefresh, setAnimationRefresh] = useState(false);
   const [supong, setCupong] = useState(false);
+  const [dataBackOffice, setDataBackOffice] = useState({});
+  const [iBank, setIBank] = useState("");
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    console.log("UseParams:: ", UseParams);
+    getDataBackOffice();
+    setOverviewDate(formatMontYear(new Date()));
+    const _data = DataLoginInRout(history?.location?.state);
+    console.log("_data: ", _data);
+    if (_data) {
+      // setLogoWebsite(_data?.info?.configLobby?.s_logo);
+      setLinkLine(_data?.info?.configLobby?.s_line);
+      setDataFromLogin(_data);
+      // const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
+      // const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
+      // setSliderData(newSlideArray);
+      setCurrentPoint(_data?.balance?.cevent);
+      setDepositBankList(_data?.info?.bankDeposit[0]);
+      const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
+      if (color?.length > 0) {
+        setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
+      }
+      setUserBankList(_data?.info?.bankList[0]);
+      const dataBank = BackList.filter((data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank);
+      if (dataBank?.length > 0) {
+        setUserBankList({ ..._data?.info?.bankList[0], background: dataBank[0].backgroundColor, bankName: dataBank[0].bankName });
+      }
+    }
+    console.log("promotionList:: ", history?.location?.state?.info?.promotionList);
+    setDataPromotion(history?.location?.state?.info?.promotionList);
+    getSpinWheel();
+    const currentYear = new Date().getFullYear();
+    const yearArray = [];
+    for (let year = 2020; year <= currentYear; year++) {
+      yearArray.push(year);
+    }
+    setYears(yearArray);
+  }, []);
+
+  useEffect(() => {
     if (UseParams?.token) {
+      console.log("UseParams: ", UseParams);
       loginByToken();
-    } else {
-      const _data = DataLoginInRout(history?.location?.state);
-      console.log("_data: ", _data?.info);
-      if (_data) {
-        setLogoWebsite(_data?.info?.configLobby?.s_logo);
-        setLinkLine(_data?.info?.configLobby?.s_line);
-        setDataFromLogin(_data);
-        // if (_data?.info?.slide?.length > 0) {
-        // console.log("AAAAAA=======>")
-        const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-        const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
-        setSliderData(newSlideArray);
-        // } else {
-        //     setSliderData(SlideDemo)
-        // }
-        setCurrentPoint(_data?.balance?.cevent);
-        setDepositBankList(_data?.info?.bankDeposit[0]);
-        // getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
-        const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
-        if (color?.length > 0) {
-          setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
-        }
-      }
-      setDataPromotion(history?.location?.state?.info?.promotionList);
-      if (_data === undefined) {
-        history.push(Constant?.HOME);
-      }
-      getSpinWheel();
-      const currentYear = new Date().getFullYear();
-      const yearArray = [];
-      for (let year = 2020; year <= currentYear; year++) {
-        yearArray.push(year);
-      }
-      setYears(yearArray);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [UseParams?.token]);
 
   useEffect(() => {
     let hasTouchScreen = false;
@@ -199,7 +202,29 @@ export default function AfterLogin() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataFromLogin]);
-
+  const loginByToken = async () => {
+    console.log("AAAA");
+    let _res = await EncriptBase64(UseParams?.token);
+    if (_res?.agentCode && _res?.username && _res?.password) {
+      loginPlayNow(_res?.username, _res?.password);
+    }
+  };
+  const getDataBackOffice = async () => {
+    try {
+      const _res = await axios({
+        method: "get",
+        url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
+      });
+      if (_res?.data?.status === 200) {
+        setDataBackOffice(_res?.data?.data);
+        if (_res?.data?.data?.slide?.wallet.length > 0) {
+          setSliderData(_res?.data?.data?.slide?.wallet);
+        } else {
+          setSliderData(SlideDemo);
+        }
+      }
+    } catch (error) {}
+  };
   const _checkToken = async (token) => {
     try {
       const _res = await axios({
@@ -443,7 +468,7 @@ export default function AfterLogin() {
         s_agent_code: Constant?.AGEN_CODE,
         s_username: dataFromLogin?.username,
         f_amount: dataUser?.amount,
-        i_bank: dataFromLogin?.info?.bankList[0]?.id,
+        i_bank: iBank,
         i_ip: "1.2.3.4",
         actionBy: "adm",
       };
@@ -481,6 +506,11 @@ export default function AfterLogin() {
   };
 
   const _copyLinkAffiliate = (link) => {
+    navigator.clipboard.writeText(link);
+    toast.success(t("SuccessfullyCopiedLink"));
+  };
+
+  const _copyAccountNoTrue = (link) => {
     navigator.clipboard.writeText(link);
     toast.success(t("SuccessfullyCopiedLink"));
   };
@@ -577,9 +607,20 @@ export default function AfterLogin() {
   const _getOptionBank2 = (bankName) => {
     setDisableArrow(!disableArrow);
     const newData = JSON.parse(bankName);
+    setIBank(newData?.i_bank);
     const color = BackList.filter((data) => data?.bankName === newData?.s_fname_th);
     if (color?.length > 0) {
       setDepositBankList({ ...newData, background: color[0].backgroundColor });
+    }
+  };
+
+  const _getOptionBankUser = (bankName) => {
+    setDisableArrow(!disableArrow);
+    const newData = JSON.parse(bankName);
+    setIBank(newData?.i_bank);
+    const color = BackList.filter((data) => data?.code?.toString() === newData?.i_bank);
+    if (color?.length > 0) {
+      setUserBankList({ ...newData, background: color[0].backgroundColor, bankName: color[0].bankName });
     }
   };
   const _getOptionBankQR = (bankName) => {
@@ -723,7 +764,7 @@ export default function AfterLogin() {
     }
   };
 
-  const _getRegister = async () => {
+  const _getRegister = async (overviewDate) => {
     const _res = await axios({
       method: "post",
       url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Register`,
@@ -825,16 +866,18 @@ export default function AfterLogin() {
     _getData();
   };
 
-  const loginByToken = async () => {
-    console.log("AAAA");
-    let _res = await EncriptBase64(UseParams?.token);
-    if (_res?.agentCode && _res?.username && _res?.password) {
-      console.log("🚀 ~ loginByToken ~ _res?.password:", _res?.password);
-      console.log("🚀 ~ loginByToken ~ _res?.username:", _res?.username);
-      console.log("🚀 ~ loginByToken ~ _res?.agentCode:", _res?.agentCode);
-      // console.log("RES_BY_HOM: ", _res);
-      loginPlayNow(_res?.username, _res?.password);
-    }
+  const _getOverview = (date) => {
+    _getRegister(date);
+  };
+
+  const returnBankName = (i_bank) => {
+    const dataBank = BackList.filter((data) => data?.code?.toString() === i_bank);
+    return dataBank[0]?.bankName;
+  };
+
+  const _checkLogout = (linkLogout) => {
+    localStorage.clear();
+    sessionStorage.clear();
   };
 
   return (
@@ -863,7 +906,12 @@ export default function AfterLogin() {
           />
         </div>
         <div className="middle">
-          <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="logo" style={{ cursor: "pointer", height: 45 }} id="banner" />
+          <img
+            src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
+            alt="logo"
+            style={{ cursor: "pointer", height: 50 }}
+            id="banner"
+          />
         </div>
         <div className="right">
           <div className="gem-balance">
@@ -892,7 +940,7 @@ export default function AfterLogin() {
                     <div className={index === current ? "slide1 active" : "slide1"} key={index}>
                       {index === current && (
                         <img
-                          src={slide?.s_image ? `data:image/jpeg;base64,${slide?.s_image}` : "/assets/images/Cardgame/image 70.png"}
+                          src={slide?.name ? `${Constant?.SERVER_URL_IMAGE}/images/${slide?.name}` : "/assets/images/Cardgame/image 70.png"}
                           alt="travel"
                           style={{ width: "100%" }}
                         />
@@ -914,6 +962,17 @@ export default function AfterLogin() {
               <img src="/assets/images/newicon/hothit.png" alt="game icon" />
               <p style={{ fontSize: 20 }}>{t("popular")}</p>
             </div>
+            <a
+              className="featured-game flexBetween"
+              style={{ textDecoration: "none" }}
+              target="_blank"
+              href="https://siambit.co/"
+              onKeyDown={() => ""}
+              rel="noreferrer"
+            >
+              <img src="/assets/images/public.avif" alt="game icon" />
+              <p style={{ fontSize: 20 }}>{t("WatchAFilm")}</p>
+            </a>
             <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")} onKeyDown={() => ""}>
               <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
               <p>{t("slots")}</p>
@@ -1030,7 +1089,10 @@ export default function AfterLogin() {
               <div className="icon-turn-back" onClick={() => closeSidebar()} onKeyDown={() => ""}>
                 <img src="/assets/images/turn-back 1.png" alt="logo" />
               </div>
-              <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="logo" />
+              <img
+                src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
+                alt="logo"
+              />
               <div className="flexBetween font-14">
                 <p>Username:</p>
                 <p>{dataFromLogin?.username}</p>
@@ -1154,8 +1216,8 @@ export default function AfterLogin() {
                                 </div>
                             </div> */}
 
-              {/* <h4>Power by</h4>
-                            <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="powerby" /> */}
+              {/* <h4>Power by</h4> */}
+              {/* <img src={`data:image/jpeg;base64,${logoWebsite}`} alt="powerby" /> */}
             </aside>
             <div className="sidebar-container-background" />
           </div>
@@ -1363,14 +1425,14 @@ export default function AfterLogin() {
                         </div>
                       </div>
                     </div>
-                    <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#leaveAdecimal" data-bs-dismiss="modal">
+                    {/* <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#leaveAdecimal" data-bs-dismiss="modal">
                       <div className="type-of-withdrawal">
                         <div className="withdrawal">
                           <img style={{ width: 56 }} src="/assets/images/qrpay.png" alt="kkk" />
                           <div>{t("QRCode")}</div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#withdraw" data-bs-dismiss="modal">
                       <div className="type-of-withdrawal">
                         <div className="withdrawal">
@@ -1379,6 +1441,18 @@ export default function AfterLogin() {
                         </div>
                       </div>
                     </div>
+                    {dataFromLogin?.info?.tmnWithdraw === true ? (
+                      <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#trueWallet" data-bs-dismiss="modal">
+                        <div className="type-of-withdrawal">
+                          <div className="withdrawal">
+                            <img src="/assets/images/true-money-wallet.svg" alt="kkk" />
+                            <div>Truewallet</div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      ""
+                    )}
 
                     {/* <div
                                             style={{ cursor: 'pointer' }}
@@ -1424,23 +1498,72 @@ export default function AfterLogin() {
                       </span>
                     </div>
                   </div>
-                  {/* <div className="button-line">
-                                        <div>
-                                            <img
-                                                src="/assets/icons/icon-line.svg"
-                                                alt="line"
-                                                style={{ width: 30, height: 30 }}
-                                            />
-                                            ไลน์บอทkk / แจ้งเตือนยอดฝาก - ถอน
-                                        </div>
-                                    </div> */}
                 </div>
               </div>
             </div>
           </div>
         </div>
         {/* <!-- end  modal ฝาก - ถอน --> */}
-
+        {/* <!-- true wallet end modal --> */}
+        <div className="modal fade" id="trueWallet" tabIndex="-1" aria-labelledby="trueWalletLabel" aria-hidden="true">
+          <div className="modal-dialog">
+            <div className="modal-border">
+              <div className="modal-content">
+                <div className="modal-header-container">
+                  <div className="modal-header">
+                    <img
+                      src="/assets/icons/icon-back-modal.svg"
+                      className="modal-icon-back"
+                      alt=""
+                      data-bs-toggle="modal"
+                      data-bs-target="#depositWithdraw"
+                      data-bs-dismiss="modal"
+                    />
+                    <p className="modal-title">Truewallet</p>
+                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  </div>
+                </div>
+                <div className="modal-body">
+                  <div className="true-wallet-content">
+                    <div className="card flexBetween">
+                      <div className="flexCenter left" style={{ color: "#FFF" }}>
+                        <p>True Wallet</p>
+                        <p>
+                          {dataFromLogin?.info?.bankDeposit[1]?.s_account_no}{" "}
+                          <span>
+                            <img
+                              src="/assets/images/icon-coppy.svg"
+                              alt=""
+                              style={{
+                                width: 20,
+                                height: 20,
+                                marginBottom: -3,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => _copyAccountNoTrue(dataFromLogin?.info?.bankDeposit[1]?.s_account_no)}
+                            />
+                          </span>
+                        </p>
+                        <p>{dataFromLogin?.info?.bankDeposit[1]?.s_account_name}</p>
+                      </div>
+                      <div className="flexBetween right">
+                        <div className="true-wallet-title flexBetween">
+                          <div style={{ marginTop: -60 }}>
+                            <img src="/assets/images/true-money-wallet.svg" alt="" />
+                          </div>
+                        </div>
+                        {/* <div className="visa">
+                          <img src="/assets/icons/visa.svg" alt="visa" />
+                        </div> */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <!-- true wallet end --> */}
         {/* <!-- start  modal ฝากออโต้ --> */}
         <div className="modal fade" id="autoDeposit" tabindex="-1" aria-labelledby="autoDeposit" aria-hidden="true">
           <div className="modal-dialog">
@@ -1503,7 +1626,7 @@ export default function AfterLogin() {
                           >
                             {dataFromLogin?.info?.bankDeposit?.length > 0 &&
                               dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                                <option key={bank?.index} value={JSON.stringify(bank)}>
+                                <option key={bank?.index} value={JSON.stringify(bank)} style={{ display: bank?.i_bank === "7" ? "none" : "block" }}>
                                   {bank?.s_fname_th}
                                 </option>
                               ))}
@@ -1597,7 +1720,6 @@ export default function AfterLogin() {
       {/* <!-- end  modal ฝากทศนิยม --> */}
 
       {/* <!-- ถอนเงิน start  modal --> */}
-
       <div className="modal fade" id="withdraw" tabindex="-1" aria-labelledby="withdraw" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-border">
@@ -1620,23 +1742,56 @@ export default function AfterLogin() {
               </div>
               <div className="modal-body">
                 <div className="withdraw-modal-content flexCenter">
-                  {dataFromLogin?.length > 0 &&
-                    dataFromLogin?.info?.bankList?.map((item, index) => (
-                      <div key={index} className="card flexBetween">
-                        <div className="left flexCenter">
-                          <p>{item?.s_account_name}</p>
-                          <p>{item?.s_account_no}</p>
-                        </div>
-                        <div className="right flexCenter">
-                          <div className="flexCenter bank">
-                            <div>{item?.s_icon.split(".")[0]}</div>
-                            <div style={{ backgroundColor: "#fff", borderRadius: "100%" }}>
-                              <img src={`/assets/images/bank/${item?.s_icon}`} alt="kbank" />
-                            </div>
+                  <div className="detail-card-scb1">
+                    <div className="card-scb1" style={{ background: userBankList && userBankList?.background }}>
+                      <div className="left">
+                        <p>{userBankList && userBankList?.bankName}</p>
+                        <p>{userBankList && userBankList?.s_account_name}</p>
+                        <p>
+                          {userBankList && userBankList?.s_account_no}
+                          <span>
+                            <img
+                              src="/assets/images/icon-coppy.svg"
+                              onClick={() => _copyAccountNo(userBankList?.s_account_no)}
+                              alt=""
+                              style={{ width: 30, height: 30, marginBottom: -3 }}
+                            />
+                          </span>
+                        </p>
+                      </div>
+                      <div className="right">
+                        <div className="bank">
+                          <h3 style={{ textTransform: "uppercase" }}>{userBankList && userBankList?.s_icon.split(".")[0]}</h3>
+                          <div style={{ borderRadius: "100%", marginTop: -10 }}>
+                            <img src={`/assets/images/bank/${userBankList && userBankList?.s_icon}`} alt="scb" />
                           </div>
                         </div>
+                        <div style={{ marginLeft: 50 }}>
+                          <div className="deposit-bank-title-pc">{t("ChangeBank")}</div>
+                          <img
+                            onClick={() => _getOptionBank()}
+                            onKeyDown={() => ""}
+                            style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                            src="/assets/images/arrow-bottom.svg"
+                            alt=""
+                            srcset=""
+                          />
+                          <select
+                            onChange={(e) => _getOptionBankUser(e.target.value)}
+                            className="deposit-bank-list-pc"
+                            style={{ display: disableArrow === true ? "block" : "none" }}
+                          >
+                            {dataFromLogin?.info?.bankList?.length > 0 &&
+                              dataFromLogin?.info?.bankList?.map((bank) => (
+                                <option key={bank?.index} value={JSON.stringify(bank)}>
+                                  {returnBankName(bank?.i_bank)}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                  </div>
                   <div className="money-input flexBetween" style={{ marginTop: 50 }}>
                     <p>{t("AmountThatCanBeWithdrawn")}</p>
                     <input type="text" value={dataUser?.amount} disabled={true} />
@@ -1649,11 +1804,6 @@ export default function AfterLogin() {
                     {t("FoundProblem")}
                     <div style={{ marginLeft: "5px", color: "red" }}>{t("ContactCustomerService")}</div>
                   </p>
-
-                  {/* <button type='button' className="line-button flexCenter">
-                                        <img src="/assets/icons/icon-line.svg" alt="line icon" />
-                                        <p>ไลน์บอท / แจ้งเตือนยอดฝาก - ถอน</p>
-                                    </button> */}
                 </div>
               </div>
             </div>
@@ -2397,11 +2547,22 @@ export default function AfterLogin() {
                     <div className="link-shared">
                       <p className="link-shared-title">{t("ReferAFriendLink")}</p>
                       <p className="link-shared-subtitle">{t("YouwillEarnFree")}</p>
-                      <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} />
+                      <input
+                        type="text"
+                        className="link-shared-input"
+                        value={dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl.split("=")[1]}
+                      />
+                      {/* <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} /> */}
 
                       <div className="link-shared-btn-group">
                         <div className="border-input-gold border-btn">
-                          <button type="button" className="btn-copy-link" onClick={() => _copyLinkAffiliate(dataFromLogin?.info?.shorturl)}>
+                          <button
+                            type="button"
+                            className="btn-copy-link"
+                            onClick={() =>
+                              _copyLinkAffiliate(dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl.split("=")[1])
+                            }
+                          >
                             {t("CopyLink")}
                           </button>
                         </div>
@@ -2463,14 +2624,7 @@ export default function AfterLogin() {
                   <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
                     <div className="filter-date">
                       <p className="filter-label">{t("DateOverview")}</p>
-                      <input
-                        className="filter-date-input"
-                        value={overviewDate}
-                        onChange={(e) => setOverviewDate(e.target.value)}
-                        type="month"
-                        name=""
-                        id=""
-                      />
+                      <input className="filter-date-input" value={overviewDate} onChange={(e) => _getOverview(e.target.value)} type="month" />
                     </div>
 
                     <div className="border-input-gold">
@@ -2703,7 +2857,8 @@ export default function AfterLogin() {
                   <div>{t("DoYouWantToLog")}</div>
                 </div>
                 <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
-                  <a href={Constant?.LINK_WORDPRESS} className="btn-confirm-logout">
+                  {/* <a href={dataBackOffice?.linkLogOut} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout"> */}
+                  <a href={Constant.LINK_WORDPRESS} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout">
                     {" "}
                     {t("confirm")}
                   </a>
@@ -2779,8 +2934,6 @@ export default function AfterLogin() {
         </div>
       </div>
       {/* <!-- confirm logout modal end --> */}
-
-      {/* <!-- Modal --> */}
 
       <footer className="footer" style={{ zIndex: 5 }}>
         <div className="menu-wrapper">

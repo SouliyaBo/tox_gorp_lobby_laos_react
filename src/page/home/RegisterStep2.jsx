@@ -23,7 +23,10 @@ export default function RegisterStep2() {
     const [textWarning, setTextWarning] = useState(false);
     const [bankNameOption, setBankNameOption] = useState(t('ChooseABank'));
     const [backgroundDropdown, setBackgroundDropdown] = useState('#FFF');
-
+    const [dataBackOffice, setDataBackOffice] = useState("")
+    useEffect(() => {
+        getDataBackOffice();
+    }, [])
     useEffect(() => {
         let hasTouchScreen = false;
         if ("maxTouchPoints" in navigator) {
@@ -144,10 +147,24 @@ export default function RegisterStep2() {
 
     }
 
+    const getDataBackOffice = async () => {
+        try {
+            const _res = await axios({
+                method: "get",
+                url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
+            });
+            console.log("_res:: ", _res?.data?.data)
+            if (_res?.data?.status === 200) {
+                setDataBackOffice(_res?.data?.data);
+            }
+        } catch (error) { }
+    };
+
     return (
         <div>
             <main className="register-page flexCenter">
-                <a href={Constant?.LINK_WORDPRESS}>
+                <a href={Constant.LINK_WORDPRESS}>
+                    {/* <a href={dataBackOffice?.domain}> */}
                     <img
                         src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"

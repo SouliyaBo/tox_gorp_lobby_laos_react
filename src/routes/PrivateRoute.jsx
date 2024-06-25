@@ -7,7 +7,7 @@ function PrivateRoute({ component: Component, headerTitle, ...rest }) {
   const History = useHistory();
   const isAuthenticated = DataLocalStorage();
   if (!isAuthenticated) {
-    History.push(Constant?.HOME);
+    History.push(Constant?.PAGE_LOGIN);
     return <div></div>;
   } else {
     return (

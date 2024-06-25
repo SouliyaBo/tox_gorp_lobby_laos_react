@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useHistory } from "react-router-dom";
 import queryString from "query-string";
+import axios from "axios";
 import Constant from "../../constant";
 import { useTranslation } from "react-i18next";
 import Translate from "../../component/Translate"
@@ -10,7 +11,7 @@ export default function RegisterStep1() {
     const history = useHistory()
     const parsed = queryString.parse(history?.location?.search);
     const [inputPhonenumber, setInputPhonenumber] = useState("")
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [inputPassword, setInputPassword] = useState("")
     const [inputFirstname, setInputFirstname] = useState("")
     const [inputLastname, setInputLastname] = useState("")
@@ -22,6 +23,10 @@ export default function RegisterStep1() {
     const [typePhone, setTypePhone] = useState("TH");
     const [placeholderText, setPlaceholderText] = useState(t("ThaiPhoneNumber"));
     const [phoneCheck, setPhoneCheck] = useState("")
+    const [dataBackOffice, setDataBackOffice] = useState("")
+    useEffect(() => {
+        getDataBackOffice();
+    }, [])
     useEffect(() => {
         setPlaceholderText(t("ThaiPhoneNumber"))
     }, [t])
@@ -79,11 +84,25 @@ export default function RegisterStep1() {
         setTypePhone(type)
     }
 
+    const getDataBackOffice = async () => {
+        try {
+            const _res = await axios({
+                method: "get",
+                url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
+            });
+            console.log("_res:: ", _res?.data?.data)
+            if (_res?.data?.status === 200) {
+                setDataBackOffice(_res?.data?.data);
+            }
+        } catch (error) { }
+    };
+
 
     return (
         <div>
             <main className="register-page flexCenter">
-                <a href={Constant?.LINK_WORDPRESS}>
+                <a href={Constant.LINK_WORDPRESS}>
+                    {/* <a href={dataBackOffice?.domain}> */}
                     <img
                         src="/assets/icons/home-icon.svg"
                         id="mobile-home-button"
@@ -91,7 +110,7 @@ export default function RegisterStep1() {
                     />
                 </a>
 
-                <img className="logo" style={{ width: 250 }} src={Constant?.LOGO_WEB} alt="logo" />
+                <img className="logo" style={{ width: 250 }} src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB} alt="logo" />
 
                 <div className="progress-step-container flexCenter">
                     <div className="progress-step flexCenter">

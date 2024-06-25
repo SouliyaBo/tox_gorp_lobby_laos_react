@@ -1,8 +1,9 @@
 import "./App.css";
 import RouterLink from "./routes/RouterLink";
-import { Toaster } from 'react-hot-toast';
-
+import disableDevtool from "disable-devtool";
 function App() {
+	disableDevtool();
+	debugger;
 	return (
 		<>
 			<RouterLink />

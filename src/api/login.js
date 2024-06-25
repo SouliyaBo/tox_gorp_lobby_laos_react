@@ -2,14 +2,13 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import Constant from "../constant";
 import { EncriptBase64 } from "../helper";
-import { DataLocalStorage, TokenLocalStorage } from "../helper";
+import { DataLocalStorage } from "../helper";
 
 const LoginController = () => {
   const history = useHistory();
 
   // ==================> handleLogin <=================
   const handleLogin = async (username, password, isMobile, setLoading) => {
-    console.log("isMobile: ", isMobile);
     try {
       const { data } = await axios.post(`${Constant.SERVER_URL}/Authen/Login`, {
         agentCode: Constant.AGEN_CODE,
@@ -70,6 +69,7 @@ const LoginController = () => {
           })
         );
         history.push(Constant.AFTER_LOGIN, _res?.data?.data);
+        window.location.reload();
       }
     } catch (error) {
       console.log("🚀 ~ const_login= ~ error:", error);
@@ -77,7 +77,6 @@ const LoginController = () => {
   };
   // ==================> handleRegister <=================
   const handleRegister = async (inputFirstname, inputLastname, inputPhonenumber, inputPassword, inputBank, iBank, ref, isMobile, setLoading) => {
-    console.log("inputFirstname: ", inputFirstname);
     try {
       const _date = {
         s_agent_code: Constant.AGEN_CODE,
@@ -97,8 +96,6 @@ const LoginController = () => {
         url: `${Constant.SERVER_URL}/Member/Register/Verify`,
         data: _date,
       });
-      console.log("_date:: ", _date);
-      console.log("req:: ", _resOne?.data);
       if (_resOne?.data?.statusCode === 0) {
         const _resTwo = await axios({
           method: "post",
