@@ -29,7 +29,6 @@ function RouterLink() {
           <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE} component={LoginPageMobile} />
           <PublicRoute exact path={Const.AFFILIATE} component={RegisterStep1} />
           {/* <PublicRoute exact path={Const.PAGE_LOGIN_CAN_LOGIN_PLAY + "/:token"} component={Home} /> */}
-          <PublicRoute exact path={Const.PAGE_LOGIN_MOBILE} component={RegisterStep1} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP1} component={RegisterStep1} />
           <PublicRoute exact path={Const.PAGE_REGISTER_STEP2} component={RegisterStep2} />
           <PublicRoute exact path={Const.PAGE_LOGIN_CAN_LOGIN_PLAY + "/:token"} component={AfterLogin} />

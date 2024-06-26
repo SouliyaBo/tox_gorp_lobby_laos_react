@@ -2489,10 +2489,10 @@ export default function AfterLoginMobile() {
                             {dataOverview.length > 0 &&
                               dataOverview?.map((item, index) => (
                                 <div className="tr-earn">
-                                  <span className="td-earn">1/01/66</span>
-                                  <span className="td-earn">110</span>
-                                  <span className="td-earn">40</span>
-                                  <span className="td-earn">11,668</span>
+                                  <span className="td-earn">{item?.month}</span>
+                                  <span className="td-earn">{item?.regisCount}</span>
+                                  <span className="td-earn">{item?.f_affiliate_credit}</span>
+                                  <span className="td-earn">{item?.deposit}</span>
                                 </div>
                               ))}
                           </div>

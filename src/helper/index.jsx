@@ -80,6 +80,17 @@ export const OpenNewTabWithHTML = (htmlContent) => {
   newTab.addEventListener("beforeunload", () => {
     URL.revokeObjectURL(dataUrl);
   });
+
+  // const blob = new Blob([htmlContent], { type: 'text/html' });
+  // const dataUrl = URL.createObjectURL(blob);
+
+  // const link = document.createElement('a');
+  // link.href = dataUrl;
+  // // link.download = 'spinner.html';
+  // link.click();
+  // console.log("AAAAAAA")
+  // URL.revokeObjectURL(dataUrl);
+
 };
 
 export const CheckLevelCashBack = async (dataUserDataCash) => {

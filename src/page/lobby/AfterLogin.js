@@ -93,6 +93,7 @@ export default function AfterLogin() {
     getDataBackOffice();
     setOverviewDate(formatMontYear(new Date()));
     const _data = DataLoginInRout(history?.location?.state);
+    console.log("_data: ", _data);
     if (_data) {
       // setLogoWebsite(_data?.info?.configLobby?.s_logo);
       setLinkLine(_data?.info?.configLobby?.s_line);
