@@ -67,29 +67,21 @@ export const LogoutClearLocalStorage = () => {
 };
 
 export const OpenNewTabWithHTML = (htmlContent) => {
-  // Create a new blob with the HTML content
+  console.log("htmlContent: ", htmlContent)
+  // // Create a new blob with the HTML content
   const blob = new Blob([htmlContent], { type: "text/html" });
-
-  // Create a data URL for the blob
+  console.log("blob:: ", blob)
+  // // Create a data URL for the blob
   const dataUrl = URL.createObjectURL(blob);
-
-  // Open a new tab with the data URL
+  console.log("dataUrl: ", dataUrl)
+  // // Open a new tab with the data URL
   const newTab = window.open(dataUrl, "_blank");
-
-  // Release the object URL when the tab is closed
+  console.log("newTab:: ", newTab)
+  // // Release the object URL when the tab is closed
   newTab.addEventListener("beforeunload", () => {
-    URL.revokeObjectURL(dataUrl);
+    console.log(URL.revokeObjectURL(dataUrl))
   });
 
-  // const blob = new Blob([htmlContent], { type: 'text/html' });
-  // const dataUrl = URL.createObjectURL(blob);
-
-  // const link = document.createElement('a');
-  // link.href = dataUrl;
-  // // link.download = 'spinner.html';
-  // link.click();
-  // console.log("AAAAAAA")
-  // URL.revokeObjectURL(dataUrl);
 
 };
 

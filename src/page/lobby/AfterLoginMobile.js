@@ -369,13 +369,14 @@ export default function AfterLoginMobile() {
         });
       }
       if (_res?.data?.res_html) {
+        const URL_HTML = `https://m.pgf-thzvvo.com/${value?.s_game_code}/index.html?ot=CD18D515-1F65-65B1-E767-C291050DAB4B&btt=1&ops=${
+          _res?.data?.REQ?.extra_args.split("=")[2]
+        }&or=18klslau%3Dhyx-lzrnng%3Duge&__hv=1fa0d13d`;
         setTimeout(() => {
-          OpenNewTabWithHTML(_res?.data?.res_html);
+          window.open(URL_HTML, "_blank");
         });
       }
-    } catch (error) {
-      console.error("Error playing the game:", error);
-    }
+    } catch (error) {}
   };
   const _withdrawMoney = async () => {
     try {
