@@ -87,12 +87,12 @@ export default function AfterLogin() {
   const [supong, setCupong] = useState(false);
   const [dataBackOffice, setDataBackOffice] = useState({});
   const [iBank, setIBank] = useState("");
+  const [amountWithdraw, setAmountWithdraw] = useState("");
 
   useEffect(() => {
     getDataBackOffice();
     setOverviewDate(formatMontYear(new Date()));
     const _data = DataLoginInRout(history?.location?.state);
-    console.log("_data: ", _data);
     if (_data) {
       // setLogoWebsite(_data?.info?.configLobby?.s_logo);
       setLinkLine(_data?.info?.configLobby?.s_line);
@@ -112,7 +112,6 @@ export default function AfterLogin() {
         setUserBankList({ ..._data?.info?.bankList[0], background: dataBank[0].backgroundColor, bankName: dataBank[0].bankName });
       }
     }
-    console.log("promotionList:: ", history?.location?.state?.info?.promotionList);
     setDataPromotion(history?.location?.state?.info?.promotionList);
     getSpinWheel();
     const currentYear = new Date().getFullYear();
@@ -125,7 +124,6 @@ export default function AfterLogin() {
 
   useEffect(() => {
     if (UseParams?.token) {
-      console.log("UseParams: ", UseParams);
       loginByToken();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -151,10 +149,8 @@ export default function AfterLogin() {
     }
     if (hasTouchScreen) {
       setDeviceType("Mobile");
-      // console.log("Mobile: ");
     } else {
       setDeviceType("Desktop");
-      // console.log("Desktop: ");
     }
     const pageClickEvent = (e) => {
       // If the active element exists and is clicked outside of
@@ -203,7 +199,6 @@ export default function AfterLogin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataFromLogin]);
   const loginByToken = async () => {
-    console.log("AAAA");
     let _res = await EncriptBase64(UseParams?.token);
     if (_res?.agentCode && _res?.username && _res?.password) {
       loginPlayNow(_res?.username, _res?.password);
@@ -309,6 +304,7 @@ export default function AfterLogin() {
         },
       });
       if (_res?.data?.statusCode === 0) {
+        setAmountWithdraw(_res?.data?.data?.amount);
         setDataUser(_res?.data?.data);
         setCurrentPoint(_res?.data?.data?.cevent);
         setAnimationRefresh(false);
@@ -347,7 +343,7 @@ export default function AfterLogin() {
   const _clickCategoryGame = async (value) => {
     setDataGameType(value);
     setDataGameList([]);
-    if (value === "FAVORITE") {
+    if (value === "FAVORITE" || value === "HOTHIT") {
       const _getData = await axios({
         method: "post",
         url: `${Constant.SERVER_URL}/Game/Brand/List`,
@@ -358,7 +354,11 @@ export default function AfterLogin() {
       });
 
       if (_getData?.data?.statusCode === 0) {
-        setCategoryGame(_getData?.data?.data?.FAVORITE);
+        if (_getData?.data?.data["FAVORITE"] === "FAVORITE") {
+          setCategoryGame(_getData?.data?.data?.FAVORITE);
+        } else {
+          setDataGameList(_getData?.data?.data?.HOTHIT);
+        }
       }
     } else {
       setDataGameList();
@@ -467,8 +467,8 @@ export default function AfterLogin() {
       const _data = {
         s_agent_code: Constant?.AGEN_CODE,
         s_username: dataFromLogin?.username,
-        f_amount: dataUser?.amount,
-        i_bank: iBank,
+        f_amount: amountWithdraw,
+        i_bank: iBank === "" ? dataFromLogin?.info?.bankList[0]?.id : iBank,
         i_ip: "1.2.3.4",
         actionBy: "adm",
       };
@@ -596,9 +596,7 @@ export default function AfterLogin() {
       } else {
         toast.error(_res?.data?.statusDesc);
       }
-    } catch (error) {
-      console.log("🚀 ~ const_login= ~ error:", error);
-    }
+    } catch (error) {}
   };
 
   const _getOptionBank = () => {
@@ -617,7 +615,7 @@ export default function AfterLogin() {
   const _getOptionBankUser = (bankName) => {
     setDisableArrow(!disableArrow);
     const newData = JSON.parse(bankName);
-    setIBank(newData?.i_bank);
+    setIBank(newData?.id);
     const color = BackList.filter((data) => data?.code?.toString() === newData?.i_bank);
     if (color?.length > 0) {
       setUserBankList({ ...newData, background: color[0].backgroundColor, bankName: color[0].bankName });
@@ -854,6 +852,7 @@ export default function AfterLogin() {
     });
     if (_res?.data?.statusCode === 0) {
       setDataHistoryAffiliate(_res?.data?.data);
+      _getData();
       toast.success(_res?.data?.statusDesc);
     } else {
       toast.error(_res?.data?.statusDesc);
@@ -1794,7 +1793,7 @@ export default function AfterLogin() {
                   </div>
                   <div className="money-input flexBetween" style={{ marginTop: 50 }}>
                     <p>{t("AmountThatCanBeWithdrawn")}</p>
-                    <input type="text" value={dataUser?.amount} disabled={true} />
+                    <input type="text" value={amountWithdraw} onChange={(e) => setAmountWithdraw(e.target?.value)} />
                   </div>
 
                   <div className="button-warning" onClick={() => _withdrawMoney()} onKeyDown={() => ""}>
@@ -2359,7 +2358,7 @@ export default function AfterLogin() {
               </div>
               <div className="modal-body">
                 <div className="code-modal-content">
-                  <input type="text" placeholder={"PleaseEnterTheCode"} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                  <input type="text" placeholder={t("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
                   <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>
                     {t("confirm")}
                   </button>
@@ -2624,6 +2623,7 @@ export default function AfterLogin() {
                   <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
                     <div className="filter-date">
                       <p className="filter-label">{t("DateOverview")}</p>
+                      {/* <Calendar date={new Date()} /> */}
                       <input className="filter-date-input" value={overviewDate} onChange={(e) => _getOverview(e.target.value)} type="month" />
                     </div>
 

@@ -77,7 +77,7 @@ export default function AfterLoginMobile() {
   const [animationRefresh, setAnimationRefresh] = useState(false);
   const [dataBackOffice, setDataBackOffice] = useState({});
   const [iBank, setIBank] = useState("");
-
+  const [amountWithdraw, setAmountWithdraw] = useState("");
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const _data = DataLoginInRout(history?.location?.state);
@@ -221,6 +221,7 @@ export default function AfterLoginMobile() {
       });
 
       if (_res?.data?.statusCode === 0) {
+        setAmountWithdraw(_res?.data?.data?.amount);
         setDataUser(_res?.data?.data);
       }
       const _level = await CheckLevelCashBack(dataFromLogin?.info?.cashback);
@@ -381,8 +382,8 @@ export default function AfterLoginMobile() {
       const _data = {
         s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
-        f_amount: dataUser?.amount,
-        i_bank: iBank,
+        f_amount: amountWithdraw,
+        i_bank: iBank === "" ? dataFromLogin?.info?.bankList[0]?.id : iBank,
         i_ip: "1.2.3.4",
         actionBy: dataFromLogin?.username,
       };
@@ -488,9 +489,7 @@ export default function AfterLoginMobile() {
         toast.success(_res?.data?.statusDesc);
         _getData();
       }
-    } catch (error) {
-      // console.log("error:", error);
-    }
+    } catch (error) {}
   };
 
   const _addCupon = async () => {
@@ -549,7 +548,7 @@ export default function AfterLoginMobile() {
   const _getOptionBankUser = (bankName) => {
     setDisableArrow(!disableArrow);
     const newData = JSON.parse(bankName);
-    setIBank(newData?.i_bank);
+    setIBank(newData?.id);
     const color = BackList.filter((data) => data?.code?.toString() === newData?.i_bank);
     if (color?.length > 0) {
       setUserBankList({ ...newData, background: color[0].backgroundColor, bankName: color[0].bankName });
@@ -756,6 +755,7 @@ export default function AfterLoginMobile() {
     });
     if (_res?.data?.statusCode === 0) {
       setDataHistoryAffiliate(_res?.data?.data);
+      _getData();
       toast.success(_res?.data?.statusDesc);
     } else {
       toast.error(_res?.data?.statusDesc);
@@ -1798,7 +1798,7 @@ export default function AfterLoginMobile() {
                     </div>
                     <div className="money-input" style={{ display: "flex", justifyContent: "space-between" }}>
                       <div>{t("AmountThatCanBeWithdrawn")}</div>
-                      <div type="text">{dataUser?.amount}</div>
+                      <input type="text" value={amountWithdraw} onChange={(e) => setAmountWithdraw(e.target?.value)} />
                     </div>
                     <p style={{ color: "red", marginLeft: 14 }}>{reMessage}</p>
 
@@ -2665,7 +2665,7 @@ export default function AfterLoginMobile() {
                 </div>
                 <div className="modal-body">
                   <div className="code-modal-content">
-                    <input type="text" placeholder={"PleaseEnterTheCode"} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
+                    <input type="text" placeholder={t("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
                     <button type="button" className="button-warning" onClick={() => _addCupon()}>
                       {t("confirm")}
                     </button>

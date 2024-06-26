@@ -10,11 +10,32 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurren
     const [prizeNumber, setPrizeNumber] = useState(0);
     const [rouletteData, setRouletteData] = useState(data);
 
-    const handleSpinClick = () => {
-        const newPrizeNumber = Math.floor(Math.random() * data.length);
-        setPrizeNumber(newPrizeNumber);
+    const handleSpinClick = async () => {
+        const _res = await axios({
+            method: "post",
+            url: `${Constant.SERVER_URL}/LuckyWheel/RandomPrize`,
+            data: {
+                "s_username": username,
+                "s_agent_code": AGENT_CODE,
+                "eventCode": rouletteData[0].codeEvent
+            },
+        });
+
+        if (_res.data.statusCode === 0) {
+            for (let index = 0; index < data.length; index++) {
+                if (data[index]?.id === _res?.data?.data?.id) {
+                    setPrizeNumber(index)
+                }
+            }
+            setCurrentPoint(_res?.data?.data?.currentPoint)
+            setNotCurrentPoint(_res?.data?.data?.day)
+        } else {
+            toast.error(_res.data.statusDesc)
+        }
         setMustSpin(true);
+
     };
+
     useEffect(() => {
         if (mustSpin === true) {
             setOutputSpin("")
@@ -35,23 +56,10 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurren
     }, [data]);
 
     const randomPrice = async (eventCode) => {
-        const _res = await axios({
-            method: "post",
-            url: `${Constant.SERVER_URL}/LuckyWheel/RandomPrize`,
-            data: {
-                "s_username": username,
-                "s_agent_code": AGENT_CODE,
-                "eventCode": eventCode
-            },
-        });
-        if (_res.data.statusCode === 0) {
-            setCurrentPoint(_res?.data?.data?.currentPoint)
-            setNotCurrentPoint(_res?.data?.data?.day)
+        if (eventCode) {
             setTimeout(() => {
                 setOutputSpin(rouletteData[prizeNumber].completeOption)
             }, 4000);
-        } else {
-            toast.error(_res.data.statusDesc)
         }
     }
     return (

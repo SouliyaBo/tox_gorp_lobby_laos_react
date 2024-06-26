@@ -1,7 +1,6 @@
 import { toast } from 'react-toastify';
 
 export const customizeToast = (type, title, autocloseDelay) => {
-    console.log("type", type)
     let notify
     switch (type) {
         case "success":

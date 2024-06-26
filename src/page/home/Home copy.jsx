@@ -74,10 +74,8 @@ export default function Home() {
 		}
 		if (hasTouchScreen) {
 			setDeviceType("Mobile");
-			// console.log("Mobile: ");
 		} else {
 			setDeviceType("Desktop");
-			// console.log("Desktop: ");
 		}
 	}, [UseParams]);
 
@@ -164,7 +162,6 @@ export default function Home() {
 	// ===== CreateUser =====>
 
 	const CreateUser = async () => {
-		console.log("parsed?.ref:: ", deviceType)
 		const _res = await handleRegister(
 			inputFirstname,
 			inputLastname,
@@ -184,7 +181,6 @@ export default function Home() {
 					// 	color: '#fff',
 					// });
 				} else {
-					console.log("AAAA", response)
 					// Swal.fire({
 					// 	icon: 'success',
 					// 	title: "ทำรายการไม่สำเร็จ",
@@ -196,7 +192,6 @@ export default function Home() {
 				}
 			}
 		);
-		console.log("_res: ", _res)
 		if (_res) setMessageCreate(_res?.statusDesc);
 	};
 
@@ -241,7 +236,6 @@ export default function Home() {
 
 		const re = /^[0-9\b]+$/;
 		if (event.target.value === '' || re.test(event.target.value)) {
-			console.log("event.target.value:: ", event.target.value.length)
 			setInputPhonenumber(event.target.value)
 		}
 		if (event.target.value.length < 10 && typePhone === "TH") {

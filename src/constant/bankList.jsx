@@ -39,7 +39,7 @@ export const BackList = [
         code: 7,
         bankName: "TrueWallet",
         backgroundColor: "#ee4700",
-        image: "/assets/icons/icon-bank-active/tmb6.png"
+        image: "/assets/icons/icon-bank-active/tw.png"
     },
     {
         code: 8,

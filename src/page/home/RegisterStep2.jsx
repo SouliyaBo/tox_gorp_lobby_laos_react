@@ -49,10 +49,8 @@ export default function RegisterStep2() {
         }
         if (hasTouchScreen) {
             setDeviceType("MOBILE");
-            // console.log("Mobile: ");
         } else {
             setDeviceType("DESKTOP");
-            // console.log("Desktop: ");
         }
     }, []);
 
@@ -120,7 +118,6 @@ export default function RegisterStep2() {
 
         axios.request(config)
             .then((response) => {
-                console.log("response.data.data.respDesc:: ", response.data.data.respDesc)
                 if (response.data.data.respDesc !== "Success") {
                     if (bankCodeText !== "NOT_BANK_LAOS") {
                         setTextWarning("ไม่มีเลขบัญชีนี้ในธนาคาร")
@@ -153,7 +150,6 @@ export default function RegisterStep2() {
                 method: "get",
                 url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
             });
-            console.log("_res:: ", _res?.data?.data)
             if (_res?.data?.status === 200) {
                 setDataBackOffice(_res?.data?.data);
             }

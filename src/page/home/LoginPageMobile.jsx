@@ -51,10 +51,8 @@ export default function LoginPageMobile() {
         }
         if (hasTouchScreen) {
             setDeviceType("MOBILE");
-            // console.log("Mobile: ");
         } else {
             setDeviceType("DESKTOP");
-            // console.log("Desktop: ");
         }
         getDataBackOffice();
 
@@ -92,7 +90,6 @@ export default function LoginPageMobile() {
                 method: "get",
                 url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
             });
-            console.log("_res:: ", _res?.data?.data)
             if (_res?.data?.status === 200) {
                 setDataBackOffice(_res?.data?.data);
             }
@@ -128,8 +125,7 @@ export default function LoginPageMobile() {
                         <input
                             name="phone"
                             id="phone"
-                            type="number"
-                            maxlength="9"
+                            type="text"
                             placeholder={t("telephoneNumber")}
                             onChange={(e) => setUserNameInput(e?.target?.value)}
                         />

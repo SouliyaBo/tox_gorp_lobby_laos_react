@@ -90,7 +90,6 @@ export default function RegisterStep1() {
                 method: "get",
                 url: `${Constant.SERVER_URL}/agent/${Constant?.AGENT_CODE}`,
             });
-            console.log("_res:: ", _res?.data?.data)
             if (_res?.data?.status === 200) {
                 setDataBackOffice(_res?.data?.data);
             }

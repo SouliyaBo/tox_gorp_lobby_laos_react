@@ -28,14 +28,10 @@ const LoginController = () => {
         );
         if (isMobile === "MOBILE") {
           setLoading(false);
-          setTimeout(() => {
-            history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
-          });
+          history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
         } else {
           setLoading(false);
-          setTimeout(() => {
-            history.push(Constant.AFTER_LOGIN, data?.data);
-          });
+          history.push(Constant.AFTER_LOGIN, data?.data);
         }
       } else {
         setLoading(true);
@@ -43,7 +39,6 @@ const LoginController = () => {
       return data;
     } catch (error) {
       setLoading(true);
-      console.log("🚀 ~ handleLogin ~ error:", error);
     }
   };
   const loginPlayNow = async (username, password) => {
@@ -71,9 +66,7 @@ const LoginController = () => {
         history.push(Constant.AFTER_LOGIN, _res?.data?.data);
         window.location.reload();
       }
-    } catch (error) {
-      console.log("🚀 ~ const_login= ~ error:", error);
-    }
+    } catch (error) {}
   };
   // ==================> handleRegister <=================
   const handleRegister = async (inputFirstname, inputLastname, inputPhonenumber, inputPassword, inputBank, iBank, ref, isMobile, setLoading) => {
@@ -109,7 +102,6 @@ const LoginController = () => {
             i_channel: "134",
           },
         });
-        console.log("🚀 ~ CreateUser ~ _resTwo:", _resTwo?.data);
         if (_resTwo?.data.statusCode === 0) {
           const _resThree = await axios({
             method: "post",
@@ -126,7 +118,6 @@ const LoginController = () => {
               setLoading(false);
               _loginAfterRegister(_resTwo?.data?.data?.s_username, _resTwo?.data?.data?.s_password, isMobile);
             } else {
-              console.log("play backend");
               setLoading(false);
               _loginAfterRegister(_resTwo?.data?.data?.s_username, _resTwo?.data?.data?.s_password, isMobile);
             }
@@ -137,7 +128,6 @@ const LoginController = () => {
       }
     } catch (error) {
       setLoading(false);
-      console.log("🚀 ~ handleRegister ~ error:", error);
     }
   };
 
@@ -174,18 +164,14 @@ const LoginController = () => {
           })
         );
         if (isMobile === "MOBILE") {
-          console.log("mobile: ", _res?.data);
           history.push(Constant.AFTER_LOGIN_MOBILE, _res?.data?.data);
         } else {
-          console.log("computer: ", _res?.data?.data);
           history.push(Constant.AFTER_LOGIN, _res?.data?.data);
         }
         return null;
       }
       return _res;
-    } catch (error) {
-      console.log("🚀 ~ const_login= ~ error:", error);
-    }
+    } catch (error) {}
   };
 
   // ==================> ChangePassword <=================
@@ -205,7 +191,6 @@ const LoginController = () => {
       },
     });
 
-    console.log("🚀 ~ ChangePassword ~ _res?.data:", _res?.data);
     if (_res?.data) {
       return _res;
     }
@@ -228,7 +213,6 @@ const LoginController = () => {
         },
       });
       if (_res?.data.statusCode === 0) {
-        console.log("🚀 ~ loginWithToken ~ _res?.data:", _res?.data);
         localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res.data.token);
         localStorage.setItem(
           Constant.LOGIN_USER_DATA,
@@ -245,9 +229,7 @@ const LoginController = () => {
         }
         // history.push(Constant.AFTER_LOGIN,_res?.data);
       }
-    } catch (error) {
-      console.log("🚀 ~ const_login= ~ error:", error);
-    }
+    } catch (error) {}
   };
   return {
     handleLogin,

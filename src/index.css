@@ -2593,7 +2593,7 @@ p {
     background: -webkit-linear-gradient(180deg, #ffc757 0%, #a76f00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    z-index: 10;
+    z-index: 3;
     cursor: pointer;
     user-select: none;
   }
