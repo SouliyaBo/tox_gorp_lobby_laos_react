@@ -15,6 +15,7 @@ import { SlideDemo } from "../../constant/demoSlide";
 import _LoginController from "../../api/login";
 import QRCode from "qrcode.react";
 import Roulette from "../../component/Roulette";
+import ModalNews from "../../component/ModalNews";
 import toast, { Toaster } from "react-hot-toast";
 import Translate from "../../component/Translate";
 import { useTranslation } from "react-i18next";
@@ -86,14 +87,18 @@ export default function AfterLogin() {
   const [animationRefresh, setAnimationRefresh] = useState(false);
   const [supong, setCupong] = useState(false);
   const [dataBackOffice, setDataBackOffice] = useState({});
+  const [dataBackOfficeNews, setDataBackOfficeNews] = useState([]);
   const [iBank, setIBank] = useState("");
   const [amountWithdraw, setAmountWithdraw] = useState("");
+  const [showNews, setShowNews] = useState(false);
 
+  const handleCloseNew = () => setShowNews(false);
+  const handleShowNew = () => setShowNews(true);
   useEffect(() => {
     getDataBackOffice();
+    getDataBackOfficeNews();
     setOverviewDate(formatMontYear(new Date()));
     const _data = DataLoginInRout(history?.location?.state);
-    console.log("_data: ", _data);
     if (_data) {
       // setLogoWebsite(_data?.info?.configLobby?.s_logo);
       setLinkLine(_data?.info?.configLobby?.s_line);
@@ -121,6 +126,7 @@ export default function AfterLogin() {
       yearArray.push(year);
     }
     setYears(yearArray);
+    // handleShowNew();
   }, []);
 
   useEffect(() => {
@@ -218,6 +224,18 @@ export default function AfterLogin() {
         } else {
           setSliderData(SlideDemo);
         }
+      }
+    } catch (error) {}
+  };
+  const getDataBackOfficeNews = async () => {
+    try {
+      const _res = await axios({
+        method: "get",
+        url: `${Constant.SERVER_URL}/news?agent=${Constant?.AGENT_CODE}`,
+      });
+      if (_res?.data?.data?.length > 0) {
+        console.log("_res:: ", _res);
+        setDataBackOfficeNews(_res?.data?.data);
       }
     } catch (error) {}
   };
@@ -884,6 +902,7 @@ export default function AfterLogin() {
 
   return (
     <div>
+      <ModalNews handleCloseNew={handleCloseNew} showNews={showNews} data={dataBackOfficeNews} />
       <header className="login-page-header">
         <img
           src="/assets/images/icon-hamburger.svg"

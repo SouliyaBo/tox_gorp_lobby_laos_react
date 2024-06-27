@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurrentPoint }) => {
     const { t } = useTranslation();
     const [mustSpin, setMustSpin] = useState(false);
-    const [prizeNumber, setPrizeNumber] = useState(0);
+    const [prizeNumber, setPrizeNumber] = useState(10);
     const [rouletteData, setRouletteData] = useState(data);
 
     const handleSpinClick = async () => {
@@ -29,10 +29,12 @@ const Roulette = ({ data, setOutputSpin, username, setCurrentPoint, setNotCurren
             }
             setCurrentPoint(_res?.data?.data?.currentPoint)
             setNotCurrentPoint(_res?.data?.data?.day)
+            setMustSpin(true);
+
         } else {
+            setMustSpin(false);
             toast.error(_res.data.statusDesc)
         }
-        setMustSpin(true);
 
     };
 

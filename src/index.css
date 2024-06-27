@@ -7803,4 +7803,27 @@ input[type="file"] {
     border: none;
 }
 
+.custom-news {
+  padding: 0 12px 0 12px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  /* border: 1px solid red; */
+  height: 45px;
+  align-items: center;
+  color: #FFF;
+  background-color: #191919;
+}
+.custom-news .news-title{
+  color: #FFF;
+  font-size: 20px;
+  font-weight: 500;
+  margin-right: -40px;
+}
+.custom-news .news-next{
+  cursor: pointer;
+}
 
+.news-body {
+  display: flex;
+}
