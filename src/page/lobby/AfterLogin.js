@@ -91,21 +91,22 @@ export default function AfterLogin() {
   const [iBank, setIBank] = useState("");
   const [amountWithdraw, setAmountWithdraw] = useState("");
   const [showNews, setShowNews] = useState(false);
+  const [dataWallet, setDataWallet] = useState({});
 
   const handleCloseNew = () => setShowNews(false);
   const handleShowNew = () => setShowNews(true);
+
   useEffect(() => {
     getDataBackOffice();
     getDataBackOfficeNews();
     setOverviewDate(formatMontYear(new Date()));
     const _data = DataLoginInRout(history?.location?.state);
+    // console.log("DDDDD: ", _data?.info);
     if (_data) {
-      // setLogoWebsite(_data?.info?.configLobby?.s_logo);
       setLinkLine(_data?.info?.configLobby?.s_line);
       setDataFromLogin(_data);
-      // const slideArray = _data?.info?.slide ? Object.values(_data?.info?.slide) : [];
-      // const newSlideArray = slideArray.filter((data) => data.s_position === "page_wallet");
-      // setSliderData(newSlideArray);
+      const wallet = _data?.info?.bankDeposit.filter((data) => data?.i_bank === "7");
+      setDataWallet(wallet[0]);
       setCurrentPoint(_data?.balance?.cevent);
       setDepositBankList(_data?.info?.bankDeposit[0]);
       const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
@@ -234,7 +235,7 @@ export default function AfterLogin() {
         url: `${Constant.SERVER_URL}/news?agent=${Constant?.AGENT_CODE}`,
       });
       if (_res?.data?.data?.length > 0) {
-        console.log("_res:: ", _res);
+        // console.log("_res:: ", _res);
         setDataBackOfficeNews(_res?.data?.data);
       }
     } catch (error) {}
@@ -1550,7 +1551,7 @@ export default function AfterLogin() {
                       <div className="flexCenter left" style={{ color: "#FFF" }}>
                         <p>True Wallet</p>
                         <p>
-                          {dataFromLogin?.info?.bankDeposit[1]?.s_account_no}{" "}
+                          {dataWallet?.s_account_no}{" "}
                           <span>
                             <img
                               src="/assets/images/icon-coppy.svg"
@@ -1561,11 +1562,11 @@ export default function AfterLogin() {
                                 marginBottom: -3,
                                 cursor: "pointer",
                               }}
-                              onClick={() => _copyAccountNoTrue(dataFromLogin?.info?.bankDeposit[1]?.s_account_no)}
+                              onClick={() => _copyAccountNoTrue(dataWallet?.s_account_no)}
                             />
                           </span>
                         </p>
-                        <p>{dataFromLogin?.info?.bankDeposit[1]?.s_account_name}</p>
+                        <p>{dataWallet?.s_account_name}</p>
                       </div>
                       <div className="flexBetween right">
                         <div className="true-wallet-title flexBetween">

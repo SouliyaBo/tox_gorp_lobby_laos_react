@@ -4,7 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import Constant from "../constant/index";
 
 export default function ModalNews({ handleCloseNew, showNews, data }) {
-  console.log("data: ", data);
+  //   console.log("data: ", data);
   return (
     <div>
       <Modal show={showNews} onHide={handleCloseNew} backdrop="static" keyboard={false}>
