@@ -68,6 +68,7 @@ const LoginController = () => {
       }
     } catch (error) {}
   };
+  
   // ==================> handleRegister <=================
   const handleRegister = async (inputFirstname, inputLastname, inputPhonenumber, inputPassword, inputBank, iBank, ref, isMobile, setLoading) => {
     try {

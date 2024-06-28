@@ -72,7 +72,7 @@ export default function AfterLogin() {
   const [dataSpinWheel, setDataSpinWheel] = useState([]);
   const [outputSpin, setOutputSpin] = useState("");
   const [limitSpinWheel, setLimitSpinWheel] = useState({});
-  const [currentPoint, setCurrentPoint] = useState({});
+  const [currentPoint, setCurrentPoint] = useState(0);
   const [notCurrentPoint, setNotCurrentPoint] = useState(0);
   const [dataOverview, setDataOverview] = useState([]);
   const [dataOverviewYears, setDataOverviewYears] = useState([]);
@@ -96,6 +96,84 @@ export default function AfterLogin() {
   const handleCloseNew = () => setShowNews(false);
   const handleShowNew = () => setShowNews(true);
 
+  // ======================loginPlayNowAuto================================>
+  useEffect(() => {
+    if (UseParams?.token) {
+      let _res = EncriptBase64(UseParams?.token);
+      loginPlayNowAuto(_res?.username, _res?.password);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [UseParams?.token]);
+  const loginPlayNowAuto = async (username, password) => {
+    try {
+      const _resBl = await axios({
+        method: "post",
+        url: `${Constant.SERVER_URL}/Member/Balance`,
+        data: {
+          s_agent_code: Constant?.AGENT_CODE,
+          s_username: username,
+        },
+      });
+      if (_resBl?.data?.statusCode === 0) {
+        setDataUser(_resBl?.data?.data);
+      }
+      let _res = await axios({
+        method: "post",
+        url: `${Constant.SERVER_URL}/Authen/Login`,
+        data: {
+          agentCode: Constant?.AGENT_CODE,
+          username: username,
+          password: password,
+          ip: "1.2.3.4",
+        },
+      });
+      if (_res?.data.statusCode === 0) {
+        localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
+        localStorage.setItem(
+          Constant.LOGIN_USER_DATA,
+          JSON.stringify({
+            agent: _res?.data?.data?.agent,
+            username: _res?.data?.data?.username,
+            balance: _res?.data?.data?.balance,
+          })
+        );
+        const _data = DataLoginInRout(_res?.data?.data);
+        if (_data) {
+          setLinkLine(_data?.info?.configLobby?.s_line);
+          setDataFromLogin(_data);
+          setCurrentPoint(_data?.balance?.cevent);
+          setDepositBankList(_data?.info?.bankDeposit[0]);
+          const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
+          if (color?.length > 0) {
+            setDepositBankList({
+              ..._data?.info?.bankDeposit[0],
+              background: color[0].backgroundColor,
+            });
+          }
+          setUserBankList(_data?.info?.bankList[0]);
+          const dataBank = BackList.filter((data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank);
+          if (dataBank?.length > 0) {
+            setUserBankList({
+              ..._data?.info?.bankList[0],
+              background: dataBank[0].backgroundColor,
+              bankName: dataBank[0].bankName,
+            });
+          }
+        }
+        setDataPromotion(_res?.data?.data?.info?.promotionList);
+        getSpinWheel();
+        const currentYear = new Date().getFullYear();
+        const yearArray = [];
+        for (let year = 2020; year <= currentYear; year++) {
+          yearArray.push(year);
+        }
+        setYears(yearArray);
+      }
+    } catch (error) {}
+  };
+
+  // ======================================================>
+
   useEffect(() => {
     getDataBackOffice();
     getDataBackOfficeNews();
@@ -110,12 +188,19 @@ export default function AfterLogin() {
       setDepositBankList(_data?.info?.bankDeposit[0]);
       const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
       if (color?.length > 0) {
-        setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
+        setDepositBankList({
+          ..._data?.info?.bankDeposit[0],
+          background: color[0].backgroundColor,
+        });
       }
       setUserBankList(_data?.info?.bankList[0]);
       const dataBank = BackList.filter((data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank);
       if (dataBank?.length > 0) {
-        setUserBankList({ ..._data?.info?.bankList[0], background: dataBank[0].backgroundColor, bankName: dataBank[0].bankName });
+        setUserBankList({
+          ..._data?.info?.bankList[0],
+          background: dataBank[0].backgroundColor,
+          bankName: dataBank[0].bankName,
+        });
       }
     }
     setDataPromotion(history?.location?.state?.info?.promotionList);
@@ -128,14 +213,6 @@ export default function AfterLogin() {
     setYears(yearArray);
     // handleShowNew();
   }, []);
-
-  useEffect(() => {
-    if (UseParams?.token) {
-      loginByToken();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [UseParams?.token]);
-
   useEffect(() => {
     let hasTouchScreen = false;
     if ("maxTouchPoints" in navigator) {
@@ -205,12 +282,7 @@ export default function AfterLogin() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataFromLogin]);
-  const loginByToken = async () => {
-    let _res = await EncriptBase64(UseParams?.token);
-    if (_res?.agentCode && _res?.username && _res?.password) {
-      loginPlayNow(_res?.username, _res?.password);
-    }
-  };
+
   const getDataBackOffice = async () => {
     try {
       const _res = await axios({
@@ -639,7 +711,11 @@ export default function AfterLogin() {
     setIBank(newData?.id);
     const color = BackList.filter((data) => data?.code?.toString() === newData?.i_bank);
     if (color?.length > 0) {
-      setUserBankList({ ...newData, background: color[0].backgroundColor, bankName: color[0].bankName });
+      setUserBankList({
+        ...newData,
+        background: color[0].backgroundColor,
+        bankName: color[0].bankName,
+      });
     }
   };
   const _getOptionBankQR = (bankName) => {
@@ -916,7 +992,7 @@ export default function AfterLogin() {
         <div className="left">
           <div className="coin-balance">
             <img src="/assets/images/gif/border-card-bank.gif" alt="coin" />
-            {dataUser?.amount}
+            {dataUser?.amount ? dataUser?.amount : 0}
           </div>
           <img
             src="/assets/images/icons8-refresh-30.png"
@@ -937,7 +1013,7 @@ export default function AfterLogin() {
         <div className="right">
           <div className="gem-balance">
             <img src="/assets/images/gem.svg" alt="gem" />
-            {dataUser?.point}
+            {dataUser?.point ? dataUser?.point : 0}
           </div>
         </div>
         <div style={{ position: "fixed", right: 20, zIndex: 300 }}>
@@ -1271,7 +1347,11 @@ export default function AfterLogin() {
                             <div style={{ textTransform: "uppercase" }}>
                               {item?.s_icon.split(".")[0]}
                               <img
-                                style={{ marginLeft: 10, width: 50, height: 50 }}
+                                style={{
+                                  marginLeft: 10,
+                                  width: 50,
+                                  height: 50,
+                                }}
                                 src={`/assets/images/bank/${item?.s_icon}`}
                                 alt="logo bank"
                                 className="result"
@@ -1346,7 +1426,12 @@ export default function AfterLogin() {
                         aria-label="Close"
                         type="button"
                         className="withdraw-to-accont"
-                        style={{ backgroundColor: "green", color: "white", padding: 10, borderRadius: 8 }}
+                        style={{
+                          backgroundColor: "green",
+                          color: "white",
+                          padding: 10,
+                          borderRadius: 8,
+                        }}
                         data-bs-toggle="modal"
                         data-bs-target="#historyCashback"
                         data-bs-dismiss="modal"
@@ -1607,7 +1692,12 @@ export default function AfterLogin() {
                 </div>
                 <div className="modal-body">
                   <div className="detail-card-scb1">
-                    <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
+                    <div
+                      className="card-scb1"
+                      style={{
+                        background: depositBankList && depositBankList?.background,
+                      }}
+                    >
                       <div className="left">
                         <p>{depositBankList && depositBankList?.s_fname_th}</p>
                         <p>{depositBankList && depositBankList?.s_account_name}</p>
@@ -1618,7 +1708,11 @@ export default function AfterLogin() {
                               src="/assets/images/icon-coppy.svg"
                               onClick={() => _copyAccountNo(depositBankList?.s_account_no)}
                               alt=""
-                              style={{ width: 30, height: 30, marginBottom: -3 }}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                marginBottom: -3,
+                              }}
                             />
                           </span>
                         </p>
@@ -1635,7 +1729,12 @@ export default function AfterLogin() {
                           <img
                             onClick={() => _getOptionBank()}
                             onKeyDown={() => ""}
-                            style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                            style={{
+                              width: 30,
+                              height: 30,
+                              display: disableArrow === true ? "none" : "block",
+                              cursor: "pointer",
+                            }}
                             src="/assets/images/arrow-bottom.svg"
                             alt=""
                             srcset=""
@@ -1643,11 +1742,19 @@ export default function AfterLogin() {
                           <select
                             onChange={(e) => _getOptionBank2(e.target.value)}
                             className="deposit-bank-list-pc"
-                            style={{ display: disableArrow === true ? "block" : "none" }}
+                            style={{
+                              display: disableArrow === true ? "block" : "none",
+                            }}
                           >
                             {dataFromLogin?.info?.bankDeposit?.length > 0 &&
                               dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                                <option key={bank?.index} value={JSON.stringify(bank)} style={{ display: bank?.i_bank === "7" ? "none" : "block" }}>
+                                <option
+                                  key={bank?.index}
+                                  value={JSON.stringify(bank)}
+                                  style={{
+                                    display: bank?.i_bank === "7" ? "none" : "block",
+                                  }}
+                                >
                                   {bank?.s_fname_th}
                                 </option>
                               ))}
@@ -1718,15 +1825,32 @@ export default function AfterLogin() {
                         ))}
                     </select>
                   </div>
-                  <div style={{ marginTop: 20, background: "#FFFF", padding: 12, borderRadius: 8 }}>
+                  <div
+                    style={{
+                      marginTop: 20,
+                      background: "#FFFF",
+                      padding: 12,
+                      borderRadius: 8,
+                    }}
+                  >
                     <QRCode style={{ width: 250, height: 250 }} value={numberQRCode} />
                   </div>
                   <div style={{ width: 300, marginTop: 20 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <div>{t("BankName")}: </div>
                       <div>{depositBankList && depositBankList?.s_fname_th}</div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <div>{t("AccountMumber")}:</div>
                       <div>{depositBankList && depositBankList?.s_account_no}</div>
                     </div>
@@ -1764,7 +1888,12 @@ export default function AfterLogin() {
               <div className="modal-body">
                 <div className="withdraw-modal-content flexCenter">
                   <div className="detail-card-scb1">
-                    <div className="card-scb1" style={{ background: userBankList && userBankList?.background }}>
+                    <div
+                      className="card-scb1"
+                      style={{
+                        background: userBankList && userBankList?.background,
+                      }}
+                    >
                       <div className="left">
                         <p>{userBankList && userBankList?.bankName}</p>
                         <p>{userBankList && userBankList?.s_account_name}</p>
@@ -1775,7 +1904,11 @@ export default function AfterLogin() {
                               src="/assets/images/icon-coppy.svg"
                               onClick={() => _copyAccountNo(userBankList?.s_account_no)}
                               alt=""
-                              style={{ width: 30, height: 30, marginBottom: -3 }}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                marginBottom: -3,
+                              }}
                             />
                           </span>
                         </p>
@@ -1792,7 +1925,12 @@ export default function AfterLogin() {
                           <img
                             onClick={() => _getOptionBank()}
                             onKeyDown={() => ""}
-                            style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                            style={{
+                              width: 30,
+                              height: 30,
+                              display: disableArrow === true ? "none" : "block",
+                              cursor: "pointer",
+                            }}
                             src="/assets/images/arrow-bottom.svg"
                             alt=""
                             srcset=""
@@ -1800,7 +1938,9 @@ export default function AfterLogin() {
                           <select
                             onChange={(e) => _getOptionBankUser(e.target.value)}
                             className="deposit-bank-list-pc"
-                            style={{ display: disableArrow === true ? "block" : "none" }}
+                            style={{
+                              display: disableArrow === true ? "block" : "none",
+                            }}
                           >
                             {dataFromLogin?.info?.bankList?.length > 0 &&
                               dataFromLogin?.info?.bankList?.map((bank) => (
@@ -1985,7 +2125,13 @@ export default function AfterLogin() {
                       <p>3.กดเลือกสแกนจ่ายที่แอปธนาคารนั้น ๆ</p>
                       <p>4.เลือกรูปภาพ QR Code ที่บันทึกหรือแคป เพื่อทำรายการจ่าย</p>
                     </div>
-                    <div style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        marginTop: 10,
+                        fontSize: 12,
+                      }}
+                    >
                       <div>
                         {t("FoundProblem")}
                         <span
@@ -2051,7 +2197,16 @@ export default function AfterLogin() {
                       ))}
                   </select>
                   <div>
-                    <input id="fileslip" onChange={handleFileChange} style={{ background: "#FFF", color: "#000", width: "100%" }} type="file" />
+                    <input
+                      id="fileslip"
+                      onChange={handleFileChange}
+                      style={{
+                        background: "#FFF",
+                        color: "#000",
+                        width: "100%",
+                      }}
+                      type="file"
+                    />
                   </div>
                   <button type="button" style={{ width: 120 }} onClick={uploadFile} className="button-warning">
                     <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-send-50.png" alt="send" />
@@ -2108,7 +2263,12 @@ export default function AfterLogin() {
                     </div>
                   </div>
                   {/* <!-- ฝาก --> */}
-                  <div className="history-deposit" style={{ display: tabName === "tab-deposit" ? "block" : "none" }}>
+                  <div
+                    className="history-deposit"
+                    style={{
+                      display: tabName === "tab-deposit" ? "block" : "none",
+                    }}
+                  >
                     {dataHistoryDeposit?.length > 0 &&
                       dataHistoryDeposit?.map((deposit, index) => (
                         <div className="history-list" key={deposit?.index}>
@@ -2134,7 +2294,12 @@ export default function AfterLogin() {
                   </div>
 
                   {/* <!-- ถอน --> */}
-                  <div className="history-withdraw" style={{ display: tabName === "tab-withdraw" ? "block" : "none" }}>
+                  <div
+                    className="history-withdraw"
+                    style={{
+                      display: tabName === "tab-withdraw" ? "block" : "none",
+                    }}
+                  >
                     {dataHistoryWithdraw?.length > 0 &&
                       dataHistoryWithdraw?.map((withdraw, index) => (
                         <div className="history-list" key={withdraw?.index}>
@@ -2160,7 +2325,12 @@ export default function AfterLogin() {
                   </div>
 
                   {/* <!-- โบนัส --> */}
-                  <div className="history-bonus" style={{ display: tabName === "tab-bonus" ? "block" : "none" }}>
+                  <div
+                    className="history-bonus"
+                    style={{
+                      display: tabName === "tab-bonus" ? "block" : "none",
+                    }}
+                  >
                     {dataHistoryBonus?.length > 0 &&
                       dataHistoryBonus?.map((bonus, index) => (
                         <div className="history-list" key={bonus?.index}>
@@ -2301,7 +2471,13 @@ export default function AfterLogin() {
               <div className="modal-body">
                 <div className="promotion-modal-content">
                   <div className="promotion-modal-body">
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <div onClick={() => _newSl("DELETE")} style={{ color: "red" }} onKeyDown={() => ""}>
                         <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: "#FFF", fontSize: 25 }} />
                       </div>
@@ -2527,7 +2703,17 @@ export default function AfterLogin() {
                       />
                     )}
                     <br />
-                    <div style={{ margintTop: 10, fontWeight: 500, fontSize: 16, textDecoration: "underline" }}> {t("details")}</div>
+                    <div
+                      style={{
+                        margintTop: 10,
+                        fontWeight: 500,
+                        fontSize: 16,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      {" "}
+                      {t("details")}
+                    </div>
                     <p style={{ margin: "none" }}>
                       {t("YouCanSpinAll")} {limitSpinWheel?.i_max} {t("times")} {t("RightsAlreadyExercised")} {notCurrentPoint} {t("times")}
                     </p>
@@ -2642,7 +2828,12 @@ export default function AfterLogin() {
                     </div>
                   </div>
 
-                  <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
+                  <div
+                    className="earn-detail-data"
+                    style={{
+                      display: tabNameAffiliate === "overview" ? "block" : "none",
+                    }}
+                  >
                     <div className="filter-date">
                       <p className="filter-label">{t("DateOverview")}</p>
                       {/* <Calendar date={new Date()} /> */}
@@ -2711,7 +2902,12 @@ export default function AfterLogin() {
                     </div>
                   </div>
 
-                  <div className="earn-detail-data" style={{ display: tabNameAffiliate === "income" ? "block" : "none" }}>
+                  <div
+                    className="earn-detail-data"
+                    style={{
+                      display: tabNameAffiliate === "income" ? "block" : "none",
+                    }}
+                  >
                     <div className="filter-date">
                       <p className="filter-label">{t("IncomeHistory")}</p>
                       <div style={{ float: "right", display: "flex" }}>
@@ -2755,7 +2951,12 @@ export default function AfterLogin() {
                     </div>
                   </div>
 
-                  <div className="earn-detail-data" style={{ display: tabNameAffiliate === "withdraw-income" ? "block" : "none" }}>
+                  <div
+                    className="earn-detail-data"
+                    style={{
+                      display: tabNameAffiliate === "withdraw-income" ? "block" : "none",
+                    }}
+                  >
                     <div className="border-input-gold">
                       <div className="form-withdraw-income">
                         <div className="form-withdraw-group">
@@ -2878,7 +3079,15 @@ export default function AfterLogin() {
                 <div className="code-modal-content" style={{ textAlign: "center" }}>
                   <div>{t("DoYouWantToLog")}</div>
                 </div>
-                <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    alignItems: "center",
+                  }}
+                >
                   {/* <a href={dataBackOffice?.linkLogOut} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout"> */}
                   <a href={Constant.LINK_WORDPRESS} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout">
                     {" "}
@@ -2994,7 +3203,12 @@ export default function AfterLogin() {
             </div>
             <div className="modal-body">
               <div className="detail-card-scb1">
-                <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
+                <div
+                  className="card-scb1"
+                  style={{
+                    background: depositBankList && depositBankList?.background,
+                  }}
+                >
                   <div className="left">
                     <p>{depositBankList && depositBankList?.s_fname_th}</p>
                     <p>{depositBankList && depositBankList?.s_account_name}</p>
@@ -3022,14 +3236,21 @@ export default function AfterLogin() {
                       <img
                         onClick={() => _getOptionBank()}
                         onKeyDown={() => ""}
-                        style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                        style={{
+                          width: 30,
+                          height: 30,
+                          display: disableArrow === true ? "none" : "block",
+                          cursor: "pointer",
+                        }}
                         src="/assets/images/arrow-bottom.svg"
                         alt=""
                       />
                       <select
                         onChange={(e) => _getOptionBank2(e.target.value)}
                         className="deposit-bank-list-pc"
-                        style={{ display: disableArrow === true ? "block" : "none" }}
+                        style={{
+                          display: disableArrow === true ? "block" : "none",
+                        }}
                       >
                         {dataFromLogin?.info?.bankDeposit?.length > 0 &&
                           dataFromLogin?.info?.bankDeposit?.map((bank) => (
