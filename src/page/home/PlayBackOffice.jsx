@@ -8,18 +8,18 @@ import constant from "../../constant";
 import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
 import Sidebar from "../../component/Sidebar";
-import { _clickTabDeposit, } from "../../helper"
+import { _clickTabDeposit, EncriptBase64 } from "../../helper"
 import { BackList } from "../../constant/bankList";
 import { dataCradGame } from "../../helper/listCardGame"
 
-export default function Home() {
+export default function PlayBackOffice() {
 
 	const history = useHistory();
 	const UseParams = useParams();
 	const parsed = queryString.parse(history?.location?.search);
 	const [current, setCurrent] = useState(0);
 	const [bankCode, setBankCode] = useState(0);
-	const { handleLogin, handleRegister, loginWithToken } = _LoginController();
+	const { handleLogin, handleRegister, loginPlayNow } = _LoginController();
 	const [sidebarVisible, setSidebarVisible] = useState(false);
 	const [sidebarAnimation, setSidebarAnimation] = useState(true);
 	const [gotoStepTwo, setGotoStepTwo] = useState(false);
@@ -48,38 +48,17 @@ export default function Home() {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (UseParams?.token) {
-			loginWithToken(UseParams?.token, "PC")
+			loginByToken(UseParams?.token, "PC")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [UseParams]);
-	useEffect(() => {
-		let hasTouchScreen = false;
-		if ("maxTouchPoints" in navigator) {
-			hasTouchScreen = navigator.maxTouchPoints > 0;
-		} else if ("msMaxTouchPoints" in navigator) {
-			hasTouchScreen = navigator.msMaxTouchPoints > 0;
-		} else {
-			const mQ = window.matchMedia && matchMedia("(pointer:coarse)");
-			if (mQ && mQ.media === "(pointer:coarse)") {
-				hasTouchScreen = !!mQ.matches;
-			} else if ("orientation" in window) {
-				hasTouchScreen = true; // deprecated, but good fallback
-			} else {
-				// Only as a last resort, fall back to user agent sniffing
-				const UA = navigator.userAgent;
-				hasTouchScreen =
-					/\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
-					/\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA);
-			}
-		}
-		if (hasTouchScreen) {
-			setDeviceType("Mobile");
-		} else {
-			setDeviceType("Desktop");
-		}
-	}, [UseParams]);
 
-
+	const loginByToken = async () => {
+		let _res = await EncriptBase64(UseParams?.token);
+		if (_res?.agentCode && _res?.username && _res?.password) {
+			loginPlayNow(_res?.username, _res?.password);
+		}
+	};
 	const handleClick = () => {
 		window.location.reload();
 	};

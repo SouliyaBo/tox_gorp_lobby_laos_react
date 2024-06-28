@@ -11,7 +11,7 @@ import PrivateRoute from "./PrivateRoute";
 import Const from "../constant";
 
 //------------ pages
-import Home from "../page/home/Home";
+import PlayBackOffice from "../page/home/PlayBackOffice";
 import LoginPageMobile from "../page/home/LoginPageMobile";
 import RegisterStep1 from "../page/home/RegisterStep1";
 import RegisterStep2 from "../page/home/RegisterStep2";

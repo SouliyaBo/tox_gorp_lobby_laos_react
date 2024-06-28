@@ -11,12 +11,19 @@ const LoginController = () => {
   const handleLogin = async (username, password, isMobile, setLoading) => {
     try {
       const { data } = await axios.post(`${Constant.SERVER_URL}/Authen/Login`, {
-        agentCode: Constant.AGEN_CODE,
+        agentCode: Constant.AGENT_CODE,
         username,
         password,
         ip: "1.2.3.4",
       });
       if (data.statusCode === 0) {
+        if (isMobile === "MOBILE") {
+          setLoading(false);
+          history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
+        } else {
+          setLoading(false);
+          history.push(Constant.AFTER_LOGIN, data?.data);
+        }
         localStorage.setItem(Constant.LOGIN_TOKEN_DATA, data.data.token);
         localStorage.setItem(
           Constant.LOGIN_USER_DATA,
@@ -26,13 +33,6 @@ const LoginController = () => {
             balance: data?.data?.balance,
           })
         );
-        if (isMobile === "MOBILE") {
-          setLoading(false);
-          history.push(Constant.AFTER_LOGIN_MOBILE, data?.data);
-        } else {
-          setLoading(false);
-          history.push(Constant.AFTER_LOGIN, data?.data);
-        }
       } else {
         setLoading(true);
       }
@@ -54,6 +54,8 @@ const LoginController = () => {
         },
       });
       if (_res?.data.statusCode === 0) {
+        history.push(Constant.AFTER_LOGIN, _res?.data?.data);
+        window.location.reload();
         localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
         localStorage.setItem(
           Constant.LOGIN_USER_DATA,
@@ -63,8 +65,6 @@ const LoginController = () => {
             balance: _res?.data?.data?.balance,
           })
         );
-        history.push(Constant.AFTER_LOGIN, _res?.data?.data);
-        window.location.reload();
       }
     } catch (error) {}
   };
@@ -72,7 +72,7 @@ const LoginController = () => {
   const handleRegister = async (inputFirstname, inputLastname, inputPhonenumber, inputPassword, inputBank, iBank, ref, isMobile, setLoading) => {
     try {
       const _date = {
-        s_agent_code: Constant.AGEN_CODE,
+        s_agent_code: Constant.AGENT_CODE,
         s_phone: inputPhonenumber,
         s_password: inputPassword,
         i_bank: iBank, //scb =1
@@ -81,7 +81,7 @@ const LoginController = () => {
         s_line: "line@",
         type_shorturl: true,
         s_ref: ref,
-        s_channel_name: Constant.AGEN_CODE,
+        s_channel_name: Constant.AGENT_CODE,
         i_channel: "134",
       };
       const _resOne = await axios({
@@ -98,7 +98,7 @@ const LoginController = () => {
             s_firstname: inputFirstname,
             s_lastname: inputLastname,
             s_fullname: `${inputFirstname} ${inputLastname}`,
-            s_channel_name: Constant.AGEN_CODE,
+            s_channel_name: Constant.AGENT_CODE,
             i_channel: "134",
           },
         });
@@ -107,7 +107,7 @@ const LoginController = () => {
             method: "post",
             url: `${Constant.SERVER_URL}/Member/Balance`,
             data: {
-              s_agent_code: Constant.AGEN_CODE,
+              s_agent_code: Constant.AGENT_CODE,
               s_username: _resTwo?.data?.data?.s_username,
             },
           });
@@ -137,7 +137,7 @@ const LoginController = () => {
         method: "post",
         url: `${Constant.SERVER_URL}/Authen/Login`,
         data: {
-          agentCode: Constant.AGEN_CODE,
+          agentCode: Constant.AGENT_CODE,
           username: username,
           password: password,
           ip: "1.2.3.4",
@@ -183,7 +183,7 @@ const LoginController = () => {
       url: `${Constant.SERVER_URL}/Authen/ResetPassword`,
       data: {
         token: _dataTokenLocal,
-        agentCode: Constant.AGEN_CODE,
+        agentCode: Constant.AGENT_CODE,
         username: _dataLocal?.username,
         password: newPassword,
         password_original: firstPassword,
@@ -206,7 +206,7 @@ const LoginController = () => {
         method: "post",
         url: `${Constant.SERVER_URL}/Authen/Login`,
         data: {
-          agentCode: Constant.AGEN_CODE,
+          agentCode: Constant.AGENT_CODE,
           username: _resDecrypt?.username,
           password: _resDecrypt?.password,
           ip: "1.2.3.4",

@@ -101,7 +101,6 @@ export default function AfterLogin() {
     getDataBackOfficeNews();
     setOverviewDate(formatMontYear(new Date()));
     const _data = DataLoginInRout(history?.location?.state);
-    // console.log("DDDDD: ", _data?.info);
     if (_data) {
       setLinkLine(_data?.info?.configLobby?.s_line);
       setDataFromLogin(_data);

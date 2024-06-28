@@ -1,5 +1,4 @@
 module.exports = {
-    AGEN_CODE: "AG002",
     AGENT_CODE: "AG002",
 
     SERVER_URL: "https://prod.txtechserver.com/api/v1",

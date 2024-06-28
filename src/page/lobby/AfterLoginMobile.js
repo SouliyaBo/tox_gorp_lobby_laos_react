@@ -78,6 +78,8 @@ export default function AfterLoginMobile() {
   const [dataBackOffice, setDataBackOffice] = useState({});
   const [iBank, setIBank] = useState("");
   const [amountWithdraw, setAmountWithdraw] = useState("");
+  const [dataWallet, setDataWallet] = useState({});
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const _data = DataLoginInRout(history?.location?.state);
@@ -86,6 +88,8 @@ export default function AfterLoginMobile() {
       setLogoWebsite(_data?.info?.configLobby?.s_logo);
       setLinkLine(_data?.info?.configLobby?.s_line);
       setDataFromLogin(_data);
+      const wallet = _data?.info?.bankDeposit.filter((data) => data?.i_bank === "7");
+      setDataWallet(wallet[0]);
       setDepositBankList(_data?.info?.bankDeposit[0]);
       setCurrentPoint(_data?.balance?.cevent);
       getQRCode(_data?.info?.bankDeposit[0]?.s_account_no);
@@ -312,7 +316,7 @@ export default function AfterLoginMobile() {
       method: "post",
       url: `${Constant.SERVER_URL}/Game/ListGame`,
       data: {
-        s_agent_code: Constant.AGEN_CODE,
+        s_agent_code: Constant.AGENT_CODE,
         s_brand_code: value?.s_brand_code,
         s_username: dataFromLogin?.username,
       },
@@ -352,7 +356,7 @@ export default function AfterLoginMobile() {
         s_game_code: value?.s_type === "CASINO" ? "B001" : value?.s_type === "SPORT" ? "B001" : value?.s_game_code,
         s_brand_code: value?.s_brand_code,
         s_username: dataFromLogin?.username,
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         isMobile: deviceType === "Mobile" ? "true" : "false",
         ip_client: "184.22.14.167",
         s_lang: "th",
@@ -421,7 +425,7 @@ export default function AfterLoginMobile() {
   const approverPromotion = async (value) => {
     try {
       const _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
         s_type: "SMS",
         s_prm_code: value?.s_code,
@@ -496,7 +500,7 @@ export default function AfterLoginMobile() {
   const _addCupon = async () => {
     try {
       const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
         s_code: codeCupon,
         actionBy: "ADM",
@@ -1515,7 +1519,7 @@ export default function AfterLoginMobile() {
                       <div className="flexCenter left" style={{ color: "#FFF" }}>
                         <p>True Wallet</p>
                         <p>
-                          {dataFromLogin?.info?.bankDeposit[1]?.s_account_no}{" "}
+                          {dataWallet?.s_account_no}{" "}
                           <span>
                             <img
                               src="/assets/images/icon-coppy.svg"
@@ -1526,7 +1530,7 @@ export default function AfterLoginMobile() {
                                 marginBottom: -3,
                                 cursor: "pointer",
                               }}
-                              onClick={() => _copyAccountNoTrue(dataFromLogin?.info?.bankDeposit[1]?.s_account_no)}
+                              onClick={() => _copyAccountNoTrue(dataWallet?.s_account_nam)}
                             />
                           </span>
                         </p>
