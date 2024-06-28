@@ -3,12 +3,23 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import jsQR from "jsqr";
-import { faChevronCircleLeft, faChevronCircleRight, faHeart } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronCircleLeft,
+  faChevronCircleRight,
+  faHeart,
+} from "@fortawesome/free-solid-svg-icons";
 import { useHistory, useParams } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import "react-slideshow-image/dist/styles.css";
 import "react-slideshow-image/dist/styles.css";
-import { CheckLevelCashBack, DataLoginInRout, FillerCategory, OpenNewTabWithHTML, formatMontYear, EncriptBase64 } from "../../helper";
+import {
+  CheckLevelCashBack,
+  DataLoginInRout,
+  FillerCategory,
+  OpenNewTabWithHTML,
+  formatMontYear,
+  EncriptBase64,
+} from "../../helper";
 import Constant, { AGENT_CODE } from "../../constant";
 import { BackList } from "../../constant/bankList";
 import { SlideDemo } from "../../constant/demoSlide";
@@ -72,7 +83,7 @@ export default function AfterLogin() {
   const [dataSpinWheel, setDataSpinWheel] = useState([]);
   const [outputSpin, setOutputSpin] = useState("");
   const [limitSpinWheel, setLimitSpinWheel] = useState({});
-  const [currentPoint, setCurrentPoint] = useState({});
+  const [currentPoint, setCurrentPoint] = useState(0);
   const [notCurrentPoint, setNotCurrentPoint] = useState(0);
   const [dataOverview, setDataOverview] = useState([]);
   const [dataOverviewYears, setDataOverviewYears] = useState([]);
@@ -81,8 +92,12 @@ export default function AfterLogin() {
   const [codeCupon, setCodeCupon] = useState("");
 
   const [overviewDate, setOverviewDate] = useState();
-  const [incomeDateStart, setIncomeDateStart] = useState(formatMontYear(new Date()));
-  const [incomeDateEnd, setIncomeDateEnd] = useState(formatMontYear(new Date()));
+  const [incomeDateStart, setIncomeDateStart] = useState(
+    formatMontYear(new Date())
+  );
+  const [incomeDateEnd, setIncomeDateEnd] = useState(
+    formatMontYear(new Date())
+  );
   const [years, setYears] = useState([]);
   const [animationRefresh, setAnimationRefresh] = useState(false);
   const [supong, setCupong] = useState(false);
@@ -91,9 +106,95 @@ export default function AfterLogin() {
   const [iBank, setIBank] = useState("");
   const [amountWithdraw, setAmountWithdraw] = useState("");
   const [showNews, setShowNews] = useState(false);
-
   const handleCloseNew = () => setShowNews(false);
   const handleShowNew = () => setShowNews(true);
+
+// ======================loginPlayNowAuto================================>
+  useEffect(() => {
+    if (UseParams?.token) {
+      let _res = EncriptBase64(UseParams?.token);
+      loginPlayNowAuto(_res?.username,_res?.password)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [UseParams?.token]);
+  const loginPlayNowAuto = async (username, password) => {
+    try {
+      const _resBl = await axios({
+        method: "post",
+        url: `${Constant.SERVER_URL}/Member/Balance`,
+        data: {
+          s_agent_code: Constant?.AGENT_CODE,
+          s_username: username,
+        },
+      });
+      if (_resBl?.data?.statusCode === 0) {
+        setDataUser(_resBl?.data?.data);
+      }
+      let _res = await axios({
+        method: "post",
+        url: `${Constant.SERVER_URL}/Authen/Login`,
+        data: {
+          agentCode: Constant?.AGENT_CODE,
+          username: username,
+          password: password,
+          ip: "1.2.3.4",
+        },
+      });
+      if (_res?.data.statusCode === 0) {
+        localStorage.setItem(Constant.LOGIN_TOKEN_DATA, _res?.data?.data?.token);
+        localStorage.setItem(
+          Constant.LOGIN_USER_DATA,
+          JSON.stringify({
+            agent: _res?.data?.data?.agent,
+            username: _res?.data?.data?.username,
+            balance: _res?.data?.data?.balance,
+          })
+        );
+        const _data = DataLoginInRout(_res?.data?.data);
+        if (_data) {
+          setLinkLine(_data?.info?.configLobby?.s_line);
+          setDataFromLogin(_data);
+          setCurrentPoint(_data?.balance?.cevent);
+          setDepositBankList(_data?.info?.bankDeposit[0]);
+          const color = BackList.filter(
+            (data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th
+          );
+          if (color?.length > 0) {
+            setDepositBankList({
+              ..._data?.info?.bankDeposit[0],
+              background: color[0].backgroundColor,
+            });
+          }
+          setUserBankList(_data?.info?.bankList[0]);
+          const dataBank = BackList.filter(
+            (data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank
+          );
+          if (dataBank?.length > 0) {
+            setUserBankList({
+              ..._data?.info?.bankList[0],
+              background: dataBank[0].backgroundColor,
+              bankName: dataBank[0].bankName,
+            });
+          }
+        }
+        setDataPromotion(_res?.data?.data?.info?.promotionList);
+        getSpinWheel();
+        const currentYear = new Date().getFullYear();
+        const yearArray = [];
+        for (let year = 2020; year <= currentYear; year++) {
+          yearArray.push(year);
+        }
+        setYears(yearArray);
+      }
+    } catch (error) {}
+  };
+
+// ======================================================>
+
+
+
+
+
   useEffect(() => {
     getDataBackOffice();
     getDataBackOfficeNews();
@@ -108,14 +209,25 @@ export default function AfterLogin() {
       // setSliderData(newSlideArray);
       setCurrentPoint(_data?.balance?.cevent);
       setDepositBankList(_data?.info?.bankDeposit[0]);
-      const color = BackList.filter((data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th);
+      const color = BackList.filter(
+        (data) => data?.bankName === _data?.info?.bankDeposit[0]?.s_fname_th
+      );
       if (color?.length > 0) {
-        setDepositBankList({ ..._data?.info?.bankDeposit[0], background: color[0].backgroundColor });
+        setDepositBankList({
+          ..._data?.info?.bankDeposit[0],
+          background: color[0].backgroundColor,
+        });
       }
       setUserBankList(_data?.info?.bankList[0]);
-      const dataBank = BackList.filter((data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank);
+      const dataBank = BackList.filter(
+        (data) => data?.code.toString() === _data?.info?.bankList[0]?.i_bank
+      );
       if (dataBank?.length > 0) {
-        setUserBankList({ ..._data?.info?.bankList[0], background: dataBank[0].backgroundColor, bankName: dataBank[0].bankName });
+        setUserBankList({
+          ..._data?.info?.bankList[0],
+          background: dataBank[0].backgroundColor,
+          bankName: dataBank[0].bankName,
+        });
       }
     }
     setDataPromotion(history?.location?.state?.info?.promotionList);
@@ -128,14 +240,6 @@ export default function AfterLogin() {
     setYears(yearArray);
     // handleShowNew();
   }, []);
-
-  useEffect(() => {
-    if (UseParams?.token) {
-      loginByToken();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [UseParams?.token]);
-
   useEffect(() => {
     let hasTouchScreen = false;
     if ("maxTouchPoints" in navigator) {
@@ -151,7 +255,9 @@ export default function AfterLogin() {
       } else {
         // Only as a last resort, fall back to user agent sniffing
         const UA = navigator.userAgent;
-        hasTouchScreen = /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) || /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA);
+        hasTouchScreen =
+          /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+          /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA);
       }
     }
     if (hasTouchScreen) {
@@ -205,12 +311,7 @@ export default function AfterLogin() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataFromLogin]);
-  const loginByToken = async () => {
-    let _res = await EncriptBase64(UseParams?.token);
-    if (_res?.agentCode && _res?.username && _res?.password) {
-      loginPlayNow(_res?.username, _res?.password);
-    }
-  };
+
   const getDataBackOffice = async () => {
     try {
       const _res = await axios({
@@ -278,9 +379,12 @@ export default function AfterLogin() {
   };
 
   const getQRCode = async (accountNumber) => {
-    const _data = await axios.post(`${Constant.SERVER_URL}/genarate-qr-code/${Constant.AGENT_CODE}`, {
-      recipientAccountNum: accountNumber,
-    });
+    const _data = await axios.post(
+      `${Constant.SERVER_URL}/genarate-qr-code/${Constant.AGENT_CODE}`,
+      {
+        recipientAccountNum: accountNumber,
+      }
+    );
     setNumberQRCode(_data?.data?.data?.respData?.qrCode);
   };
 
@@ -451,7 +555,12 @@ export default function AfterLogin() {
   const _getDataGamePlayGame = async (value, type) => {
     try {
       const _data = {
-        s_game_code: value?.s_type === "CASINO" ? "B001" : value?.s_type === "SPORT" ? "B001" : value?.s_game_code,
+        s_game_code:
+          value?.s_type === "CASINO"
+            ? "B001"
+            : value?.s_type === "SPORT"
+            ? "B001"
+            : value?.s_game_code,
         s_brand_code: value?.s_brand_code,
         s_username: dataFromLogin?.username,
         s_agent_code: Constant?.AGEN_CODE,
@@ -471,7 +580,9 @@ export default function AfterLogin() {
         });
       }
       if (_res?.data?.res_html) {
-        const URL_HTML = `https://m.pgf-thzvvo.com/${value?.s_game_code}/index.html?ot=CD18D515-1F65-65B1-E767-C291050DAB4B&btt=1&ops=${
+        const URL_HTML = `https://m.pgf-thzvvo.com/${
+          value?.s_game_code
+        }/index.html?ot=CD18D515-1F65-65B1-E767-C291050DAB4B&btt=1&ops=${
           _res?.data?.REQ?.extra_args.split("=")[2]
         }&or=18klslau%3Dhyx-lzrnng%3Duge&__hv=1fa0d13d`;
         setTimeout(() => {
@@ -578,14 +689,17 @@ export default function AfterLogin() {
 
   const apoverPromotion = async (value) => {
     try {
-      const _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
-        s_agent_code: Constant?.AGEN_CODE,
-        s_username: dataFromLogin?.username,
-        s_type: "AUTO",
-        s_prm_code: value?.s_code,
-        i_ip: "1.2.3.4",
-        actionBy: "ADM",
-      });
+      const _resAppover = await axios.post(
+        `${Constant.SERVER_URL}/Deposit/Promotion/Select`,
+        {
+          s_agent_code: Constant?.AGEN_CODE,
+          s_username: dataFromLogin?.username,
+          s_type: "AUTO",
+          s_prm_code: value?.s_code,
+          i_ip: "1.2.3.4",
+          actionBy: "ADM",
+        }
+      );
       if (_resAppover?.data?.statusCode === 0) {
         toast.success(t("TheTransactionWasCompletedSuccessfully"));
         setTimeout(() => {
@@ -627,7 +741,9 @@ export default function AfterLogin() {
     setDisableArrow(!disableArrow);
     const newData = JSON.parse(bankName);
     setIBank(newData?.i_bank);
-    const color = BackList.filter((data) => data?.bankName === newData?.s_fname_th);
+    const color = BackList.filter(
+      (data) => data?.bankName === newData?.s_fname_th
+    );
     if (color?.length > 0) {
       setDepositBankList({ ...newData, background: color[0].backgroundColor });
     }
@@ -637,9 +753,15 @@ export default function AfterLogin() {
     setDisableArrow(!disableArrow);
     const newData = JSON.parse(bankName);
     setIBank(newData?.id);
-    const color = BackList.filter((data) => data?.code?.toString() === newData?.i_bank);
+    const color = BackList.filter(
+      (data) => data?.code?.toString() === newData?.i_bank
+    );
     if (color?.length > 0) {
-      setUserBankList({ ...newData, background: color[0].backgroundColor, bankName: color[0].bankName });
+      setUserBankList({
+        ...newData,
+        background: color[0].backgroundColor,
+        bankName: color[0].bankName,
+      });
     }
   };
   const _getOptionBankQR = (bankName) => {
@@ -686,15 +808,18 @@ export default function AfterLogin() {
     document.getElementById("fileslip").value = "";
     if (imgData != null) {
       try {
-        const response = await axios.post(`${Constant.SERVER_URL}/Deposit/Slip`, {
-          actionBy: dataFromLogin?.username,
-          s_agent_code: dataFromLogin?.agent,
-          s_username: dataFromLogin?.username,
-          qrcode: imgData.data,
-          i_bank_agent: bankAgentCode,
-          i_ip: "1.2.3.4",
-          s_prm_code: promotionCode,
-        });
+        const response = await axios.post(
+          `${Constant.SERVER_URL}/Deposit/Slip`,
+          {
+            actionBy: dataFromLogin?.username,
+            s_agent_code: dataFromLogin?.agent,
+            s_username: dataFromLogin?.username,
+            qrcode: imgData.data,
+            i_bank_agent: bankAgentCode,
+            i_ip: "1.2.3.4",
+            s_prm_code: promotionCode,
+          }
+        );
         toast.error(response?.data?.statusDesc);
       } catch (error) {}
     } else {
@@ -728,10 +853,17 @@ export default function AfterLogin() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        const imgData = ctx.getImageData(
+          0,
+          0,
+          ctx.canvas.width,
+          ctx.canvas.height
+        );
         const pixels = imgData.data;
         for (let i = 0; i < pixels.length; i += 4) {
-          const lightness = parseInt((pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3);
+          const lightness = parseInt(
+            (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3
+          );
           pixels[i] = lightness;
           pixels[i + 1] = lightness;
           pixels[i + 2] = lightness;
@@ -891,7 +1023,9 @@ export default function AfterLogin() {
   };
 
   const returnBankName = (i_bank) => {
-    const dataBank = BackList.filter((data) => data?.code?.toString() === i_bank);
+    const dataBank = BackList.filter(
+      (data) => data?.code?.toString() === i_bank
+    );
     return dataBank[0]?.bankName;
   };
 
@@ -902,7 +1036,11 @@ export default function AfterLogin() {
 
   return (
     <div>
-      <ModalNews handleCloseNew={handleCloseNew} showNews={showNews} data={dataBackOfficeNews} />
+      <ModalNews
+        handleCloseNew={handleCloseNew}
+        showNews={showNews}
+        data={dataBackOfficeNews}
+      />
       <header className="login-page-header">
         <img
           src="/assets/images/icon-hamburger.svg"
@@ -916,7 +1054,7 @@ export default function AfterLogin() {
         <div className="left">
           <div className="coin-balance">
             <img src="/assets/images/gif/border-card-bank.gif" alt="coin" />
-            {dataUser?.amount}
+            {dataUser?.amount ? dataUser?.amount : 0}
           </div>
           <img
             src="/assets/images/icons8-refresh-30.png"
@@ -928,7 +1066,11 @@ export default function AfterLogin() {
         </div>
         <div className="middle">
           <img
-            src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
+            src={
+              dataBackOffice?.logos?.logo
+                ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}`
+                : Constant?.LOGO_WEB
+            }
             alt="logo"
             style={{ cursor: "pointer", height: 50 }}
             id="banner"
@@ -937,7 +1079,7 @@ export default function AfterLogin() {
         <div className="right">
           <div className="gem-balance">
             <img src="/assets/images/gem.svg" alt="gem" />
-            {dataUser?.point}
+            {dataUser?.point ? dataUser?.point : 0}
           </div>
         </div>
         <div style={{ position: "fixed", right: 20, zIndex: 300 }}>
@@ -949,19 +1091,34 @@ export default function AfterLogin() {
         <div className="brand">
           <div className="slideshow-container">
             <div className="mySlides fade-slide">
-              <div className="left-arrow" onClick={() => prevSlide()} onKeyDown={() => ""}>
+              <div
+                className="left-arrow"
+                onClick={() => prevSlide()}
+                onKeyDown={() => ""}
+              >
                 ❮
               </div>
-              <div className="right-arrow" onClick={() => nextSlide()} onKeyDown={() => ""}>
+              <div
+                className="right-arrow"
+                onClick={() => nextSlide()}
+                onKeyDown={() => ""}
+              >
                 ❯
               </div>
               {sliderData?.length > 0 &&
                 sliderData?.map((slide, index) => {
                   return (
-                    <div className={index === current ? "slide1 active" : "slide1"} key={index}>
+                    <div
+                      className={index === current ? "slide1 active" : "slide1"}
+                      key={index}
+                    >
                       {index === current && (
                         <img
-                          src={slide?.name ? `${Constant?.SERVER_URL_IMAGE}/images/${slide?.name}` : "/assets/images/Cardgame/image 70.png"}
+                          src={
+                            slide?.name
+                              ? `${Constant?.SERVER_URL_IMAGE}/images/${slide?.name}`
+                              : "/assets/images/Cardgame/image 70.png"
+                          }
                           alt="travel"
                           style={{ width: "100%" }}
                         />
@@ -975,11 +1132,19 @@ export default function AfterLogin() {
 
         <section className="featured-game-wrapper">
           <div className="container flexBetween">
-            <div className="featured-game flexBetween" onClick={() => _clickFavorite()} onKeyDown={() => ""}>
+            <div
+              className="featured-game flexBetween"
+              onClick={() => _clickFavorite()}
+              onKeyDown={() => ""}
+            >
               <img src="/assets/images/newicon/favorite.png" alt="game icon" />
               <p>{t("FavoriteGame")}</p>
             </div>
-            <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("HOTHIT")} onKeyDown={() => ""}>
+            <div
+              className="featured-game flexBetween"
+              onClick={() => _clickCategoryGame("HOTHIT")}
+              onKeyDown={() => ""}
+            >
               <img src="/assets/images/newicon/hothit.png" alt="game icon" />
               <p style={{ fontSize: 20 }}>{t("popular")}</p>
             </div>
@@ -994,20 +1159,48 @@ export default function AfterLogin() {
               <img src="/assets/images/public.avif" alt="game icon" />
               <p style={{ fontSize: 20 }}>{t("WatchAFilm")}</p>
             </a>
-            <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SLOT")} onKeyDown={() => ""}>
-              <img src="/assets/images/newicon/iconnew-01.png" alt="game icon" />
+            <div
+              className="featured-game flexBetween"
+              onClick={() => _clickCategoryGame("SLOT")}
+              onKeyDown={() => ""}
+            >
+              <img
+                src="/assets/images/newicon/iconnew-01.png"
+                alt="game icon"
+              />
               <p>{t("slots")}</p>
             </div>
-            <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("CASINO")} onKeyDown={() => ""}>
-              <img src="/assets/images/newicon/iconnew-02.png" alt="game icon" />
+            <div
+              className="featured-game flexBetween"
+              onClick={() => _clickCategoryGame("CASINO")}
+              onKeyDown={() => ""}
+            >
+              <img
+                src="/assets/images/newicon/iconnew-02.png"
+                alt="game icon"
+              />
               <p>{t("casino")}</p>
             </div>
-            <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("FISHING")} onKeyDown={() => ""}>
-              <img src="/assets/images/newicon/iconnew-03.png" alt="game icon" />
+            <div
+              className="featured-game flexBetween"
+              onClick={() => _clickCategoryGame("FISHING")}
+              onKeyDown={() => ""}
+            >
+              <img
+                src="/assets/images/newicon/iconnew-03.png"
+                alt="game icon"
+              />
               <p>{t("ShootFish")}</p>
             </div>
-            <div className="featured-game flexBetween" onClick={() => _clickCategoryGame("SPORT")} onKeyDown={() => ""}>
-              <img src="/assets/images/newicon/iconnew-05.png" alt="game icon" />
+            <div
+              className="featured-game flexBetween"
+              onClick={() => _clickCategoryGame("SPORT")}
+              onKeyDown={() => ""}
+            >
+              <img
+                src="/assets/images/newicon/iconnew-05.png"
+                alt="game icon"
+              />
               <p>{t("sport")}</p>
             </div>
           </div>
@@ -1024,7 +1217,8 @@ export default function AfterLogin() {
                         top: "0",
                         right: "0",
                         zIndex: 1,
-                        backgroundColor: game?.s_flg_favorite === "Y" ? "#FE2147" : "#A4A4A4",
+                        backgroundColor:
+                          game?.s_flg_favorite === "Y" ? "#FE2147" : "#A4A4A4",
                         padding: 8,
                         borderRadius: "50%",
                         alignItems: "center",
@@ -1034,9 +1228,15 @@ export default function AfterLogin() {
                       onClick={() => _addFavorite(game)}
                       onKeyDown={() => ""}
                     >
-                      <FontAwesomeIcon icon={faHeart} style={{ color: "white", fontSize: 25 }} />
+                      <FontAwesomeIcon
+                        icon={faHeart}
+                        style={{ color: "white", fontSize: 25 }}
+                      />
                     </div>
-                    <div className="percentage">RTP {(percentageData[index]?.percentage * 100).toFixed(2)} %</div>
+                    <div className="percentage">
+                      RTP {(percentageData[index]?.percentage * 100).toFixed(2)}{" "}
+                      %
+                    </div>
                     <img
                       src={game?.s_img ?? "/assets/images/jilli_card.svg"}
                       id="game-card"
@@ -1050,7 +1250,8 @@ export default function AfterLogin() {
               : categoryGame?.length > 0 &&
                 categoryGame?.map((item, index) => (
                   <div key={item?.index} className="game-card">
-                    {dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? (
+                    {dataGameType === "FAVORITE" ||
+                    dataGameType === "HOTHIT" ? (
                       <div
                         style={{
                           position: "absolute",
@@ -1067,7 +1268,10 @@ export default function AfterLogin() {
                         onClick={() => _addFavorite(item)}
                         onKeyDown={() => ""}
                       >
-                        <FontAwesomeIcon icon={faHeart} style={{ color: "#FFF", fontSize: 25 }} />
+                        <FontAwesomeIcon
+                          icon={faHeart}
+                          style={{ color: "#FFF", fontSize: 25 }}
+                        />
                       </div>
                     ) : null}
                     {item?.s_img !== undefined ? (
@@ -1079,7 +1283,9 @@ export default function AfterLogin() {
                         alt="game"
                         onKeyDown={() => ""}
                         onClick={() =>
-                          dataGameType === "FAVORITE" || dataGameType === "HOTHIT" || dataGameType === "FISHING"
+                          dataGameType === "FAVORITE" ||
+                          dataGameType === "HOTHIT" ||
+                          dataGameType === "FISHING"
                             ? _getDataGamePlayGame(item, "FISHING")
                             : _getDataGame(item)
                         }
@@ -1091,7 +1297,12 @@ export default function AfterLogin() {
                         className="url"
                         alt="game"
                         onKeyDown={() => ""}
-                        onClick={() => (dataGameType === "FAVORITE" || dataGameType === "HOTHIT" ? _getDataGamePlayGame(item) : _getDataGame(item))}
+                        onClick={() =>
+                          dataGameType === "FAVORITE" ||
+                          dataGameType === "HOTHIT"
+                            ? _getDataGamePlayGame(item)
+                            : _getDataGame(item)
+                        }
                       />
                     )}
                   </div>
@@ -1104,14 +1315,24 @@ export default function AfterLogin() {
             <aside
               className="sidebar"
               style={{
-                animation: `${sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"} 0.5s ease-in-out`,
+                animation: `${
+                  sidebarAnimation ? "slideInFromLeft" : "slideInToLeft"
+                } 0.5s ease-in-out`,
               }}
             >
-              <div className="icon-turn-back" onClick={() => closeSidebar()} onKeyDown={() => ""}>
+              <div
+                className="icon-turn-back"
+                onClick={() => closeSidebar()}
+                onKeyDown={() => ""}
+              >
                 <img src="/assets/images/turn-back 1.png" alt="logo" />
               </div>
               <img
-                src={dataBackOffice?.logos?.logo ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}` : Constant?.LOGO_WEB}
+                src={
+                  dataBackOffice?.logos?.logo
+                    ? `${Constant?.SERVER_URL_IMAGE}/images/${dataBackOffice?.logos?.logo}`
+                    : Constant?.LOGO_WEB
+                }
                 alt="logo"
               />
               <div className="flexBetween font-14">
@@ -1130,7 +1351,9 @@ export default function AfterLogin() {
                       src="/assets/images/icons8-refresh-30.png"
                       onClick={(e) => refreshBalance(e)}
                       alt="fresh"
-                      className={animationRefresh === true ? "refresh-balance" : ""}
+                      className={
+                        animationRefresh === true ? "refresh-balance" : ""
+                      }
                       style={{ width: 20, height: 20, cursor: "pointer" }}
                     />
                   </span>
@@ -1181,7 +1404,11 @@ export default function AfterLogin() {
                 </button>
               </div>
               <div className="flexBetween" style={{ gap: 13 }}>
-                <button type="button" className="gradient-border sidebar-button flexCenter" style={{ width: "50%" }}>
+                <button
+                  type="button"
+                  className="gradient-border sidebar-button flexCenter"
+                  style={{ width: "50%" }}
+                >
                   {t("LineBotNotification")}
                 </button>
                 {/*
@@ -1245,7 +1472,13 @@ export default function AfterLogin() {
         ) : null}
 
         {/* <!-- start profile --> */}
-        <div className="modal fade" id="profile" tabindex="-1" aria-labelledby="profile" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="profile"
+          tabindex="-1"
+          aria-labelledby="profile"
+          aria-hidden="true"
+        >
           <div className="modal-dialog">
             <div className="modal-border">
               <div className="modal-content">
@@ -1258,7 +1491,13 @@ export default function AfterLogin() {
                                             data-bs-dismiss="modal"
                                         /> */}
                     <p className="modal-title">{t("AccountInformation")}</p>
-                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                    <img
+                      src="/assets/icons/icon-close-modal.svg"
+                      className="modal-icon-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      alt=""
+                    />
                   </div>
                 </div>
                 <div className="modal-body">
@@ -1271,7 +1510,11 @@ export default function AfterLogin() {
                             <div style={{ textTransform: "uppercase" }}>
                               {item?.s_icon.split(".")[0]}
                               <img
-                                style={{ marginLeft: 10, width: 50, height: 50 }}
+                                style={{
+                                  marginLeft: 10,
+                                  width: 50,
+                                  height: 50,
+                                }}
                                 src={`/assets/images/bank/${item?.s_icon}`}
                                 alt="logo bank"
                                 className="result"
@@ -1299,11 +1542,15 @@ export default function AfterLogin() {
                                         </div> */}
                     <div className="user">
                       <p className="username">Line ID</p>
-                      <p className="result">{dataFromLogin?.info?.profile?.s_line}</p>
+                      <p className="result">
+                        {dataFromLogin?.info?.profile?.s_line}
+                      </p>
                     </div>
                     <div className="user">
                       <p className="username">Username</p>
-                      <p className="result">{dataFromLogin?.info?.profile?.s_username}</p>
+                      <p className="result">
+                        {dataFromLogin?.info?.profile?.s_username}
+                      </p>
                     </div>
                     <div className="password">
                       <p className="pass">Password</p>
@@ -1318,7 +1565,13 @@ export default function AfterLogin() {
         {/* <!-- end profile --> */}
 
         {/* <!-- start cashback detail --> */}
-        <div className="modal fade" id="cashbackDetail" tabindex="-1" aria-labelledby="cashbackDetail" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="cashbackDetail"
+          tabindex="-1"
+          aria-labelledby="cashbackDetail"
+          aria-hidden="true"
+        >
           <div className="modal-dialog">
             <div className="modal-border">
               <div className="modal-content">
@@ -1333,20 +1586,35 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     />
                     <p className="modal-title">{t("ReturnTheLostAmount")}</p>
-                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                    <img
+                      src="/assets/icons/icon-close-modal.svg"
+                      className="modal-icon-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      alt=""
+                    />
                   </div>
                 </div>
                 <div className="modal-body">
                   <div className="change-cashback-detail-modal-content">
-                    <div className="detail" style={{ display: "flex", flexDirection: "column" }}>
+                    <div
+                      className="detail"
+                      style={{ display: "flex", flexDirection: "column" }}
+                    >
                       <div className="your-loss">
-                        {t("YourAccumulatedLosses")} ({t("ReturnTheLostAmount")} {maxLevel} %)
+                        {t("YourAccumulatedLosses")} ({t("ReturnTheLostAmount")}{" "}
+                        {maxLevel} %)
                       </div>
                       <button
                         aria-label="Close"
                         type="button"
                         className="withdraw-to-accont"
-                        style={{ backgroundColor: "green", color: "white", padding: 10, borderRadius: 8 }}
+                        style={{
+                          backgroundColor: "green",
+                          color: "white",
+                          padding: 10,
+                          borderRadius: 8,
+                        }}
                         data-bs-toggle="modal"
                         data-bs-target="#historyCashback"
                         data-bs-dismiss="modal"
@@ -1355,14 +1623,23 @@ export default function AfterLogin() {
                       </button>
                       <div className="loss">{dataUser?.cashback}</div>
                       <div style={{ textAlign: "center", fontSize: 14 }}>
-                        {t("LatestUpdate")} {historyCashBack?.length > 0 && historyCashBack[historyCashBack?.length - 1]?.d_create}
+                        {t("LatestUpdate")}{" "}
+                        {historyCashBack?.length > 0 &&
+                          historyCashBack[historyCashBack?.length - 1]
+                            ?.d_create}
                       </div>
                       <div className="btn">
-                        <button type="button" className="receive-credit" onClick={() => _receiveCashBack()}>
+                        <button
+                          type="button"
+                          className="receive-credit"
+                          onClick={() => _receiveCashBack()}
+                        >
                           {t("receiveCredit")}
                         </button>
                       </div>
-                      <div style={{ textAlign: "center", color: "red" }}>{reMessage}</div>
+                      <div style={{ textAlign: "center", color: "red" }}>
+                        {reMessage}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1373,17 +1650,35 @@ export default function AfterLogin() {
         {/* <!-- end cashback detail --> */}
 
         {/* <!-- start  modal ฝาก - ถอน --> */}
-        <div className="modal fade" id="depositWithdraw" tabindex="-1" aria-labelledby="depositWithdraw" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="depositWithdraw"
+          tabindex="-1"
+          aria-labelledby="depositWithdraw"
+          aria-hidden="true"
+        >
           <div className="modal-dialog">
             <div className="modal-border">
               <div className="modal-content">
                 <div className="modal-header-container">
                   <div className="modal-header">
-                    <img src="/assets/icons/icon-back-modal.svg" className="modal-icon-back" alt="" data-bs-dismiss="modal" aria-label="Close" />
+                    <img
+                      src="/assets/icons/icon-back-modal.svg"
+                      className="modal-icon-back"
+                      alt=""
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    />
                     <p className="modal-title" id="depositWithdraw">
                       {t("DepositWithdraw")}
                     </p>
-                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                    <img
+                      src="/assets/icons/icon-close-modal.svg"
+                      className="modal-icon-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      alt=""
+                    />
                   </div>
                 </div>
                 <div className="modal-body">
@@ -1438,10 +1733,18 @@ export default function AfterLogin() {
                       justifyContent: "center",
                     }}
                   >
-                    <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#autoDeposit" data-bs-dismiss="modal">
+                    <div
+                      style={{ cursor: "pointer" }}
+                      data-bs-toggle="modal"
+                      data-bs-target="#autoDeposit"
+                      data-bs-dismiss="modal"
+                    >
                       <div className="type-of-withdrawal">
                         <div className="withdrawal">
-                          <img src="/assets/images/credit-card-machine.svg" alt="kkk" />
+                          <img
+                            src="/assets/images/credit-card-machine.svg"
+                            alt="kkk"
+                          />
                           <div>{t("AutoDeposit")}</div>
                         </div>
                       </div>
@@ -1454,19 +1757,35 @@ export default function AfterLogin() {
                         </div>
                       </div>
                     </div> */}
-                    <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#withdraw" data-bs-dismiss="modal">
+                    <div
+                      style={{ cursor: "pointer" }}
+                      data-bs-toggle="modal"
+                      data-bs-target="#withdraw"
+                      data-bs-dismiss="modal"
+                    >
                       <div className="type-of-withdrawal">
                         <div className="withdrawal">
-                          <img src="/assets/images/Withdraw-money.svg" alt="kkk" />
+                          <img
+                            src="/assets/images/Withdraw-money.svg"
+                            alt="kkk"
+                          />
                           <div>{t("WithdrawMoney")}</div>
                         </div>
                       </div>
                     </div>
                     {dataFromLogin?.info?.tmnWithdraw === true ? (
-                      <div style={{ cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#trueWallet" data-bs-dismiss="modal">
+                      <div
+                        style={{ cursor: "pointer" }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#trueWallet"
+                        data-bs-dismiss="modal"
+                      >
                         <div className="type-of-withdrawal">
                           <div className="withdrawal">
-                            <img src="/assets/images/true-money-wallet.svg" alt="kkk" />
+                            <img
+                              src="/assets/images/true-money-wallet.svg"
+                              alt="kkk"
+                            />
                             <div>Truewallet</div>
                           </div>
                         </div>
@@ -1504,7 +1823,9 @@ export default function AfterLogin() {
                                         </div> */}
                   </div>
 
-                  <div style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}>
+                  <div
+                    style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}
+                  >
                     <div>
                       {t("FoundProblem")}
                       <span
@@ -1526,7 +1847,13 @@ export default function AfterLogin() {
         </div>
         {/* <!-- end  modal ฝาก - ถอน --> */}
         {/* <!-- true wallet end modal --> */}
-        <div className="modal fade" id="trueWallet" tabIndex="-1" aria-labelledby="trueWalletLabel" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="trueWallet"
+          tabIndex="-1"
+          aria-labelledby="trueWalletLabel"
+          aria-hidden="true"
+        >
           <div className="modal-dialog">
             <div className="modal-border">
               <div className="modal-content">
@@ -1541,13 +1868,22 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     />
                     <p className="modal-title">Truewallet</p>
-                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                    <img
+                      src="/assets/icons/icon-close-modal.svg"
+                      className="modal-icon-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      alt=""
+                    />
                   </div>
                 </div>
                 <div className="modal-body">
                   <div className="true-wallet-content">
                     <div className="card flexBetween">
-                      <div className="flexCenter left" style={{ color: "#FFF" }}>
+                      <div
+                        className="flexCenter left"
+                        style={{ color: "#FFF" }}
+                      >
                         <p>True Wallet</p>
                         <p>
                           {dataFromLogin?.info?.bankDeposit[1]?.s_account_no}{" "}
@@ -1561,16 +1897,26 @@ export default function AfterLogin() {
                                 marginBottom: -3,
                                 cursor: "pointer",
                               }}
-                              onClick={() => _copyAccountNoTrue(dataFromLogin?.info?.bankDeposit[1]?.s_account_no)}
+                              onClick={() =>
+                                _copyAccountNoTrue(
+                                  dataFromLogin?.info?.bankDeposit[1]
+                                    ?.s_account_no
+                                )
+                              }
                             />
                           </span>
                         </p>
-                        <p>{dataFromLogin?.info?.bankDeposit[1]?.s_account_name}</p>
+                        <p>
+                          {dataFromLogin?.info?.bankDeposit[1]?.s_account_name}
+                        </p>
                       </div>
                       <div className="flexBetween right">
                         <div className="true-wallet-title flexBetween">
                           <div style={{ marginTop: -60 }}>
-                            <img src="/assets/images/true-money-wallet.svg" alt="" />
+                            <img
+                              src="/assets/images/true-money-wallet.svg"
+                              alt=""
+                            />
                           </div>
                         </div>
                         {/* <div className="visa">
@@ -1586,7 +1932,13 @@ export default function AfterLogin() {
         </div>
         {/* <!-- true wallet end --> */}
         {/* <!-- start  modal ฝากออโต้ --> */}
-        <div className="modal fade" id="autoDeposit" tabindex="-1" aria-labelledby="autoDeposit" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="autoDeposit"
+          tabindex="-1"
+          aria-labelledby="autoDeposit"
+          aria-hidden="true"
+        >
           <div className="modal-dialog">
             <div className="modal-border">
               <div className="modal-content">
@@ -1602,40 +1954,75 @@ export default function AfterLogin() {
                     <p className="modal-title" id="autoDeposit">
                       {t("AutoDeposit")}
                     </p>
-                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                    <img
+                      src="/assets/icons/icon-close-modal.svg"
+                      className="modal-icon-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      alt=""
+                    />
                   </div>
                 </div>
                 <div className="modal-body">
                   <div className="detail-card-scb1">
-                    <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
+                    <div
+                      className="card-scb1"
+                      style={{
+                        background:
+                          depositBankList && depositBankList?.background,
+                      }}
+                    >
                       <div className="left">
                         <p>{depositBankList && depositBankList?.s_fname_th}</p>
-                        <p>{depositBankList && depositBankList?.s_account_name}</p>
+                        <p>
+                          {depositBankList && depositBankList?.s_account_name}
+                        </p>
                         <p>
                           {depositBankList && depositBankList?.s_account_no}
                           <span>
                             <img
                               src="/assets/images/icon-coppy.svg"
-                              onClick={() => _copyAccountNo(depositBankList?.s_account_no)}
+                              onClick={() =>
+                                _copyAccountNo(depositBankList?.s_account_no)
+                              }
                               alt=""
-                              style={{ width: 30, height: 30, marginBottom: -3 }}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                marginBottom: -3,
+                              }}
                             />
                           </span>
                         </p>
                       </div>
                       <div className="right">
                         <div className="bank">
-                          <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon.split(".")[0]}</h3>
+                          <h3 style={{ textTransform: "uppercase" }}>
+                            {depositBankList &&
+                              depositBankList?.s_icon.split(".")[0]}
+                          </h3>
                           <div style={{ borderRadius: "100%", marginTop: -10 }}>
-                            <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
+                            <img
+                              src={`/assets/images/bank/${
+                                depositBankList && depositBankList?.s_icon
+                              }`}
+                              alt="scb"
+                            />
                           </div>
                         </div>
                         <div style={{ marginLeft: 50 }}>
-                          <div className="deposit-bank-title-pc">{t("ChangeBank")}</div>
+                          <div className="deposit-bank-title-pc">
+                            {t("ChangeBank")}
+                          </div>
                           <img
                             onClick={() => _getOptionBank()}
                             onKeyDown={() => ""}
-                            style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                            style={{
+                              width: 30,
+                              height: 30,
+                              display: disableArrow === true ? "none" : "block",
+                              cursor: "pointer",
+                            }}
                             src="/assets/images/arrow-bottom.svg"
                             alt=""
                             srcset=""
@@ -1643,11 +2030,20 @@ export default function AfterLogin() {
                           <select
                             onChange={(e) => _getOptionBank2(e.target.value)}
                             className="deposit-bank-list-pc"
-                            style={{ display: disableArrow === true ? "block" : "none" }}
+                            style={{
+                              display: disableArrow === true ? "block" : "none",
+                            }}
                           >
                             {dataFromLogin?.info?.bankDeposit?.length > 0 &&
                               dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                                <option key={bank?.index} value={JSON.stringify(bank)} style={{ display: bank?.i_bank === "7" ? "none" : "block" }}>
+                                <option
+                                  key={bank?.index}
+                                  value={JSON.stringify(bank)}
+                                  style={{
+                                    display:
+                                      bank?.i_bank === "7" ? "none" : "block",
+                                  }}
+                                >
                                   {bank?.s_fname_th}
                                 </option>
                               ))}
@@ -1660,12 +2056,18 @@ export default function AfterLogin() {
                   <div data-bs-toggle="modal" data-bs-target="#slipVerify">
                     <div className="btn-slip">
                       <div style={{ color: "white" }}>
-                        <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-exclamation-50.png" alt="exclamation" />{" "}
+                        <img
+                          style={{ width: 20, height: 20 }}
+                          src="/assets/images/icons8-exclamation-50.png"
+                          alt="exclamation"
+                        />{" "}
                         {t("ReportMoneyNotReceivedSlipForm")}
                       </div>
                     </div>
                   </div>
-                  <div style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}>
+                  <div
+                    style={{ textAlign: "center", marginTop: 10, fontSize: 14 }}
+                  >
                     <div>
                       {t("FoundProblem")}
                       <span>{t("ContactCustomerService")}</span>
@@ -1689,7 +2091,13 @@ export default function AfterLogin() {
         {/* <!-- end  modal ฝาก - ถอน --> */}
 
         {/* <!-- start  modal ฝากทศนิยม --> */}
-        <div className="modal fade" id="leaveAdecimal" tabindex="-1" aria-labelledby="leaveAdecimal" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="leaveAdecimal"
+          tabindex="-1"
+          aria-labelledby="leaveAdecimal"
+          aria-hidden="true"
+        >
           <div className="modal-dialog">
             <div className="modal-border">
               <div className="modal-content">
@@ -1704,7 +2112,13 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     />
                     <p className="modal-title">{t("DepositMoneyWithQRCode")}</p>
-                    <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                    <img
+                      src="/assets/icons/icon-close-modal.svg"
+                      className="modal-icon-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      alt=""
+                    />
                   </div>
                 </div>
                 <div className="modal-body">
@@ -1718,17 +2132,41 @@ export default function AfterLogin() {
                         ))}
                     </select>
                   </div>
-                  <div style={{ marginTop: 20, background: "#FFFF", padding: 12, borderRadius: 8 }}>
-                    <QRCode style={{ width: 250, height: 250 }} value={numberQRCode} />
+                  <div
+                    style={{
+                      marginTop: 20,
+                      background: "#FFFF",
+                      padding: 12,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <QRCode
+                      style={{ width: 250, height: 250 }}
+                      value={numberQRCode}
+                    />
                   </div>
                   <div style={{ width: 300, marginTop: 20 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <div>{t("BankName")}: </div>
-                      <div>{depositBankList && depositBankList?.s_fname_th}</div>
+                      <div>
+                        {depositBankList && depositBankList?.s_fname_th}
+                      </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <div>{t("AccountMumber")}:</div>
-                      <div>{depositBankList && depositBankList?.s_account_no}</div>
+                      <div>
+                        {depositBankList && depositBankList?.s_account_no}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1741,7 +2179,13 @@ export default function AfterLogin() {
       {/* <!-- end  modal ฝากทศนิยม --> */}
 
       {/* <!-- ถอนเงิน start  modal --> */}
-      <div className="modal fade" id="withdraw" tabindex="-1" aria-labelledby="withdraw" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="withdraw"
+        tabindex="-1"
+        aria-labelledby="withdraw"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -1758,13 +2202,24 @@ export default function AfterLogin() {
                   <p className="modal-title" id="withdraw">
                     {t("WithdrawMoney")}
                   </p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
                 <div className="withdraw-modal-content flexCenter">
                   <div className="detail-card-scb1">
-                    <div className="card-scb1" style={{ background: userBankList && userBankList?.background }}>
+                    <div
+                      className="card-scb1"
+                      style={{
+                        background: userBankList && userBankList?.background,
+                      }}
+                    >
                       <div className="left">
                         <p>{userBankList && userBankList?.bankName}</p>
                         <p>{userBankList && userBankList?.s_account_name}</p>
@@ -1773,26 +2228,46 @@ export default function AfterLogin() {
                           <span>
                             <img
                               src="/assets/images/icon-coppy.svg"
-                              onClick={() => _copyAccountNo(userBankList?.s_account_no)}
+                              onClick={() =>
+                                _copyAccountNo(userBankList?.s_account_no)
+                              }
                               alt=""
-                              style={{ width: 30, height: 30, marginBottom: -3 }}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                marginBottom: -3,
+                              }}
                             />
                           </span>
                         </p>
                       </div>
                       <div className="right">
                         <div className="bank">
-                          <h3 style={{ textTransform: "uppercase" }}>{userBankList && userBankList?.s_icon.split(".")[0]}</h3>
+                          <h3 style={{ textTransform: "uppercase" }}>
+                            {userBankList && userBankList?.s_icon.split(".")[0]}
+                          </h3>
                           <div style={{ borderRadius: "100%", marginTop: -10 }}>
-                            <img src={`/assets/images/bank/${userBankList && userBankList?.s_icon}`} alt="scb" />
+                            <img
+                              src={`/assets/images/bank/${
+                                userBankList && userBankList?.s_icon
+                              }`}
+                              alt="scb"
+                            />
                           </div>
                         </div>
                         <div style={{ marginLeft: 50 }}>
-                          <div className="deposit-bank-title-pc">{t("ChangeBank")}</div>
+                          <div className="deposit-bank-title-pc">
+                            {t("ChangeBank")}
+                          </div>
                           <img
                             onClick={() => _getOptionBank()}
                             onKeyDown={() => ""}
-                            style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                            style={{
+                              width: 30,
+                              height: 30,
+                              display: disableArrow === true ? "none" : "block",
+                              cursor: "pointer",
+                            }}
                             src="/assets/images/arrow-bottom.svg"
                             alt=""
                             srcset=""
@@ -1800,11 +2275,16 @@ export default function AfterLogin() {
                           <select
                             onChange={(e) => _getOptionBankUser(e.target.value)}
                             className="deposit-bank-list-pc"
-                            style={{ display: disableArrow === true ? "block" : "none" }}
+                            style={{
+                              display: disableArrow === true ? "block" : "none",
+                            }}
                           >
                             {dataFromLogin?.info?.bankList?.length > 0 &&
                               dataFromLogin?.info?.bankList?.map((bank) => (
-                                <option key={bank?.index} value={JSON.stringify(bank)}>
+                                <option
+                                  key={bank?.index}
+                                  value={JSON.stringify(bank)}
+                                >
                                   {returnBankName(bank?.i_bank)}
                                 </option>
                               ))}
@@ -1813,17 +2293,30 @@ export default function AfterLogin() {
                       </div>
                     </div>
                   </div>
-                  <div className="money-input flexBetween" style={{ marginTop: 50 }}>
+                  <div
+                    className="money-input flexBetween"
+                    style={{ marginTop: 50 }}
+                  >
                     <p>{t("AmountThatCanBeWithdrawn")}</p>
-                    <input type="text" value={amountWithdraw} onChange={(e) => setAmountWithdraw(e.target?.value)} />
+                    <input
+                      type="text"
+                      value={amountWithdraw}
+                      onChange={(e) => setAmountWithdraw(e.target?.value)}
+                    />
                   </div>
 
-                  <div className="button-warning" onClick={() => _withdrawMoney()} onKeyDown={() => ""}>
+                  <div
+                    className="button-warning"
+                    onClick={() => _withdrawMoney()}
+                    onKeyDown={() => ""}
+                  >
                     {t("WithdrawMoney")}
                   </div>
                   <p style={{ display: "flex" }}>
                     {t("FoundProblem")}
-                    <div style={{ marginLeft: "5px", color: "red" }}>{t("ContactCustomerService")}</div>
+                    <div style={{ marginLeft: "5px", color: "red" }}>
+                      {t("ContactCustomerService")}
+                    </div>
                   </p>
                 </div>
               </div>
@@ -1834,7 +2327,14 @@ export default function AfterLogin() {
       {/* <!-- ถอนเงิน end modal --> */}
 
       {/* <!-- start  modal QR Pay --> */}
-      <div className="modal fade" id="qrplay" tabindex="-1" aria-labelledby="qrplay" aria-hidden="true" data-bs-dismiss="modal">
+      <div
+        className="modal fade"
+        id="qrplay"
+        tabindex="-1"
+        aria-labelledby="qrplay"
+        aria-hidden="true"
+        data-bs-dismiss="modal"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -1851,7 +2351,13 @@ export default function AfterLogin() {
                   <p className="modal-title" id="qrplay">
                     QR PAY
                   </p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -1878,14 +2384,21 @@ export default function AfterLogin() {
                         className="test"
                         data-thumbnail="https://www.kasikornbank.com/SiteCollectionDocuments/about/img/logo/logo.png"
                       />
-                      <option value="au" data-thumbnail="https://www.uhub.co.th/assets/images/icons/mobile/scb-icon.png" />
+                      <option
+                        value="au"
+                        data-thumbnail="https://www.uhub.co.th/assets/images/icons/mobile/scb-icon.png"
+                      />
                     </select>
 
                     <div className="lang-select">
                       <button type="button" className="btn-select" value="">
                         .
                       </button>
-                      <img src="/assets/icons/icon-drow.svg" alt="" style={{ margin: "5px 0 0 -27px" }} />
+                      <img
+                        src="/assets/icons/icon-drow.svg"
+                        alt=""
+                        style={{ margin: "5px 0 0 -27px" }}
+                      />
                       <div className="b">
                         <ul id="a" />
                       </div>
@@ -1894,8 +2407,15 @@ export default function AfterLogin() {
                     <div className="show-username-bank">นาย ปปปปป ปปปปป</div>
                   </div>
 
-                  <div className="confirmation" style={{ marginLeft: 30, marginRight: 30 }}>
-                    <input type="text" className="text-amount-money" placeholder="กรอกจำนวนเงินที่ต้องการฝาก" />
+                  <div
+                    className="confirmation"
+                    style={{ marginLeft: 30, marginRight: 30 }}
+                  >
+                    <input
+                      type="text"
+                      className="text-amount-money"
+                      placeholder="กรอกจำนวนเงินที่ต้องการฝาก"
+                    />
                     <div
                       className="confirm-the-amount"
                       style={{ cursor: "pointer" }}
@@ -1941,7 +2461,14 @@ export default function AfterLogin() {
       {/* <!-- end  modal QR Pay --> */}
 
       {/* <!-- start modal QR  --> */}
-      <div className="modal fade" id="showQR" tabindex="-1" aria-labelledby="showQR" aria-hidden="true" data-bs-dismiss="modal">
+      <div
+        className="modal fade"
+        id="showQR"
+        tabindex="-1"
+        aria-labelledby="showQR"
+        aria-hidden="true"
+        data-bs-dismiss="modal"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -1958,7 +2485,13 @@ export default function AfterLogin() {
                   <p className="modal-title" id="showQR">
                     QR PAY
                   </p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -1981,11 +2514,21 @@ export default function AfterLogin() {
                     <div className="div6">
                       <p>1.บันทึกภาพ หรือ แคปหน้าจอ QR Code</p>
                       <p>2.เข้าแอปพลิเคชั่นธนาคารที่ต้องการทำรายการฝาก</p>
-                      <p className="danger">ต้องใช้บัญชีที่ผูกกับระบบทำรายการเข้ามาเท่านั้น</p>
+                      <p className="danger">
+                        ต้องใช้บัญชีที่ผูกกับระบบทำรายการเข้ามาเท่านั้น
+                      </p>
                       <p>3.กดเลือกสแกนจ่ายที่แอปธนาคารนั้น ๆ</p>
-                      <p>4.เลือกรูปภาพ QR Code ที่บันทึกหรือแคป เพื่อทำรายการจ่าย</p>
+                      <p>
+                        4.เลือกรูปภาพ QR Code ที่บันทึกหรือแคป เพื่อทำรายการจ่าย
+                      </p>
                     </div>
-                    <div style={{ textAlign: "center", marginTop: 10, fontSize: 12 }}>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        marginTop: 10,
+                        fontSize: 12,
+                      }}
+                    >
                       <div>
                         {t("FoundProblem")}
                         <span
@@ -2010,7 +2553,13 @@ export default function AfterLogin() {
       {/* <!-- end modal qr --> */}
 
       {/* <!-- slip verify modal --> */}
-      <div className="modal fade" id="slipVerify" tabindex="-1" aria-labelledby="slipVerifyLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="slipVerify"
+        tabindex="-1"
+        aria-labelledby="slipVerifyLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2025,14 +2574,25 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">Slip Verify</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
                 <div className="slip-verify-content flexCenter">
                   <p className="warning-text">*{t("UsedInCasesWhere")}*</p>
 
-                  <select className="select-promotion" onChange={(event) => _getBankAgentCode(event?.target?.value)}>
+                  <select
+                    className="select-promotion"
+                    onChange={(event) =>
+                      _getBankAgentCode(event?.target?.value)
+                    }
+                  >
                     <option>{t("ChooseABank")}</option>
                     {dataFromLogin?.info?.bankDeposit?.length > 0 &&
                       dataFromLogin?.info?.bankDeposit?.map((bank) => (
@@ -2041,24 +2601,51 @@ export default function AfterLogin() {
                         </option>
                       ))}
                   </select>
-                  <select className="select-promotion" onChange={(event) => setPromotionCode(event?.target?.value)}>
+                  <select
+                    className="select-promotion"
+                    onChange={(event) => setPromotionCode(event?.target?.value)}
+                  >
                     <option>{t("ChooseApromotion")}</option>
                     {dataPromotion?.length > 0 &&
                       dataPromotion?.map((promotion) => (
-                        <option key={promotion?.index} value={promotion?.s_code}>
+                        <option
+                          key={promotion?.index}
+                          value={promotion?.s_code}
+                        >
                           {promotion?.s_promotion}
                         </option>
                       ))}
                   </select>
                   <div>
-                    <input id="fileslip" onChange={handleFileChange} style={{ background: "#FFF", color: "#000", width: "100%" }} type="file" />
+                    <input
+                      id="fileslip"
+                      onChange={handleFileChange}
+                      style={{
+                        background: "#FFF",
+                        color: "#000",
+                        width: "100%",
+                      }}
+                      type="file"
+                    />
                   </div>
-                  <button type="button" style={{ width: 120 }} onClick={uploadFile} className="button-warning">
-                    <img style={{ width: 20, height: 20 }} src="/assets/images/icons8-send-50.png" alt="send" />
+                  <button
+                    type="button"
+                    style={{ width: 120 }}
+                    onClick={uploadFile}
+                    className="button-warning"
+                  >
+                    <img
+                      style={{ width: 20, height: 20 }}
+                      src="/assets/images/icons8-send-50.png"
+                      alt="send"
+                    />
                     {t("upslip")}
                   </button>
                   <p>
-                    {t("FoundProblem")} <a style={{ color: "red" }}>{t("ContactCustomerService")}</a>
+                    {t("FoundProblem")}{" "}
+                    <a style={{ color: "red" }}>
+                      {t("ContactCustomerService")}
+                    </a>
                   </p>
                 </div>
               </div>
@@ -2069,21 +2656,37 @@ export default function AfterLogin() {
       {/* <!-- slip verify end --> */}
 
       {/* <!-- history modal --> */}
-      <div className="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="historyModal"
+        tabindex="-1"
+        aria-labelledby="historyModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
               <div className="modal-header-container">
                 <div className="modal-header">
                   <p className="modal-title">{tabs}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
                 <div className="history-modal-content">
                   <div className="history-tab">
                     <div
-                      className={tabName === "tab-deposit" ? "history-tab-item active" : "history-tab-item"}
+                      className={
+                        tabName === "tab-deposit"
+                          ? "history-tab-item active"
+                          : "history-tab-item"
+                      }
                       onClick={() => _clickTabDeposit("tab-deposit")}
                       onKeyDown={() => ""}
                       id="tab-deposit"
@@ -2091,7 +2694,11 @@ export default function AfterLogin() {
                       {t("Deposit")}
                     </div>
                     <div
-                      className={tabName === "tab-withdraw" ? "history-tab-item active" : "history-tab-item"}
+                      className={
+                        tabName === "tab-withdraw"
+                          ? "history-tab-item active"
+                          : "history-tab-item"
+                      }
                       onClick={() => _clickTabDeposit("tab-withdraw")}
                       onKeyDown={() => ""}
                       id="tab-withdraw"
@@ -2099,7 +2706,11 @@ export default function AfterLogin() {
                       {t("Withdraw")}
                     </div>
                     <div
-                      className={tabName === "tab-bonus" ? "history-tab-item active" : "history-tab-item"}
+                      className={
+                        tabName === "tab-bonus"
+                          ? "history-tab-item active"
+                          : "history-tab-item"
+                      }
                       onClick={() => _clickTabDeposit("tab-bonus")}
                       onKeyDown={() => ""}
                       id="tab-bonus"
@@ -2108,13 +2719,22 @@ export default function AfterLogin() {
                     </div>
                   </div>
                   {/* <!-- ฝาก --> */}
-                  <div className="history-deposit" style={{ display: tabName === "tab-deposit" ? "block" : "none" }}>
+                  <div
+                    className="history-deposit"
+                    style={{
+                      display: tabName === "tab-deposit" ? "block" : "none",
+                    }}
+                  >
                     {dataHistoryDeposit?.length > 0 &&
                       dataHistoryDeposit?.map((deposit, index) => (
                         <div className="history-list" key={deposit?.index}>
                           <div className="history-list-left">
-                            <label className="history-list-label">{t("DepositList")}</label>
-                            <p className="history-list-label">{deposit?.f_amount}</p>
+                            <label className="history-list-label">
+                              {t("DepositList")}
+                            </label>
+                            <p className="history-list-label">
+                              {deposit?.f_amount}
+                            </p>
                             <p className="history-list-label">
                               {t("Remark")} : {deposit?.s_remark}
                             </p>
@@ -2122,25 +2742,44 @@ export default function AfterLogin() {
                           <div className="history-list-right">
                             <div
                               className={`history-status${
-                                deposit?.s_status === "Y" ? " success" : deposit?.s_status === "C" ? " cancel" : " not-success"
+                                deposit?.s_status === "Y"
+                                  ? " success"
+                                  : deposit?.s_status === "C"
+                                  ? " cancel"
+                                  : " not-success"
                               }`}
                             >
-                              {deposit?.s_status === "Y" ? t("Complete") : deposit?.s_status === "C" ? t("cancel") : t("unsuccessful")}
+                              {deposit?.s_status === "Y"
+                                ? t("Complete")
+                                : deposit?.s_status === "C"
+                                ? t("cancel")
+                                : t("unsuccessful")}
                             </div>
-                            <p className="history-date">{deposit?.d_datetime}</p>
+                            <p className="history-date">
+                              {deposit?.d_datetime}
+                            </p>
                           </div>
                         </div>
                       ))}
                   </div>
 
                   {/* <!-- ถอน --> */}
-                  <div className="history-withdraw" style={{ display: tabName === "tab-withdraw" ? "block" : "none" }}>
+                  <div
+                    className="history-withdraw"
+                    style={{
+                      display: tabName === "tab-withdraw" ? "block" : "none",
+                    }}
+                  >
                     {dataHistoryWithdraw?.length > 0 &&
                       dataHistoryWithdraw?.map((withdraw, index) => (
                         <div className="history-list" key={withdraw?.index}>
                           <div className="history-list-left">
-                            <label className="history-list-label">{t("WithdrawalList")}</label>
-                            <p className="history-list-label">{withdraw?.f_amount}</p>
+                            <label className="history-list-label">
+                              {t("WithdrawalList")}
+                            </label>
+                            <p className="history-list-label">
+                              {withdraw?.f_amount}
+                            </p>
                             <p className="history-list-label">
                               {t("Remark")} : {withdraw?.s_remark}
                             </p>
@@ -2148,25 +2787,44 @@ export default function AfterLogin() {
                           <div className="history-list-right">
                             <div
                               className={`history-status${
-                                withdraw?.s_status === "Y" ? " success" : withdraw?.s_status === "C" ? " cancel" : " not-success"
+                                withdraw?.s_status === "Y"
+                                  ? " success"
+                                  : withdraw?.s_status === "C"
+                                  ? " cancel"
+                                  : " not-success"
                               }`}
                             >
-                              {withdraw?.s_status === "Y" ? t("Complete") : withdraw?.s_status === "C" ? t("cancel") : t("unsuccessful")}
+                              {withdraw?.s_status === "Y"
+                                ? t("Complete")
+                                : withdraw?.s_status === "C"
+                                ? t("cancel")
+                                : t("unsuccessful")}
                             </div>
-                            <p className="history-date">{withdraw?.d_datetime}</p>
+                            <p className="history-date">
+                              {withdraw?.d_datetime}
+                            </p>
                           </div>
                         </div>
                       ))}
                   </div>
 
                   {/* <!-- โบนัส --> */}
-                  <div className="history-bonus" style={{ display: tabName === "tab-bonus" ? "block" : "none" }}>
+                  <div
+                    className="history-bonus"
+                    style={{
+                      display: tabName === "tab-bonus" ? "block" : "none",
+                    }}
+                  >
                     {dataHistoryBonus?.length > 0 &&
                       dataHistoryBonus?.map((bonus, index) => (
                         <div className="history-list" key={bonus?.index}>
                           <div className="history-list-left">
-                            <label className="history-list-label">{t("BonusItems")}</label>
-                            <p className="history-list-label">{bonus?.f_amount}</p>
+                            <label className="history-list-label">
+                              {t("BonusItems")}
+                            </label>
+                            <p className="history-list-label">
+                              {bonus?.f_amount}
+                            </p>
                             <p className="history-list-label">
                               {t("Remark")} : {bonus?.s_remark}
                             </p>
@@ -2174,10 +2832,18 @@ export default function AfterLogin() {
                           <div className="history-list-right">
                             <div
                               className={`history-status${
-                                bonus?.s_status === "Y" ? " success" : bonus?.s_status === "C" ? " cancel" : " not-success"
+                                bonus?.s_status === "Y"
+                                  ? " success"
+                                  : bonus?.s_status === "C"
+                                  ? " cancel"
+                                  : " not-success"
                               }`}
                             >
-                              {bonus?.s_status === "Y" ? t("Complete") : bonus?.s_status === "C" ? t("cancel") : t("unsuccessful")}
+                              {bonus?.s_status === "Y"
+                                ? t("Complete")
+                                : bonus?.s_status === "C"
+                                ? t("cancel")
+                                : t("unsuccessful")}
                             </div>
                             <p className="history-date">{bonus?.d_datetime}</p>
                           </div>
@@ -2193,14 +2859,26 @@ export default function AfterLogin() {
       {/* <!-- history modal end --> */}
 
       {/* <!-- bag modal --> */}
-      <div className="modal fade" id="bagModal" tabindex="-1" aria-labelledby="bagModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="bagModal"
+        tabindex="-1"
+        aria-labelledby="bagModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
               <div className="modal-header-container">
                 <div className="modal-header">
                   <p className="modal-title">{t("bag")}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -2218,15 +2896,30 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/icons/icon-promotion.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/icons/icon-promotion.svg"
+                          alt=""
+                        />
                       </div>
                       <p className="bag-modal-menu-title">{t("Promotion")}</p>
                     </div>
-                    <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#depositWithdraw" data-bs-dismiss="modal">
+                    <div
+                      className="bag-modal-menu-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#depositWithdraw"
+                      data-bs-dismiss="modal"
+                    >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/icons/icon-withdraw.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/icons/icon-withdraw.svg"
+                          alt=""
+                        />
                       </div>
-                      <p className="bag-modal-menu-title">{t("DepositWithdraw")}</p>
+                      <p className="bag-modal-menu-title">
+                        {t("DepositWithdraw")}
+                      </p>
                     </div>
                     <div
                       className="bag-modal-menu-item"
@@ -2236,7 +2929,11 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/icons/icon-earn-money.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/icons/icon-earn-money.svg"
+                          alt=""
+                        />
                       </div>
                       <p className="bag-modal-menu-title">{t("MakeMoney")}</p>
                     </div>
@@ -2248,9 +2945,15 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/images/affiliate-image.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/images/affiliate-image.svg"
+                          alt=""
+                        />
                       </div>
-                      <p className="bag-modal-menu-title">{t("WithdrawAffiliate")}</p>
+                      <p className="bag-modal-menu-title">
+                        {t("WithdrawAffiliate")}
+                      </p>
                     </div>
                     <div
                       className="bag-modal-menu-item"
@@ -2261,20 +2964,46 @@ export default function AfterLogin() {
                       data-bs-dismiss="modal"
                     >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/icons/icon-ticket.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/icons/icon-ticket.svg"
+                          alt=""
+                        />
                       </div>
-                      <p className="bag-modal-menu-title">{t("EnterTheCode")}</p>
+                      <p className="bag-modal-menu-title">
+                        {t("EnterTheCode")}
+                      </p>
                     </div>
 
-                    <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#cashbackDetail" data-bs-dismiss="modal">
+                    <div
+                      className="bag-modal-menu-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#cashbackDetail"
+                      data-bs-dismiss="modal"
+                    >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/icons/icon-back-cash.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/icons/icon-back-cash.svg"
+                          alt=""
+                        />
                       </div>
-                      <p className="bag-modal-menu-title">{t("ReturnTheLostAmount")}</p>
+                      <p className="bag-modal-menu-title">
+                        {t("ReturnTheLostAmount")}
+                      </p>
                     </div>
-                    <div className="bag-modal-menu-item" data-bs-toggle="modal" data-bs-target="#spinnerModal" data-bs-dismiss="modal">
+                    <div
+                      className="bag-modal-menu-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#spinnerModal"
+                      data-bs-dismiss="modal"
+                    >
                       <div className="bag-menu-img-container">
-                        <img className="bag-menu-icon" src="/assets/images/icon-teasure.svg" alt="" />
+                        <img
+                          className="bag-menu-icon"
+                          src="/assets/images/icon-teasure.svg"
+                          alt=""
+                        />
                       </div>
                       <p className="bag-modal-menu-title">{t("Wheel")}</p>
                     </div>
@@ -2288,7 +3017,13 @@ export default function AfterLogin() {
       {/* <!-- bag modal end --> */}
 
       {/* <!-- promotion modal --> */}
-      <div className="modal fade" id="promotionModal" tabindex="-1" aria-labelledby="promotionModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="promotionModal"
+        tabindex="-1"
+        aria-labelledby="promotionModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2301,9 +3036,22 @@ export default function AfterLogin() {
               <div className="modal-body">
                 <div className="promotion-modal-content">
                   <div className="promotion-modal-body">
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div onClick={() => _newSl("DELETE")} style={{ color: "red" }} onKeyDown={() => ""}>
-                        <FontAwesomeIcon icon={faChevronCircleLeft} style={{ color: "#FFF", fontSize: 25 }} />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div
+                        onClick={() => _newSl("DELETE")}
+                        style={{ color: "red" }}
+                        onKeyDown={() => ""}
+                      >
+                        <FontAwesomeIcon
+                          icon={faChevronCircleLeft}
+                          style={{ color: "#FFF", fontSize: 25 }}
+                        />
                       </div>
                       <div style={{ padding: 20 }}>
                         {dataPromotion?.length > 0 && (
@@ -2315,21 +3063,38 @@ export default function AfterLogin() {
                           />
                         )}
                       </div>
-                      <div onClick={() => _newSl("ADD")} style={{ color: "green" }} onKeyDown={() => ""}>
-                        <FontAwesomeIcon icon={faChevronCircleRight} style={{ color: "#FFF", fontSize: 25 }} />
+                      <div
+                        onClick={() => _newSl("ADD")}
+                        style={{ color: "green" }}
+                        onKeyDown={() => ""}
+                      >
+                        <FontAwesomeIcon
+                          icon={faChevronCircleRight}
+                          style={{ color: "#FFF", fontSize: 25 }}
+                        />
                       </div>
                     </div>
                     <hr />
                     <div>
                       <div style={{ color: "#4CAF4F" }}>
-                        {t("Deposit")} {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.f_max_amount} รับ{" "}
-                        {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.f_percen}
+                        {t("Deposit")}{" "}
+                        {dataPromotion?.length > 0 &&
+                          dataPromotion[nextSliderPage]?.f_max_amount}{" "}
+                        รับ{" "}
+                        {dataPromotion?.length > 0 &&
+                          dataPromotion[nextSliderPage]?.f_percen}
                       </div>
                       <div>
-                        {t("Ltd")} {dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.i_per_day} {t("TimesDay")}
+                        {t("Ltd")}{" "}
+                        {dataPromotion?.length > 0 &&
+                          dataPromotion[nextSliderPage]?.i_per_day}{" "}
+                        {t("TimesDay")}
                       </div>
                       <div style={{ color: "yellow" }}>{t("details")}</div>
-                      <div>{dataPromotion?.length > 0 && dataPromotion[nextSliderPage]?.s_detail}</div>
+                      <div>
+                        {dataPromotion?.length > 0 &&
+                          dataPromotion[nextSliderPage]?.s_detail}
+                      </div>
                     </div>
                     <div style={{ height: 10 }} />
                     <div>
@@ -2345,7 +3110,9 @@ export default function AfterLogin() {
                           borderRadius: 6,
                           width: 100,
                         }}
-                        onClick={() => apoverPromotion(dataPromotion[nextSliderPage])}
+                        onClick={() =>
+                          apoverPromotion(dataPromotion[nextSliderPage])
+                        }
                       >
                         {t("GET_BONUS")}
                       </button>
@@ -2360,7 +3127,13 @@ export default function AfterLogin() {
       {/* <!-- promotion modal end --> */}
 
       {/* <!-- code modal --> */}
-      <div className="modal fade" id="codeModal" tabindex="-1" aria-labelledby="codeModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="codeModal"
+        tabindex="-1"
+        aria-labelledby="codeModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2375,13 +3148,29 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">{t("EnterTheCode")}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
                 <div className="code-modal-content">
-                  <input type="text" placeholder={t("PleaseEnterTheCode")} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
-                  <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>
+                  <input
+                    type="text"
+                    placeholder={t("PleaseEnterTheCode")}
+                    className="input-box"
+                    onChange={(e) => setCodeCupon(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="button-warning"
+                    data-bs-dismiss="modal"
+                    onClick={() => _addCupon()}
+                  >
                     {t("confirm")}
                   </button>
                 </div>
@@ -2393,7 +3182,13 @@ export default function AfterLogin() {
       {/* <!-- code modal end --> */}
 
       {/* <!-- credit modal --> */}
-      <div className="modal fade" id="creditModal" tabindex="-1" aria-labelledby="creditModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="creditModal"
+        tabindex="-1"
+        aria-labelledby="creditModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2408,7 +3203,13 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">เครดิตฟรี</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -2418,11 +3219,17 @@ export default function AfterLogin() {
                       {/* <!-- show this if thre is free credit --> */}
                       <div className="free-credit">
                         <div className="credit-point-content">
-                          <img className="credit-point-img" src="/assets/images/coin.png" alt="" />
+                          <img
+                            className="credit-point-img"
+                            src="/assets/images/coin.png"
+                            alt=""
+                          />
                           <p className="credit-point-text">+100</p>
                         </div>
                         <div className="credit-button-content">
-                          <p className="credit-button-title">สามารถรับเครดิตฟรีได้</p>
+                          <p className="credit-button-title">
+                            สามารถรับเครดิตฟรีได้
+                          </p>
                           <button type="button" className="btn-credit-confirm">
                             ยินยัน
                           </button>
@@ -2439,7 +3246,13 @@ export default function AfterLogin() {
       {/* <!-- credit modal end --> */}
 
       {/* <!-- diamond modal --> */}
-      <div className="modal fade" id="diamondModal" tabindex="-1" aria-labelledby="diamondModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="diamondModal"
+        tabindex="-1"
+        aria-labelledby="diamondModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2454,7 +3267,13 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">เพชรฟรี</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -2472,11 +3291,17 @@ export default function AfterLogin() {
                       {/* <!-- show this if thre is free credit --> */}
                       <div className="free-credit">
                         <div className="credit-point-content">
-                          <img className="credit-point-img" src="/assets/images/gem.svg" alt="" />
+                          <img
+                            className="credit-point-img"
+                            src="/assets/images/gem.svg"
+                            alt=""
+                          />
                           <p className="credit-point-text">+100</p>
                         </div>
                         <div className="credit-button-content">
-                          <p className="credit-button-title">สามารถรับเพชรฟรีได้</p>
+                          <p className="credit-button-title">
+                            สามารถรับเพชรฟรีได้
+                          </p>
                           <button type="button" className="btn-credit-confirm">
                             ยินยัน
                           </button>
@@ -2493,7 +3318,13 @@ export default function AfterLogin() {
       {/* <!-- diamond modal end --> */}
 
       {/* <!-- spinner modal --> */}
-      <div className="modal fade" id="spinnerModal" tabindex="-1" aria-labelledby="spinnerModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="spinnerModal"
+        tabindex="-1"
+        aria-labelledby="spinnerModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2508,7 +3339,13 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">{t("Wheel")}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -2527,12 +3364,25 @@ export default function AfterLogin() {
                       />
                     )}
                     <br />
-                    <div style={{ margintTop: 10, fontWeight: 500, fontSize: 16, textDecoration: "underline" }}> {t("details")}</div>
+                    <div
+                      style={{
+                        margintTop: 10,
+                        fontWeight: 500,
+                        fontSize: 16,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      {" "}
+                      {t("details")}
+                    </div>
                     <p style={{ margin: "none" }}>
-                      {t("YouCanSpinAll")} {limitSpinWheel?.i_max} {t("times")} {t("RightsAlreadyExercised")} {notCurrentPoint} {t("times")}
+                      {t("YouCanSpinAll")} {limitSpinWheel?.i_max} {t("times")}{" "}
+                      {t("RightsAlreadyExercised")} {notCurrentPoint}{" "}
+                      {t("times")}
                     </p>
                     <p style={{ margin: "none" }}>
-                      {t("WithinTheDay")} {limitSpinWheel?.i_per_day} {t("times")}
+                      {t("WithinTheDay")} {limitSpinWheel?.i_per_day}{" "}
+                      {t("times")}
                     </p>
                   </div>
                 </div>
@@ -2544,7 +3394,13 @@ export default function AfterLogin() {
       {/* <!-- spinner modal end --> */}
 
       {/* <!-- earn money modal --> */}
-      <div className="modal fade" id="earnMoneyModal" tabindex="-1" aria-labelledby="earnMoneyModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="earnMoneyModal"
+        tabindex="-1"
+        aria-labelledby="earnMoneyModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2559,19 +3415,32 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">{t("MakeMoney")}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
                 <div className="earn-modal-content">
                   <div className="border-input-gold">
                     <div className="link-shared">
-                      <p className="link-shared-title">{t("ReferAFriendLink")}</p>
-                      <p className="link-shared-subtitle">{t("YouwillEarnFree")}</p>
+                      <p className="link-shared-title">
+                        {t("ReferAFriendLink")}
+                      </p>
+                      <p className="link-shared-subtitle">
+                        {t("YouwillEarnFree")}
+                      </p>
                       <input
                         type="text"
                         className="link-shared-input"
-                        value={dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl.split("=")[1]}
+                        value={
+                          dataFromLogin?.info?.configLobby?.s_link_shorturl +
+                          dataFromLogin?.info?.shorturl.split("=")[1]
+                        }
                       />
                       {/* <input type="text" className="link-shared-input" value={dataFromLogin?.info?.shorturl} /> */}
 
@@ -2581,7 +3450,11 @@ export default function AfterLogin() {
                             type="button"
                             className="btn-copy-link"
                             onClick={() =>
-                              _copyLinkAffiliate(dataFromLogin?.info?.configLobby?.s_link_shorturl + dataFromLogin?.info?.shorturl.split("=")[1])
+                              _copyLinkAffiliate(
+                                dataFromLogin?.info?.configLobby
+                                  ?.s_link_shorturl +
+                                  dataFromLogin?.info?.shorturl.split("=")[1]
+                              )
                             }
                           >
                             {t("CopyLink")}
@@ -2598,7 +3471,13 @@ export default function AfterLogin() {
       </div>
 
       {/*<------\\ history Affiliate //--------> */}
-      <div className="modal fade" id="earnMoneyDetailModal" tabindex="-1" aria-labelledby="earnMoneyDetailModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="earnMoneyDetailModal"
+        tabindex="-1"
+        aria-labelledby="earnMoneyDetailModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border" style={{ width: 490 }}>
             <div className="modal-content">
@@ -2613,7 +3492,13 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">{t("AffiliateShare")}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -2624,17 +3509,37 @@ export default function AfterLogin() {
                         <div
                           onClick={() => _tabAffiliate("overview")}
                           onKeyDown={() => ""}
-                          className={tabNameAffiliate === "overview" ? "earn-tab-item active" : "earn-tab-item"}
+                          className={
+                            tabNameAffiliate === "overview"
+                              ? "earn-tab-item active"
+                              : "earn-tab-item"
+                          }
                         >
                           {t("Overview")}
                         </div>
-                        <div className="border-input-gold earn-tab-item-2" onClick={() => _tabAffiliate("income")} onKeyDown={() => ""}>
-                          <div className={tabNameAffiliate === "income" ? "earn-tab-item active" : "earn-tab-item"}>{t("income")}</div>
+                        <div
+                          className="border-input-gold earn-tab-item-2"
+                          onClick={() => _tabAffiliate("income")}
+                          onKeyDown={() => ""}
+                        >
+                          <div
+                            className={
+                              tabNameAffiliate === "income"
+                                ? "earn-tab-item active"
+                                : "earn-tab-item"
+                            }
+                          >
+                            {t("income")}
+                          </div>
                         </div>
                         <div
                           onClick={() => _tabAffiliate("withdraw-income")}
                           onKeyDown={() => ""}
-                          className={tabNameAffiliate === "withdraw-income" ? "earn-tab-item active" : "earn-tab-item"}
+                          className={
+                            tabNameAffiliate === "withdraw-income"
+                              ? "earn-tab-item active"
+                              : "earn-tab-item"
+                          }
                         >
                           {t("WithdrawIncome")}
                         </div>
@@ -2642,11 +3547,22 @@ export default function AfterLogin() {
                     </div>
                   </div>
 
-                  <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
+                  <div
+                    className="earn-detail-data"
+                    style={{
+                      display:
+                        tabNameAffiliate === "overview" ? "block" : "none",
+                    }}
+                  >
                     <div className="filter-date">
                       <p className="filter-label">{t("DateOverview")}</p>
                       {/* <Calendar date={new Date()} /> */}
-                      <input className="filter-date-input" value={overviewDate} onChange={(e) => _getOverview(e.target.value)} type="month" />
+                      <input
+                        className="filter-date-input"
+                        value={overviewDate}
+                        onChange={(e) => _getOverview(e.target.value)}
+                        type="month"
+                      />
                     </div>
 
                     <div className="border-input-gold">
@@ -2664,10 +3580,16 @@ export default function AfterLogin() {
                           {dataOverview.length > 0 &&
                             dataOverview?.map((item, index) => (
                               <div className="tr-earn">
-                                <span className="td-earn">{item?.d_create}</span>
-                                <span className="td-earn">{item?.regisCount}</span>
+                                <span className="td-earn">
+                                  {item?.d_create}
+                                </span>
+                                <span className="td-earn">
+                                  {item?.regisCount}
+                                </span>
                                 <span className="td-earn">{item?.deposit}</span>
-                                <span className="td-earn">{item?.f_affiliate_credit}</span>
+                                <span className="td-earn">
+                                  {item?.f_affiliate_credit}
+                                </span>
                               </div>
                             ))}
                         </div>
@@ -2676,7 +3598,10 @@ export default function AfterLogin() {
                     <br />
                     <div className="filter-date">
                       <p className="filter-label">{t("MonthlyOverview")}</p>
-                      <select className="filter-date-input" onChange={(event) => _selectYear(event?.target?.value)}>
+                      <select
+                        className="filter-date-input"
+                        onChange={(event) => _selectYear(event?.target?.value)}
+                      >
                         {years.map((year) => (
                           <option key={year} value={year}>
                             {year}
@@ -2701,8 +3626,12 @@ export default function AfterLogin() {
                             dataOverviewYears?.map((item, index) => (
                               <div className="tr-earn">
                                 <span className="td-earn">{item?.month}</span>
-                                <span className="td-earn">{item?.regisCount}</span>
-                                <span className="td-earn">{item?.f_affiliate_credit}</span>
+                                <span className="td-earn">
+                                  {item?.regisCount}
+                                </span>
+                                <span className="td-earn">
+                                  {item?.f_affiliate_credit}
+                                </span>
                                 <span className="td-earn">{item?.deposit}</span>
                               </div>
                             ))}
@@ -2711,7 +3640,12 @@ export default function AfterLogin() {
                     </div>
                   </div>
 
-                  <div className="earn-detail-data" style={{ display: tabNameAffiliate === "income" ? "block" : "none" }}>
+                  <div
+                    className="earn-detail-data"
+                    style={{
+                      display: tabNameAffiliate === "income" ? "block" : "none",
+                    }}
+                  >
                     <div className="filter-date">
                       <p className="filter-label">{t("IncomeHistory")}</p>
                       <div style={{ float: "right", display: "flex" }}>
@@ -2738,7 +3672,9 @@ export default function AfterLogin() {
                         <div className="border-input-gold">
                           <div className="th-earn-container">
                             <span className="th-earn">{t("BillingCycle")}</span>
-                            <span className="th-earn">{t("AmountOfMoney")}</span>
+                            <span className="th-earn">
+                              {t("AmountOfMoney")}
+                            </span>
                           </div>
                         </div>
 
@@ -2747,7 +3683,9 @@ export default function AfterLogin() {
                             dataIncome?.map((item, index) => (
                               <div className="tr-earn" key={index}>
                                 <div className="td-earn">{item?.d_date}</div>
-                                <div className="td-earn">{item?.f_affiliate}</div>
+                                <div className="td-earn">
+                                  {item?.f_affiliate}
+                                </div>
                               </div>
                             ))}
                         </div>
@@ -2755,19 +3693,41 @@ export default function AfterLogin() {
                     </div>
                   </div>
 
-                  <div className="earn-detail-data" style={{ display: tabNameAffiliate === "withdraw-income" ? "block" : "none" }}>
+                  <div
+                    className="earn-detail-data"
+                    style={{
+                      display:
+                        tabNameAffiliate === "withdraw-income"
+                          ? "block"
+                          : "none",
+                    }}
+                  >
                     <div className="border-input-gold">
                       <div className="form-withdraw-income">
                         <div className="form-withdraw-group">
-                          <label className="form-withdraw-label">{t("CurrentIncome")}</label>
-                          <input type="text" value={dataFromLogin?.balance?.affiliate} className="form-withdraw-input" />
+                          <label className="form-withdraw-label">
+                            {t("CurrentIncome")}
+                          </label>
+                          <input
+                            type="text"
+                            value={dataFromLogin?.balance?.affiliate}
+                            className="form-withdraw-input"
+                          />
                         </div>
                         {/* <div className="form-withdraw-group">
                                                     <label className="form-withdraw-label">จำนวนเงินที่ต้องการถอน</label>
                                                     <input type="text" placeholder="ถอนไม่มีขั้นต่ำ" className="form-withdraw-input" />
                                                 </div> */}
 
-                        <button type="button" onClick={() => _getReceiveAffiliate(dataFromLogin?.balance?.affiliate)} className="btn-withdraw-income">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            _getReceiveAffiliate(
+                              dataFromLogin?.balance?.affiliate
+                            )
+                          }
+                          className="btn-withdraw-income"
+                        >
                           {t("WithdrawIncome")}
                         </button>
                       </div>
@@ -2782,7 +3742,9 @@ export default function AfterLogin() {
                         <div className="border-input-gold">
                           <div className="th-earn-container">
                             <span className="th-earn">{t("DateTime")}</span>
-                            <span className="th-earn">{t("AmountOfMoney")}</span>
+                            <span className="th-earn">
+                              {t("AmountOfMoney")}
+                            </span>
                           </div>
                         </div>
 
@@ -2790,8 +3752,12 @@ export default function AfterLogin() {
                           {dataHistoryAffiliate?.length > 0 &&
                             dataHistoryAffiliate?.map((item, index) => (
                               <div className="tr-earn">
-                                <span className="td-earn">{item?.d_create}</span>
-                                <span className="td-earn">{item?.f_amount}</span>
+                                <span className="td-earn">
+                                  {item?.d_create}
+                                </span>
+                                <span className="td-earn">
+                                  {item?.f_amount}
+                                </span>
                               </div>
                             ))}
                         </div>
@@ -2807,7 +3773,13 @@ export default function AfterLogin() {
       {/*<------\\ history Affiliate //--------> */}
 
       {/* <!-- change password modal --> */}
-      <div className="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="changePasswordModal"
+        tabindex="-1"
+        aria-labelledby="changePasswordModalLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog">
           <div className="modal-border">
             <div className="modal-content">
@@ -2822,7 +3794,13 @@ export default function AfterLogin() {
                     data-bs-dismiss="modal"
                   />
                   <p className="modal-title">{t("ChangePassword")}</p>
-                  <img src="/assets/icons/icon-close-modal.svg" className="modal-icon-close" data-bs-dismiss="modal" aria-label="Close" alt="" />
+                  <img
+                    src="/assets/icons/icon-close-modal.svg"
+                    className="modal-icon-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="modal-body">
@@ -2854,8 +3832,14 @@ export default function AfterLogin() {
                       onChange={(e) => setNewPasswordVery(e.target.value)}
                     />
                   </div>
-                  <div style={{ textAlign: "center", color: "red" }}>{reMessage}</div>
-                  <button type="button" className="button-warning" onClick={() => _ChangePassword()}>
+                  <div style={{ textAlign: "center", color: "red" }}>
+                    {reMessage}
+                  </div>
+                  <button
+                    type="button"
+                    className="button-warning"
+                    onClick={() => _ChangePassword()}
+                  >
                     {t("confirm")}
                   </button>
                 </div>
@@ -2865,7 +3849,13 @@ export default function AfterLogin() {
         </div>
       </div>
       {/* <!-- confirm logout modal --> */}
-      <div className="modal fade" id="confirmLogout" tabindex="-1" aria-labelledby="confirmLogoutLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="confirmLogout"
+        tabindex="-1"
+        aria-labelledby="confirmLogoutLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-border">
             <div className="modal-content">
@@ -2875,16 +3865,35 @@ export default function AfterLogin() {
                 </div>
               </div>
               <div className="modal-body">
-                <div className="code-modal-content" style={{ textAlign: "center" }}>
+                <div
+                  className="code-modal-content"
+                  style={{ textAlign: "center" }}
+                >
                   <div>{t("DoYouWantToLog")}</div>
                 </div>
-                <div style={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    alignItems: "center",
+                  }}
+                >
                   {/* <a href={dataBackOffice?.linkLogOut} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout"> */}
-                  <a href={Constant.LINK_WORDPRESS} onClick={() => _checkLogout(dataBackOffice?.linkLogOut)} className="btn-confirm-logout">
+                  <a
+                    href={Constant.LINK_WORDPRESS}
+                    onClick={() => _checkLogout(dataBackOffice?.linkLogOut)}
+                    className="btn-confirm-logout"
+                  >
                     {" "}
                     {t("confirm")}
                   </a>
-                  <button type="button" className="btn-cancel-confirm-logout" data-bs-dismiss="modal">
+                  <button
+                    type="button"
+                    className="btn-cancel-confirm-logout"
+                    data-bs-dismiss="modal"
+                  >
                     {t("cancel")}
                   </button>
                 </div>
@@ -2896,7 +3905,13 @@ export default function AfterLogin() {
       {/* <!-- confirm logout modal end --> */}
 
       {/* <!-- confirm logout modal --> */}
-      <div className="modal fade" id="historyCashback" tabindex="-1" aria-labelledby="history-cashbackLabel" aria-hidden="true">
+      <div
+        className="modal fade"
+        id="historyCashback"
+        tabindex="-1"
+        aria-labelledby="history-cashbackLabel"
+        aria-hidden="true"
+      >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-border">
             <div className="modal-content">
@@ -2959,23 +3974,46 @@ export default function AfterLogin() {
 
       <footer className="footer" style={{ zIndex: 5 }}>
         <div className="menu-wrapper">
-          <div className="footer-item flexCenter" data-bs-toggle="modal" data-bs-target="#historyModal">
+          <div
+            className="footer-item flexCenter"
+            data-bs-toggle="modal"
+            data-bs-target="#historyModal"
+          >
             <img src="/assets/icons/History.svg" alt="login" />
             <p className="font-20">{t("Record")}</p>
           </div>
-          <div className="footer-item flexCenter" data-bs-toggle="modal" data-bs-target="#promotionModal" data-bs-dismiss="modal">
+          <div
+            className="footer-item flexCenter"
+            data-bs-toggle="modal"
+            data-bs-target="#promotionModal"
+            data-bs-dismiss="modal"
+          >
             <img src="/assets/icons/gift.svg" alt="login" />
             <p className="font-20">{t("Promotion")}</p>
           </div>
-          <div className="footer-item flexCenter" data-bs-toggle="modal" data-bs-target="#depositWithdraw">
+          <div
+            className="footer-item flexCenter"
+            data-bs-toggle="modal"
+            data-bs-target="#depositWithdraw"
+          >
             <img src="/assets/icons/return-money.svg" alt="login" />
             <p className="font-20">{t("DepositWithdraw")}</p>
           </div>
-          <div className="footer-item flexCenter" data-bs-toggle="modal" data-bs-target="#bagModal">
+          <div
+            className="footer-item flexCenter"
+            data-bs-toggle="modal"
+            data-bs-target="#bagModal"
+          >
             <img src="/assets/icons/money-bag.svg" alt="login" />
             <p className="font-20">{t("bag")}</p>
           </div>
-          <a target="_blank" href={linkLine} className="footer-item flexCenter" style={{ textDecoration: "none" }} rel="noreferrer">
+          <a
+            target="_blank"
+            href={linkLine}
+            className="footer-item flexCenter"
+            style={{ textDecoration: "none" }}
+            rel="noreferrer"
+          >
             <img src="/assets/images/contact-admin.svg" alt="login" />
             <p className="font-20">{t("ContactUs")}</p>
           </a>
@@ -2994,7 +4032,12 @@ export default function AfterLogin() {
             </div>
             <div className="modal-body">
               <div className="detail-card-scb1">
-                <div className="card-scb1" style={{ background: depositBankList && depositBankList?.background }}>
+                <div
+                  className="card-scb1"
+                  style={{
+                    background: depositBankList && depositBankList?.background,
+                  }}
+                >
                   <div className="left">
                     <p>{depositBankList && depositBankList?.s_fname_th}</p>
                     <p>{depositBankList && depositBankList?.s_account_name}</p>
@@ -3003,7 +4046,9 @@ export default function AfterLogin() {
                       <span>
                         <img
                           src="/assets/images/icon-coppy.svg"
-                          onClick={() => _copyAccountNo(depositBankList?.s_account_no)}
+                          onClick={() =>
+                            _copyAccountNo(depositBankList?.s_account_no)
+                          }
                           alt=""
                           style={{ width: 30, height: 30, marginBottom: -3 }}
                         />
@@ -3012,28 +4057,48 @@ export default function AfterLogin() {
                   </div>
                   <div className="right">
                     <div className="bank">
-                      <h3 style={{ textTransform: "uppercase" }}>{depositBankList && depositBankList?.s_icon.split(".")[0]}</h3>
+                      <h3 style={{ textTransform: "uppercase" }}>
+                        {depositBankList &&
+                          depositBankList?.s_icon.split(".")[0]}
+                      </h3>
                       <div style={{ borderRadius: "100%", marginTop: -10 }}>
-                        <img src={`/assets/images/bank/${depositBankList && depositBankList?.s_icon}`} alt="scb" />
+                        <img
+                          src={`/assets/images/bank/${
+                            depositBankList && depositBankList?.s_icon
+                          }`}
+                          alt="scb"
+                        />
                       </div>
                     </div>
                     <div style={{ marginLeft: 50 }}>
-                      <div className="deposit-bank-title-pc">{t("ChangeBank")}</div>
+                      <div className="deposit-bank-title-pc">
+                        {t("ChangeBank")}
+                      </div>
                       <img
                         onClick={() => _getOptionBank()}
                         onKeyDown={() => ""}
-                        style={{ width: 30, height: 30, display: disableArrow === true ? "none" : "block", cursor: "pointer" }}
+                        style={{
+                          width: 30,
+                          height: 30,
+                          display: disableArrow === true ? "none" : "block",
+                          cursor: "pointer",
+                        }}
                         src="/assets/images/arrow-bottom.svg"
                         alt=""
                       />
                       <select
                         onChange={(e) => _getOptionBank2(e.target.value)}
                         className="deposit-bank-list-pc"
-                        style={{ display: disableArrow === true ? "block" : "none" }}
+                        style={{
+                          display: disableArrow === true ? "block" : "none",
+                        }}
                       >
                         {dataFromLogin?.info?.bankDeposit?.length > 0 &&
                           dataFromLogin?.info?.bankDeposit?.map((bank) => (
-                            <option key={bank?.index} value={JSON.stringify(bank)}>
+                            <option
+                              key={bank?.index}
+                              value={JSON.stringify(bank)}
+                            >
                               {bank?.s_fname_th}
                             </option>
                           ))}
@@ -3089,8 +4154,18 @@ export default function AfterLogin() {
             </div>
             <div className="modal-body">
               <div className="code-modal-content">
-                <input type="text" placeholder={"PleaseEnterTheCode"} className="input-box" onChange={(e) => setCodeCupon(e.target.value)} />
-                <button type="button" className="button-warning" data-bs-dismiss="modal" onClick={() => _addCupon()}>
+                <input
+                  type="text"
+                  placeholder={"PleaseEnterTheCode"}
+                  className="input-box"
+                  onChange={(e) => setCodeCupon(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="button-warning"
+                  data-bs-dismiss="modal"
+                  onClick={() => _addCupon()}
+                >
                   {t("confirm")}
                 </button>
               </div>
