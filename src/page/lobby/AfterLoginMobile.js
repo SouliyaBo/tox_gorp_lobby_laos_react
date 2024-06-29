@@ -673,20 +673,25 @@ export default function AfterLoginMobile() {
     }
   };
 
-  const _getRegister = async () => {
+  const _getRegister = async (overviewDate) => {
     const _res = await axios({
       method: "post",
       url: `${Constant.SERVER_URL}/Affiliate/Inquiry/Register`,
       data: {
         s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
-        d_date: "2023-09",
+        d_date: overviewDate,
         page_start: 0,
       },
     });
     if (_res?.data?.statusCode === 0) {
       setDataOverview(_res?.data?.data?.list);
     }
+  };
+
+  const _getOverview = (date) => {
+    setOverviewDate(date);
+    _getRegister(date);
   };
 
   const _selectYear = (event) => {
@@ -700,7 +705,7 @@ export default function AfterLoginMobile() {
       data: {
         s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
-        d_date: year,
+        d_year: year,
         page_start: 0,
       },
     });
@@ -2476,7 +2481,14 @@ export default function AfterLoginMobile() {
                     <div className="earn-detail-data" style={{ display: tabNameAffiliate === "overview" ? "block" : "none" }}>
                       <div className="filter-date">
                         <p className="filter-label">{t("DateOverview")}</p>
-                        <input className="filter-date-input" value={overviewDate} type="month" name="" id="" />
+                        <input
+                          className="filter-date-input"
+                          value={overviewDate}
+                          onChange={(e) => _getOverview(e.target.value)}
+                          type="month"
+                          name=""
+                          id=""
+                        />
                       </div>
 
                       <div className="border-input-gold">

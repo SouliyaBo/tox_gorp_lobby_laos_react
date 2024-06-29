@@ -504,7 +504,7 @@ export default function AfterLogin() {
       method: "post",
       url: `${Constant.SERVER_URL}/Game/ListGame`,
       data: {
-        s_agent_code: Constant.AGEN_CODE,
+        s_agent_code: Constant.AGENT_CODE,
         s_brand_code: value?.s_brand_code,
         s_username: dataFromLogin?.username,
       },
@@ -526,7 +526,7 @@ export default function AfterLogin() {
         s_game_code: value?.s_type === "CASINO" ? "B001" : value?.s_type === "SPORT" ? "B001" : value?.s_game_code,
         s_brand_code: value?.s_brand_code,
         s_username: dataFromLogin?.username,
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         isMobile: deviceType === "Mobile" ? "true" : "false",
         ip_client: "184.22.14.167",
         s_lang: "th",
@@ -558,7 +558,7 @@ export default function AfterLogin() {
   const _withdrawMoney = async () => {
     try {
       const _data = {
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
         f_amount: amountWithdraw,
         i_bank: iBank === "" ? dataFromLogin?.info?.bankList[0]?.id : iBank,
@@ -611,7 +611,7 @@ export default function AfterLogin() {
   const _addCupon = async () => {
     try {
       const _data = await axios.post(`${Constant.SERVER_URL}/Coupon/Receive`, {
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
         s_code: codeCupon,
         actionBy: "ADM",
@@ -651,7 +651,7 @@ export default function AfterLogin() {
   const apoverPromotion = async (value) => {
     try {
       const _resAppover = await axios.post(`${Constant.SERVER_URL}/Deposit/Promotion/Select`, {
-        s_agent_code: Constant?.AGEN_CODE,
+        s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
         s_type: "AUTO",
         s_prm_code: value?.s_code,
@@ -886,7 +886,7 @@ export default function AfterLogin() {
       data: {
         s_agent_code: Constant?.AGENT_CODE,
         s_username: dataFromLogin?.username,
-        d_date: year,
+        d_year: year,
         page_start: 0,
       },
     });
@@ -963,6 +963,7 @@ export default function AfterLogin() {
   };
 
   const _getOverview = (date) => {
+    setOverviewDate(date);
     _getRegister(date);
   };
 
